@@ -10,7 +10,7 @@ interface GetAllLeadResponse {
 
 export const leadApi = baseApi.injectEndpoints({
 
-  // CREATE USER
+  // CREATE USER For Admin
   endpoints: (builder) => ({
     createLead: builder.mutation<IResponse<ILeadResponse>, LeadInput>({
       query: (formData) => ({
