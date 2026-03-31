@@ -76,6 +76,7 @@ const LeadUpdateModal = ({ open, onOpenChange, leadId }: Props) => {
         resolver: zodResolver(LeadUpdateSchema),
     });
 
+
     //fill form when data
     useEffect(() => {
         if (data?.data) {
@@ -89,6 +90,7 @@ const LeadUpdateModal = ({ open, onOpenChange, leadId }: Props) => {
             });
         }
     }, [data, reset]);
+
 
     // Submit handler
     const onSubmit = async (formData: LeadFormData) => {
@@ -176,6 +178,7 @@ const LeadUpdateModal = ({ open, onOpenChange, leadId }: Props) => {
                                     <div className="space-y-1.5">
                                         <Label>Status</Label>
                                         <Select
+                                            key={field.value}
                                             value={field.value}
                                             onValueChange={field.onChange}
                                         >

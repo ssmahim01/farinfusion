@@ -360,8 +360,9 @@ const schema = z.object({
     title: z.string().min(2, "Title must be at least 2 characters"),
     brand: z.string().min(1, "Brand is required"),
     category: z.string().min(1, "Category is required"),
+    buyingPrice: z.preprocess((val) => Number(val), z.number().min(0)),
     price: z.preprocess((val) => Number(val), z.number().min(0)),
-    totalAddedStock: z.preprocess((val) => Number(val), z.number().min(0)),
+    availableStock: z.preprocess((val) => Number(val), z.number().min(0)),
     discountPrice: z.preprocess(
         (val) => (val === "" ? undefined : Number(val)),
         z.number().optional()
@@ -514,7 +515,13 @@ export default function CreateProduct() {
                         </div>
 
                         {/* PRICE */}
-                        <div className="grid md:grid-cols-3 gap-4">
+                        <div className="grid md:grid-cols-4 gap-4">
+
+                            <div className="space-y-2">
+                                <Label>Buying Price</Label>
+                                <Input type="number" {...register("buyingPrice")} />
+                                <p className="text-red-500 text-xs">{errors.buyingPrice?.message}</p>
+                            </div>
 
                             <div className="space-y-2">
                                 <Label>Price</Label>
@@ -529,10 +536,9 @@ export default function CreateProduct() {
 
                             <div className="space-y-2">
                                 <Label>Stock</Label>
-                                <Input type="number" {...register("totalAddedStock")} />
-                                <p className="text-red-500 text-xs">{errors.totalAddedStock?.message}</p>
+                                <Input type="number" {...register("availableStock")} />
+                                <p className="text-red-500 text-xs">{errors.availableStock?.message}</p>
                             </div>
-
                         </div>
 
                         {/* DESCRIPTION */}
