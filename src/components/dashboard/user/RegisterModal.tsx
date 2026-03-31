@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import { toast } from "sonner";
 import { Eye, EyeOff, Plus, Upload, X } from "lucide-react";
 import Image from "next/image";
@@ -24,6 +24,8 @@ import { Label } from "@/components/ui/label";
 
 import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
 import { useRegisterMutation } from "@/redux/features/user/user.api";
+import {Separator} from "@/components/ui/separator";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 enum Role {
   ADMIN = "ADMIN",
@@ -80,14 +82,12 @@ function PasswordField({
         type={show ? "text" : "password"}
         placeholder={placeholder}
         {...registration}
-        className="border-[#4a5568] bg-[#1e2829] text-white placeholder:text-[#96999A] pr-10
-          focus-visible:ring-[#c9a84c] focus-visible:border-[#c9a84c] transition-colors"
       />
       <button
         type="button"
         onClick={() => setShow((v) => !v)}
         aria-label={show ? "Hide password" : "Show password"}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#96999A] hover:text-[#c9a84c] transition-colors"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#96999A] cursor-pointer"
       >
         {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </button>
@@ -109,6 +109,7 @@ export default function RegisterModal() {
     handleSubmit,
     formState: { errors },
     reset,
+    control
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema) as any,
     defaultValues: {
@@ -184,7 +185,7 @@ export default function RegisterModal() {
       toast.error("Registration failed. Please try again.");
     }
   };
- 
+
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!val) handleClose(); else setOpen(true); }}>
       {/* Trigger */}
@@ -196,22 +197,14 @@ export default function RegisterModal() {
       </DialogTrigger>
 
       <DialogContent
-        className="sm:max-w-md max-h-[90vh] overflow-y-auto
-          border border-[#4a5568] bg-[#2D3436] text-white p-6"
+        className="sm:max-w-md max-h-[90vh] overflow-y-auto p-6"
       >
         {/* Gold accent line */}
-        <div className="absolute left-0 right-0 top-0 h-0.5 rounded-t-lg bg-linear-to-r from-transparent via-[#c9a84c] to-transparent" />
+        <div/>
 
         {/* Header */}
-        <DialogHeader className="flex flex-col items-center gap-2 pb-2">
-          <Image
-            src={logo}
-            alt="Farin Fusion"
-            height={60}
-            width={120}
-            className="object-contain"
-          />
-          <DialogTitle className="text-xl font-bold tracking-widest text-[#c9a84c] uppercase">
+        <DialogHeader className="text-center pb-2">
+          <DialogTitle className="text-xl font-bold tracking-widest  uppercase">
             Create Account
           </DialogTitle>
           <DialogDescription className="text-[#96999A] text-sm tracking-wide">
@@ -220,14 +213,14 @@ export default function RegisterModal() {
         </DialogHeader>
 
         {/* Divider */}
-        <div className="my-1 h-px bg-[#3d4f51]" />
+        <Separator />
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
 
           {/* Full Name */}
           <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">
+            <Label htmlFor="name" className="uppercase">
               Full Name
             </Label>
             <Input
@@ -235,15 +228,13 @@ export default function RegisterModal() {
               type="text"
               placeholder="Enter your full name"
               {...registerField("name")}
-              className="border-[#4a5568] bg-[#1e2829] text-white placeholder:text-[#96999A]
-                focus-visible:ring-[#c9a84c] focus-visible:border-[#c9a84c] transition-colors"
             />
             {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
           </div>
 
           {/* Email */}
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">
+            <Label htmlFor="email" className="uppercase">
               Email Address
             </Label>
             <Input
@@ -251,15 +242,13 @@ export default function RegisterModal() {
               type="email"
               placeholder="you@example.com"
               {...registerField("email")}
-              className="border-[#4a5568] bg-[#1e2829] text-white placeholder:text-[#96999A]
-                focus-visible:ring-[#c9a84c] focus-visible:border-[#c9a84c] transition-colors"
             />
             {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}
           </div>
 
           {/* Phone */}
           <div className="space-y-1.5">
-            <Label htmlFor="phone" className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">
+            <Label htmlFor="phone" className="uppercase">
               Phone Number
             </Label>
             <Input
@@ -267,15 +256,13 @@ export default function RegisterModal() {
               type="tel"
               placeholder="+880 1XXX-XXXXXX"
               {...registerField("phone")}
-              className="border-[#4a5568] bg-[#1e2829] text-white placeholder:text-[#96999A]
-                focus-visible:ring-[#c9a84c] focus-visible:border-[#c9a84c] transition-colors"
             />
             {errors.phone && <p className="text-xs text-red-400">{errors.phone.message}</p>}
           </div>
 
           {/* Address */}
           <div className="space-y-1.5">
-            <Label htmlFor="address" className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">
+            <Label htmlFor="address" className="uppercase">
               Address
             </Label>
             <Textarea
@@ -283,23 +270,20 @@ export default function RegisterModal() {
               placeholder="House no., Road, Area, City"
               rows={3}
               {...registerField("address")}
-              className="border-[#4a5568] bg-[#1e2829] text-white placeholder:text-[#96999A]
-                focus-visible:ring-[#c9a84c] focus-visible:border-[#c9a84c]
-                resize-none transition-colors"
             />
             {errors.address && <p className="text-xs text-red-400">{errors.address.message}</p>}
           </div>
 
           {/* Picture Upload */}
           <div className="space-y-1.5">
-            <Label className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">
+            <Label className="uppercase">
               Profile Picture{" "}
               <span className="text-[#96999A] normal-case font-normal">(optional)</span>
             </Label>
 
             {picturePreview ? (
               // ── Preview ──
-              <div className="relative flex items-center gap-3 rounded-md border border-[#4a5568] bg-[#1e2829] p-2">
+              <div className="relative flex items-center gap-3 rounded-md border border-[#4a5568] p-2">
                 <img
                   src={picturePreview}
                   alt="Preview"
@@ -324,12 +308,11 @@ export default function RegisterModal() {
               <label
                 htmlFor="picture-upload"
                 className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed
-                  border-[#4a5568] bg-[#1e2829] px-4 py-6 cursor-pointer
-                  hover:border-[#c9a84c] hover:bg-[#1e2829]/80 transition-colors group"
+                  border-[#4a5568]  px-4 py-6 cursor-pointer hover:bg-gray-200"
               >
-                <Upload className="h-6 w-6 text-[#96999A] group-hover:text-[#c9a84c] transition-colors" />
+                <Upload className="h-6 w-6 text-[#96999A]   " />
                 <div className="text-center">
-                  <p className="text-sm text-[#96999A] group-hover:text-white transition-colors">
+                  <p className="text-sm">
                     Click to upload photo
                   </p>
                   <p className="text-xs text-[#96999A]/70">PNG, JPG, WEBP — max 2MB</p>
@@ -350,7 +333,7 @@ export default function RegisterModal() {
 
             {/* Salary */}
             <div className="space-y-1.5">
-              <Label htmlFor="salary" className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">
+              <Label htmlFor="salary" className="uppercase">
                 Salary{" "}
                 <span className="text-[#96999A] normal-case font-normal">(optional)</span>
               </Label>
@@ -360,8 +343,6 @@ export default function RegisterModal() {
                 min={0}
                 placeholder="e.g. 25000"
                 {...registerField("salary")}
-                className="border-[#4a5568] bg-[#1e2829] text-white placeholder:text-[#96999A]
-                  focus-visible:ring-[#c9a84c] focus-visible:border-[#c9a84c] transition-colors"
               />
               {errors.salary && <p className="text-xs text-red-400">{errors.salary.message}</p>}
             </div>
@@ -371,21 +352,28 @@ export default function RegisterModal() {
               <Label htmlFor="role" className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">
                 Role
               </Label>
-              <select
-                id="role"
-                {...registerField("role")}
-                defaultValue=""
-                className="w-full rounded-md border border-[#4a5568] bg-[#1e2829] text-white
-                  px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9a84c]
-                  focus:border-[#c9a84c] transition-colors"
-              >
-                <option value="" disabled className="text-[#96999A]">Select role</option>
-                {Object.values(Role).map((r) => (
-                  <option key={r} value={r}>
-                    {r.charAt(0) + r.slice(1).toLowerCase()}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                  name="role"
+                  control={control}
+                  render={({ field }) => (
+                      <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+
+                        <SelectContent position={"popper"}>
+                          {Object.values(Role).map((r) => (
+                              <SelectItem key={r} value={r}>
+                                {r.charAt(0) + r.slice(1).toLowerCase()}
+                              </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                  )}
+              />
               {errors.role && <p className="text-xs text-red-400">{errors.role.message}</p>}
             </div>
 
@@ -393,7 +381,7 @@ export default function RegisterModal() {
 
           {/* Password */}
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">
+            <Label htmlFor="password" className=" uppercase">
               Password
             </Label>
             <PasswordField
@@ -406,7 +394,7 @@ export default function RegisterModal() {
 
           {/* Confirm Password */}
           <div className="space-y-1.5">
-            <Label htmlFor="confirmPassword" className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">
+            <Label htmlFor="confirmPassword" className="uppercase">
               Confirm Password
             </Label>
             <PasswordField
@@ -421,9 +409,7 @@ export default function RegisterModal() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full mt-2 bg-[#c9a84c] hover:bg-[#d4b86a]
-              text-[#0f1e0f] font-bold tracking-widest uppercase
-              transition-colors disabled:opacity-60"
+            className="w-full mt-2 py-5 bg-blue-500 cursor-pointer hover:bg-blue-600"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
@@ -435,9 +421,6 @@ export default function RegisterModal() {
             )}
           </Button>
         </form>
-
-        {/* Divider */}
-        <div className="my-1 h-px bg-[#3d4f51]" />
       </DialogContent>
     </Dialog>
   );

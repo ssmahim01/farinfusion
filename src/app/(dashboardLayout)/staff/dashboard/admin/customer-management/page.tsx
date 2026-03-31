@@ -56,12 +56,21 @@ const CustomerManagementPage = () => {
   const columns: ColumnDef<IUser>[] = [
     { accessorKey: "name", header: "Name" },
     { accessorKey: "email", header: "Email" },
+    { accessorKey: "phone", header: "Phone" },
+    { accessorKey: "", header: "Order" },
   ];
 
   // Actions
   const actions = [
     {
       label: "View",
+      onClick: (user: IUser) => {
+        setSelectedUser(user);
+        setOpenViewModal(true);
+      },
+    },
+    {
+      label: "Edit",
       onClick: (user: IUser) => {
         setSelectedUser(user);
         setOpenViewModal(true);

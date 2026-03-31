@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {ArrowUpDown, Plus, Search} from "lucide-react";
+import {ArrowUpDown, Plus, Search, Trash2} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -13,6 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {useRouter} from "next/navigation";
 
 type Props = {
     searchTerm: string;
@@ -23,6 +24,7 @@ type Props = {
 
 const LeadFilterComponent = ({searchTerm, setSearchTerm, sortValue, setSortValue,}: Props) => {
     const [leadAddModalOpen, setLeadAddModalOpen] = useState(false);
+    const router = useRouter();
 
     return (
         <div>
@@ -33,7 +35,7 @@ const LeadFilterComponent = ({searchTerm, setSearchTerm, sortValue, setSortValue
                     <div className="relative w-full sm:w-80">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search users..."
+                            placeholder="Search Leads..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-8"
@@ -59,10 +61,22 @@ const LeadFilterComponent = ({searchTerm, setSearchTerm, sortValue, setSortValue
                 </div>
 
                 {/* Right Side: Add */}
-                <Button size="sm" onClick={() => setLeadAddModalOpen(true)}>
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Lead
-                </Button>
+
+                <div className={"flex items-center gap-4"}>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() => router.push("/staff/dashboard/leads/trash")}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                        Trash
+                    </Button>
+                    <Button size="sm" onClick={() => setLeadAddModalOpen(true)}>
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add Lead
+                    </Button>
+                </div>
             </div>
 
             {/* Lead Added Modal */}

@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label"
 import {useCreateLeadMutation} from "@/redux/features/lead/lead.api";
 import {toast} from "sonner";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import {IResponse} from "@/types";
 
 // props type
 type Props = {
@@ -65,12 +66,15 @@ const LeadAddedModal = ({ open, onOpenChange }: Props) => {
     const onSubmit = async (formData: LeadFormData) => {
         try {
             await createLead(formData).unwrap();
-
-            reset(); // form clear
+            reset();
             onOpenChange(false); // modal close
-            toast.success("Lead has been created")
-        } catch (error) {
-            console.error("Create failed:", error);
+                toast.success("Lead has been created")
+
+        } catch (error : any) {
+            const message =
+                error?.data?.message || "Something went wrong";
+
+            toast.error(message);
         }
     };
 

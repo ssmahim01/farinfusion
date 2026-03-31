@@ -12,9 +12,8 @@ import DeleteAlert from "@/components/dashboard/DeleteAlert";
 import TablePagination from "@/components/shared/TablePagination";
 import { DynamicDataTable } from "@/components/dashboard/DataTable";
 import { useRouter } from "next/navigation";
-import {ICategory, IProduct} from "@/types";
+import {IProduct} from "@/types";
 import ProductToolbar from "@/components/dashboard/product/ProductToolbar";
-import ProductSingleDetails from "@/components/dashboard/product/ProductSingleDetails";
 
 const ProductManagementPage = () => {
   const [deleteFood] = useDeleteProductMutation();
@@ -30,15 +29,6 @@ const ProductManagementPage = () => {
     page,
     limit,
   });
-
-  // console.log("products ", data)
-
-  // Modal states
-  const [selectedProduct, setSelectedProduct] = React.useState<IProduct | null>(null);
-  const [openViewModal, setOpenViewModal] = React.useState(false);
-
-  const [foodToUpdate, setFoodToUpdate] = React.useState<IProduct | null>(null);
-  const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
 
   const [productToDelete, setProductToDelete] = React.useState<IProduct | null>(null);
   const [openDeleteAlert, setOpenDeleteAlert] = React.useState(false);

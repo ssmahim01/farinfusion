@@ -62,7 +62,7 @@ const BrandManagementPage = () => {
   // Table columns
   const columns: ColumnDef<IBrand>[] = [
     { accessorKey: "title", header: "Title" },
-    { accessorKey: "slug", header: "Slug" },
+    { accessorKey: "product count", header: "Product Count" },
     { accessorKey: "status", header: "Status" },
   ];
 
