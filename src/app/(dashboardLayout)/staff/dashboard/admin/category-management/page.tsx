@@ -38,6 +38,7 @@ const CategoryManagementPage = () => {
     page,
     limit,
   });
+  console.log("category Data :", data);
 
   // Modal states
   const [selectedCategory, setSelectedCategory] = React.useState<ICategory | null>(null);

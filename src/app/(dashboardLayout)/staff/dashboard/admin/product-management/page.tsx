@@ -12,8 +12,9 @@ import DeleteAlert from "@/components/dashboard/DeleteAlert";
 import TablePagination from "@/components/shared/TablePagination";
 import { DynamicDataTable } from "@/components/dashboard/DataTable";
 import { useRouter } from "next/navigation";
-import { IProduct } from "@/types";
+import {ICategory, IProduct} from "@/types";
 import ProductToolbar from "@/components/dashboard/product/ProductToolbar";
+import ProductSingleDetails from "@/components/dashboard/product/ProductSingleDetails";
 
 const ProductManagementPage = () => {
   const [deleteFood] = useDeleteProductMutation();
@@ -30,10 +31,10 @@ const ProductManagementPage = () => {
     limit,
   });
 
-  console.log("products ", data)
+  // console.log("products ", data)
 
   // Modal states
-  const [selectedFood, setSelectedFood] = React.useState<IProduct | null>(null);
+  const [selectedProduct, setSelectedProduct] = React.useState<IProduct | null>(null);
   const [openViewModal, setOpenViewModal] = React.useState(false);
 
   const [foodToUpdate, setFoodToUpdate] = React.useState<IProduct | null>(null);
@@ -75,6 +76,12 @@ const ProductManagementPage = () => {
   // Row actions
   const actions = [
     {
+      label: "View",
+      onClick: (product: IProduct) => {
+        router.push(`/staff/dashboard/admin/product-management/product-details/${product.slug}`);
+      },
+    },
+    {
       label: "Edit",
       onClick: (product: IProduct) => {
         router.push(`/staff/dashboard/admin/product-management/update-product/${product.slug}`);
@@ -115,6 +122,7 @@ const ProductManagementPage = () => {
         totalPages={data?.meta?.totalPage ?? 1}
         onPageChange={setPage}
       />
+
 
       {/* Delete Confirmation */}
       {productToDelete && (
