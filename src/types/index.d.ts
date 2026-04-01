@@ -1,3 +1,8 @@
+export * from './pos';
+export type { Order, OrderStatus, DeliveryStatus } from '../types/orders';
+export type { CourierProvider } from '../types/courier';
+export type { GetQueryParams } from '../types/orders';
+
 export interface IIngredient {
   name: string;
   price: number;
@@ -7,6 +12,7 @@ export type GetQueryParams = {
   searchTerm?: string;
   sort?: string;
   category?: string;
+  search?: string;
   page?: number;
   limit?: number;
   status?: string;

@@ -4,8 +4,8 @@ import { CourierProvider } from "./courier";
 export interface GetQueryParams {
   page?: number;
   limit?: number;
-  search?: string;
   status?: string;
+  search?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   [key: string]: any;
