@@ -7,19 +7,21 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableHead, TableHeader,
+    TableHead,
+    TableHeader,
     TableRow,
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
 import { useGetSingleProductQuery } from "@/redux/features/product/product.api";
 import { useState } from "react";
-import {AlertCircle, CheckIcon} from "lucide-react";
+import { AlertCircle, CheckIcon } from "lucide-react";
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
-    BreadcrumbList, BreadcrumbPage,
-    BreadcrumbSeparator
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 
@@ -49,31 +51,29 @@ export default function ProductSingleDetails() {
 
     return (
         <div className="p-6 space-y-6">
-            {/* Header */}
-            <>
-                <Breadcrumb>
-                    <BreadcrumbList>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink asChild>
-                                <Link href="/staff/dashboard/admin/product-management">
-                                    Product Management
-                                </Link>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
+            {/* Breadcrumb */}
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link href="/staff/dashboard/admin/product-management">
+                                Product Management
+                            </Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Product Details</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
 
-                        <BreadcrumbSeparator />
-
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>Product Details</BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
-            </>
-
+            {/* MAIN GRID */}
             <div className="grid grid-cols-1 lg:grid-cols-[30%_70%] gap-8">
-                {/* IMAGE SECTION */}
+
+                {/* LEFT: IMAGE SECTION */}
                 <Card className="p-4 space-y-4">
-                        <div className="rounded-xl overflow-hidden border bg-muted">
+                    <div className="rounded-xl overflow-hidden border bg-muted">
                         <img
                             src={product?.images[selectedImage]}
                             alt={product?.title}
@@ -82,7 +82,7 @@ export default function ProductSingleDetails() {
                     </div>
 
                     {/* Thumbnails */}
-                    <div className="flex gap-3 overflow-x-auto">
+                    <div className="flex gap-3">
                         {product?.images.map((img: string, i: number) => (
                             <button
                                 key={i}
@@ -101,58 +101,30 @@ export default function ProductSingleDetails() {
                             </button>
                         ))}
                     </div>
-<<<<<<< HEAD
-=======
-                    <div>
-                        <p className="text-sm text-gray-500">Buying Price (Internal)</p>
-                        <p className="text-2xl">$1,200</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <Badge variant="destructive">Out of Stock</Badge>
-                    <Select defaultValue="250ml">
-                        <SelectTrigger className="w-45">
-                            <SelectValue placeholder="Size" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="250ml">250ml</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <p className="text-gray-600">Cetaphil Gentle Skin Cleanser is a mild, non-irritating formulation...</p>
-
-                <Card className="p-4">
-                    <table className="w-full text-sm">
-                        <tbody>
-                        <tr><td className="py-2 font-semibold">Status</td><td>ACTIVE</td></tr>
-                        <tr><td className="py-2 font-semibold">Total Sold</td><td>0</td></tr>
-                        <tr><td className="py-2 font-semibold">Created At</td><td>2026-03-30T...</td></tr>
-                        </tbody>
-                    </table>
->>>>>>> c5a38b20074d8ac846cf984d14f97458efa24c5c
                 </Card>
 
-                {/* INFO SECTION */}
+                {/* RIGHT: INFO SECTION */}
                 <Card>
-                    <CardContent className="space-y-6 p-6">
-                        {/* Title + Meta */}
-                        <div className="space-y-1">
-                            <h2 className="text-2xl font-bold">{product?.title}</h2>
+                    <CardContent className="p-6 space-y-6">
+
+                        {/* Title */}
+                        <div>
+                            <h2 className="text-2xl font-bold">
+                                {product?.title}
+                            </h2>
                             <p className="text-sm text-muted-foreground">
                                 Brand • Category
                             </p>
                         </div>
 
                         {/* Description */}
-                        <p className="text-muted-foreground leading-relaxed">
+                        <p className="text-muted-foreground">
                             {product?.description}
                         </p>
 
                         <Separator />
 
-                        {/* Price Section */}
+                        {/* Price */}
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                             <div>
                                 <p className="text-sm text-muted-foreground">
@@ -183,105 +155,83 @@ export default function ProductSingleDetails() {
                         </div>
 
                         {/* Status */}
-                        <div className={"flex items-center gap-5"}>
-                            <div>
-                                {/* Status Badge */}
-                                {product?.status === "ACTIVE" ? (
-                                    <Badge
-                                        variant="outline"
-                                        className="flex items-center gap-1.5 border-green-500 px-3 py-1 text-sm font-medium text-green-500"
-                                    >
-                                        <CheckIcon className="h-3.5 w-3.5 bg-green-500 rounded-full text-white" />
-                                        In Stock
-                                    </Badge>
-                                ) : (
-                                    <Badge
-                                        variant="outline"
-                                        className="flex items-center gap-1.5 border-[#fecaca] bg-[#fef2f2] px-3 py-1 text-sm font-medium text-[#991b1b] hover:bg-[#fef2f2]"
-                                    >
-                                        <AlertCircle className="h-3.5 w-3.5" />
-                                        Out of Stock
-                                    </Badge>
-                                )}
-
-                            </div>
+                        <div>
+                            {product?.availableStock && product.availableStock > 0  ? (
+                                <Badge className="flex items-center gap-2 text-green-500 border-green-500 bg-transparent">
+                                    <CheckIcon className="w-4 h-4 bg-green-500 text-white rounded-full" />
+                                    In Stock
+                                </Badge>
+                            ) : (
+                                <Badge className="bg-red-500 text-white  flex items-center gap-2 border-red-300 ">
+                                    <AlertCircle className="w-4 h-4" />
+                                    Out of Stock
+                                </Badge>
+                            )}
                         </div>
 
                         <Separator />
 
-                        {/* Key Info Table */}
-                        <Card className={"py-0"}>
+                        {/* Table */}
+                        <Card className="py-0">
                             <Table>
-                                {/* Header Bar */}
                                 <TableHeader className="bg-slate-50">
-                                    <TableRow className="hover:bg-transparent">
-                                        <TableHead colSpan={2} className="h-10 font-bold text-slate-900">
+                                    <TableRow>
+                                        <TableHead colSpan={2} className="font-bold">
                                             Key Information
                                         </TableHead>
                                     </TableRow>
                                 </TableHeader>
 
-                                {/* Table Body */}
                                 <TableBody>
-                                    <TableRow  className="border-b last:border-0">
-                                        <TableCell className="w-1/3 font-semibold text-slate-900 border-r">
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
                                             Status
                                         </TableCell>
-                                        <TableCell className="text-slate-600 font-medium">
-                                            {product?.status}
-                                        </TableCell>
+                                        <TableCell>{product?.status}</TableCell>
                                     </TableRow>
-                                    <TableRow  className="border-b last:border-0">
-                                        <TableCell className="w-1/3 font-semibold text-slate-900 border-r">
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
                                             Size
                                         </TableCell>
-                                        <TableCell className="text-slate-600 font-medium">
-                                            {product?.size}
-                                        </TableCell>
+                                        <TableCell>{product?.size}</TableCell>
                                     </TableRow>
-                                    <TableRow  className="border-b last:border-0">
-                                        <TableCell className="w-1/3 font-semibold text-slate-900 border-r">
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
                                             Total Added Stock
                                         </TableCell>
-                                        <TableCell className="text-slate-600 font-medium">
-                                            {product?.totalAddedStock}
-                                        </TableCell>
+                                        <TableCell>{product?.totalAddedStock}</TableCell>
                                     </TableRow>
-                                    <TableRow  className="border-b last:border-0">
-                                        <TableCell className="w-1/3 font-semibold text-slate-900 border-r">
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
                                             Available Stock
                                         </TableCell>
-                                        <TableCell className="text-slate-600 font-medium">
-                                            {product?.availableStock || 0}
-                                        </TableCell>
+                                        <TableCell>{product?.availableStock}</TableCell>
                                     </TableRow>
-                                    <TableRow  className="border-b last:border-0">
-                                        <TableCell className="w-1/3 font-semibold text-slate-900 border-r">
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
                                             Total Sold
                                         </TableCell>
-                                        <TableCell className="text-slate-600 font-medium">
-                                            {product?.totalSold || 0}
-                                        </TableCell>
+                                        <TableCell>{product?.totalSold}</TableCell>
                                     </TableRow>
-                                    <TableRow className="border-b last:border-0">
-                                        <TableCell className="w-1/3 font-semibold text-slate-900 border-r">
-                                            Created date
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
+                                            Created Date
                                         </TableCell>
-                                        <TableCell className="text-slate-600 font-medium">
+                                        <TableCell>
                                             {product?.createdAt
-                                                ? new Date(product.createdAt).toLocaleDateString("en-BD", {
-                                                    year: "numeric",
-                                                    month: "short",
-                                                    day: "numeric",
-                                                    hour: "2-digit",
-                                                    minute: "2-digit",
-                                                })
+                                                ? new Date(product.createdAt).toLocaleString()
                                                 : "N/A"}
                                         </TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
                         </Card>
+
                     </CardContent>
                 </Card>
             </div>

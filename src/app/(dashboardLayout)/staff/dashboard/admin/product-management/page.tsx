@@ -49,8 +49,17 @@ const ProductManagementPage = () => {
     { accessorKey: "title", header: "Name" },
     { accessorKey: "category.title", header: "Category" },
     { accessorKey: "status", header: "Status" },
-    { accessorKey: "price", header: "Price" },
-    { accessorKey: "availableStock", header: "Stock" },
+    { accessorKey: "price", header: "Selling Price" },
+    // { accessorKey: `availableStock && availableStock > 0 ? (out of stock) : (availableStock)}`, header: "Stock" },
+    {
+      accessorKey: "availableStock",
+      header: "Stock",
+      cell: ({ row }) => {
+        const stock = row.original.availableStock ?? 0;
+
+        return stock > 0 ? stock : "Out of Stock";
+      },
+    },
   ];
 
   const router = useRouter();

@@ -19,24 +19,26 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
-import {useGetAllTrashProductsQuery, useUpdateProductMutation,} from "@/redux/features/product/product.api";
-import {IProduct} from "@/types";
+
+import {IBrand, IProduct} from "@/types";
 import {toast} from "sonner";
 import BreadCrumbPage from "@/components/shared/BreadCrumbPage";
+import {useGetAllTrashBrandsQuery, useTrashUpdateBrandMutation} from "@/redux/features/brand/brand.api";
 
 
 const TrashBrandPage = () => {
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState("");
 
-    const { data, isLoading } = useGetAllTrashProductsQuery({
+    const { data, isLoading } = useGetAllTrashBrandsQuery({
         searchTerm: search,
         sort,
     });
 
-    const products: IProduct[] = data?.data || [];
+    const brands: IBrand[] = data?.data || [];
+    console.log(brands);
 
-    const [updateTrash] = useUpdateProductMutation();
+    const [updateTrash] = useTrashUpdateBrandMutation();
 
     const handleRestore = async (id: string) => {
         // try {
@@ -50,9 +52,6 @@ const TrashBrandPage = () => {
         // }
         toast.success("Pending work");
     };
-
-    // Filter deleted products only
-    const trashProducts = products.filter((product) => product.isDeleted);
 
 
     return (
@@ -102,22 +101,21 @@ const TrashBrandPage = () => {
                                     Loading...
                                 </TableCell>
                             </TableRow>
-                        ) : trashProducts.length === 0 ? (
+                        ) : brands.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center py-6">
                                     No Trash Customer Found
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            trashProducts.map((product) => (
-                                <TableRow key={product._id}>
-                                    <TableCell className="font-medium">{product.title}</TableCell>
-                                    <TableCell>৳ {product.price}</TableCell>
+                            brands.map((item) => (
+                                <TableRow key={item._id}>
+                                    <TableCell className="font-medium">{item.title}</TableCell>
                                     <TableCell className="text-red-500">Deleted</TableCell>
                                     <TableCell className="text-right">
                                         <Button
                                             variant="outline"
-                                            onClick={() => handleRestore(product._id as string)}
+                                            onClick={() => handleRestore(item._id as string)}
                                         >
                                             Restore
                                         </Button>

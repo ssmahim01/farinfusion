@@ -61,12 +61,13 @@ export const productApi = baseApi.injectEndpoints({
     // ⭐ GET ALL products
     getAllTrashProducts: builder.query<GetAllFoodsResponse, GetQueryParams>({
       query: (params) => ({
-        url: "/product/all-products",
+        url: "/product/all-trash-products",
         method: "GET",
-        params:{ ...params, isDeleted: true },
+        params,
       }),
       providesTags: ["PRODUCTS"],
     }),
+
     // ⭐ TRASH UPDATE PRODUCT and Restore both work
     trashUpdateProduct: builder.mutation<IResponse<IProduct>, { _id: string;}>({
       query: ({ _id }) => ({
