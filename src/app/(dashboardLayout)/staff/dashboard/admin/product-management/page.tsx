@@ -4,19 +4,18 @@ import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 
-import { useDeleteProductMutation, useGetAllProductsQuery } from "@/redux/features/product/product.api";
-
 import DashboardManagementPageSkeleton from "@/components/dashboard/DashboardManagePageSkeleton";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import DeleteAlert from "@/components/dashboard/DeleteAlert";
 import TablePagination from "@/components/shared/TablePagination";
 import { DynamicDataTable } from "@/components/dashboard/DataTable";
 import { useRouter } from "next/navigation";
-import {IProduct} from "@/types";
+import { IProduct } from "@/types";
 import ProductToolbar from "@/components/dashboard/product/ProductToolbar";
+import {useGetAllProductsQuery, useTrashUpdateProductMutation} from "@/redux/features/product/product.api";
 
 const ProductManagementPage = () => {
-  const [deleteFood] = useDeleteProductMutation();
+  const [trashProduct] = useTrashUpdateProductMutation();
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [sort, setSort] = React.useState("");
@@ -30,51 +29,47 @@ const ProductManagementPage = () => {
     limit,
   });
 
-  const [productToDelete, setProductToDelete] = React.useState<IProduct | null>(null);
+  const [productToDelete, setProductToDelete] =
+      React.useState<IProduct | null>(null);
   const [openDeleteAlert, setOpenDeleteAlert] = React.useState(false);
 
-  // Delete handler
-  const handleDelete = async (food: IProduct) => {
+  // ✅ Trash handler
+  const handleDelete = async (product: IProduct) => {
     try {
-      const res = await deleteFood(food._id as string).unwrap();
+      const res = await trashProduct({ _id: product._id as string }).unwrap();
       if (res.success) {
-        toast.success("Food deleted successfully");
+        toast.success("Product moved to trash");
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to delete food");
+      toast.error(error?.data?.message || "Failed to delete product");
     }
   };
 
-  // Table columns
   const columns: ColumnDef<IProduct>[] = [
     { accessorKey: "title", header: "Name" },
     { accessorKey: "category.title", header: "Category" },
-    {
-      accessorKey: "status",
-      header: "Status",
-    },
+    { accessorKey: "status", header: "Status" },
     { accessorKey: "price", header: "Price" },
-    {
-      accessorKey: "availableStock",
-      header: "Stock"
-    }
-
+    { accessorKey: "availableStock", header: "Stock" },
   ];
 
-  const router = useRouter()
+  const router = useRouter();
 
-  // Row actions
   const actions = [
     {
       label: "View",
       onClick: (product: IProduct) => {
-        router.push(`/staff/dashboard/admin/product-management/product-details/${product.slug}`);
+        router.push(
+            `/staff/dashboard/admin/product-management/product-details/${product.slug}`
+        );
       },
     },
     {
       label: "Edit",
       onClick: (product: IProduct) => {
-        router.push(`/staff/dashboard/admin/product-management/update-product/${product.slug}`);
+        router.push(
+            `/staff/dashboard/admin/product-management/update-product/${product.slug}`
+        );
       },
     },
     {
@@ -87,47 +82,42 @@ const ProductManagementPage = () => {
   ];
 
   if (isLoading) return <DashboardManagementPageSkeleton />;
-  if (isError) return <p>Error loading foods.</p>;
+  if (isError) return <p>Error loading products.</p>;
 
   return (
-    <div>
-      <DashboardPageHeader title="Products" />
+      <div>
+        <DashboardPageHeader title="Products" />
 
-      {/* Toolbar */}
-      <ProductToolbar
-        onSearchChange={setSearchTerm}
-        onSortChange={setSort}
-      />
-
-      {/* Table */}
-      <DynamicDataTable
-        columns={columns}
-        data={data?.data ?? []}
-        actions={actions}
-      />
-
-      {/* Pagination */}
-      <TablePagination
-        currentPage={page}
-        totalPages={data?.meta?.totalPage ?? 1}
-        onPageChange={setPage}
-      />
-
-
-      {/* Delete Confirmation */}
-      {productToDelete && (
-        <DeleteAlert
-          open={openDeleteAlert}
-          onOpenChange={setOpenDeleteAlert}
-          description={`Are you sure you want to delete "${productToDelete.title}"? This action is permanent and cannot be undone.`}
-          onConfirm={async () => {
-            await handleDelete(productToDelete);
-            setOpenDeleteAlert(false);
-            setProductToDelete(null);
-          }}
+        <ProductToolbar
+            onSearchChange={setSearchTerm}
+            onSortChange={setSort}
         />
-      )}
-    </div>
+
+        <DynamicDataTable
+            columns={columns}
+            data={data?.data ?? []}
+            actions={actions}
+        />
+
+        <TablePagination
+            currentPage={page}
+            totalPages={data?.meta?.totalPage ?? 1}
+            onPageChange={setPage}
+        />
+
+        {productToDelete && (
+            <DeleteAlert
+                open={openDeleteAlert}
+                onOpenChange={setOpenDeleteAlert}
+                description={`Are you sure you want to delete "${productToDelete.title}"?`}
+                onConfirm={async () => {
+                  await handleDelete(productToDelete);
+                  setOpenDeleteAlert(false);
+                  setProductToDelete(null);
+                }}
+            />
+        )}
+      </div>
   );
 };
 

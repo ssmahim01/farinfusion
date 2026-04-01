@@ -101,6 +101,37 @@ export default function ProductSingleDetails() {
                             </button>
                         ))}
                     </div>
+<<<<<<< HEAD
+=======
+                    <div>
+                        <p className="text-sm text-gray-500">Buying Price (Internal)</p>
+                        <p className="text-2xl">$1,200</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <Badge variant="destructive">Out of Stock</Badge>
+                    <Select defaultValue="250ml">
+                        <SelectTrigger className="w-45">
+                            <SelectValue placeholder="Size" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="250ml">250ml</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <p className="text-gray-600">Cetaphil Gentle Skin Cleanser is a mild, non-irritating formulation...</p>
+
+                <Card className="p-4">
+                    <table className="w-full text-sm">
+                        <tbody>
+                        <tr><td className="py-2 font-semibold">Status</td><td>ACTIVE</td></tr>
+                        <tr><td className="py-2 font-semibold">Total Sold</td><td>0</td></tr>
+                        <tr><td className="py-2 font-semibold">Created At</td><td>2026-03-30T...</td></tr>
+                        </tbody>
+                    </table>
+>>>>>>> c5a38b20074d8ac846cf984d14f97458efa24c5c
                 </Card>
 
                 {/* INFO SECTION */}

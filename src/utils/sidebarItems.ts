@@ -1,4 +1,4 @@
-import { FileText, Users, MessageCircle, LayoutDashboardIcon, Quote, ToolCase, Inbox, Search, Mails, Newspaper, StoreIcon, ListOrdered } from "lucide-react";
+import { Users, LayoutDashboardIcon, ToolCase, StoreIcon, ListOrdered } from "lucide-react";
 
 export const moderatorSidebar = [
   {
@@ -23,7 +23,7 @@ export const adminSidebar = [
       { title: "Brands", url: "/staff/dashboard/admin/brand-management", icon: ToolCase },
       { title: "Users", url: "/staff/dashboard/admin/user-management", icon: Users },
       { title: "Customers", url: "/staff/dashboard/admin/customer-management", icon: Users },
-      { title: "Orders", url: "/staff/dashboard/admin/order-management", icon: ListOrdered },
+      { title: "Orders", url: "/staff/dashboard/admin/orders-management", icon: ListOrdered },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
       { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },

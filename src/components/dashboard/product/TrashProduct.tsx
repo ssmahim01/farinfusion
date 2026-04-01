@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
     Select,
@@ -18,27 +18,24 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-
-import {useGetAllTrashProductsQuery, useUpdateProductMutation,} from "@/redux/features/product/product.api";
-import {IProduct} from "@/types";
-import {toast} from "sonner";
+import { toast } from "sonner";
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
-    BreadcrumbList, BreadcrumbPage,
-    BreadcrumbSeparator
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+    useDeleteProductMutation,
+    useGetAllTrashProductsQuery,
+    useTrashUpdateProductMutation
+} from "@/redux/features/product/product.api";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import {MoreHorizontal, RotateCcw, Trash2, Trash2Icon} from "lucide-react";
 
-type Product = {
-    id: string;
-    _id: string;
-    title: string;
-    price: number;
-    availableStock: number;
-    isDeleted: boolean;
-    createdAt: string;
-};
+
 const TrashProductsPage = () => {
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState("");
@@ -48,33 +45,44 @@ const TrashProductsPage = () => {
         sort,
     });
 
-    const products: IProduct[] = data?.data || [];
+    const trashProducts = data?.data || [];
 
-    const [updateTrash] = useUpdateProductMutation();
+    const [restoreProduct] = useTrashUpdateProductMutation();
+    const [deleteProduct] = useDeleteProductMutation();
 
+    // ✅ Restore
     const handleRestore = async (id: string) => {
-        // try {
-        //     await updateTrash({
-        //         _id: id,
-        //         data: { isDeleted: false },
-        //     }).unwrap();
-        //     toast.success("Product restored successfully!");
-        // } catch (err) {
-        //     toast.error("Failed to restore product");
-        // }
-        toast.success("Pending work");
+        try {
+            const res = await restoreProduct({ _id: id }).unwrap();
+            if (res.success) {
+                toast.success("Product restored successfully");
+            }
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Restore failed");
+        }
     };
 
-    // Filter deleted products only
-    const trashProducts = products.filter((product) => product.isDeleted === true);
-
+    // ❌ Permanent Delete
+    const handleHardDelete = async (id: string) => {
+        try {
+            const res = await deleteProduct(id).unwrap();
+            if (res.success) {
+                toast.success("Product permanently deleted");
+            }
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Delete failed");
+        }
+    };
 
     return (
         <div className="px-2 sm:px-6 py-6 space-y-6">
+            {/* Breadcrumb */}
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/staff/dashboard/admin/product-management">Product Management</BreadcrumbLink>
+                        <BreadcrumbLink href="/staff/dashboard/admin/product-management">
+                            Product Management
+                        </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
@@ -82,7 +90,8 @@ const TrashProductsPage = () => {
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-            {/* 🔍 Filters */}
+
+            {/* Filters */}
             <div className="flex flex-col md:flex-row gap-4">
                 <Input
                     placeholder="Search product..."
@@ -95,20 +104,20 @@ const TrashProductsPage = () => {
                         <SelectValue placeholder="Sort By" />
                     </SelectTrigger>
 
-                    <SelectContent position="popper">
+                    <SelectContent>
                         <SelectItem value="-createdAt">Newest</SelectItem>
                         <SelectItem value="createdAt">Oldest</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
 
-            {/* 📊 Table */}
+            {/* Table */}
             <div className="border rounded-xl">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Product Title</TableHead>
-                            <TableHead>Category</TableHead>
+                            <TableHead>Product</TableHead>
+                            <TableHead>Price</TableHead>
                             <TableHead>Stock</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-right">Action</TableHead>
@@ -118,7 +127,7 @@ const TrashProductsPage = () => {
                     <TableBody>
                         {isLoading ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center">
+                                <TableCell colSpan={5} className="text-center py-6">
                                     Loading...
                                 </TableCell>
                             </TableRow>
@@ -131,17 +140,43 @@ const TrashProductsPage = () => {
                         ) : (
                             trashProducts.map((product) => (
                                 <TableRow key={product._id}>
-                                    <TableCell className="font-medium">{product.title}</TableCell>
+                                    <TableCell className="font-medium">
+                                        {product.title}
+                                    </TableCell>
                                     <TableCell>৳ {product.price}</TableCell>
                                     <TableCell>{product.availableStock}</TableCell>
-                                    <TableCell className="text-red-500">Deleted</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => handleRestore(product._id as string)}
-                                        >
-                                            Restore
-                                        </Button>
+                                    <TableCell className="text-red-500">
+                                        Deleted
+                                    </TableCell>
+                                    <TableCell className="text-right space-x-2">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button className={"cursor-pointer"} variant="ghost" size="icon">
+                                                    <MoreHorizontal />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-44">
+
+                                                {/* Restore */}
+                                                <DropdownMenuItem
+                                                    className="cursor-pointer"
+                                                    onClick={() => handleRestore(product._id as string)}
+                                                >
+                                                    <RotateCcw className="w-4 h-4 mr-2 text-green-500" />
+                                                    Restore
+                                                </DropdownMenuItem>
+
+                                                {/* Hard Delete */}
+                                                <DropdownMenuItem
+                                                    className="cursor-pointer text-red-500 focus:text-red-600"
+                                                    onClick={() => handleHardDelete(product._id as string)}
+                                                >
+                                                    <Trash2 className="w-4 h-4 mr-2" />
+                                                    Delete Forever
+                                                </DropdownMenuItem>
+
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
                             ))

@@ -1,0 +1,76 @@
+import { CourierProvider } from "./courier";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface GetQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  [key: string]: any;
+}
+
+export type OrderStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
+export type DeliveryStatus =
+  | "NOT_SHIPPED"
+  | "IN_TRANSIT"
+  | "DELIVERED"
+  | "FAILED";
+
+export interface Order {
+  _id: string;
+  orderID: string;
+  customerName: string;
+  customerEmail: string;
+  billingDetails?: {
+    fullName: string;
+    email: string;
+    address: string;
+    phone: number;
+  };
+  customerPhone: string;
+  totalPrice: number;
+  products: {
+    productId: string;
+    product: {
+        title: string
+    },
+    quantity: number;
+    price: number;
+  }
+  total: number;
+  orderStatus: OrderStatus;
+  deliveryStatus: DeliveryStatus;
+  courierName?: CourierProvider;
+  trackingNumber?: string;
+  items: OrderItem[];
+  shippingAddress?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  price: number;
+}
+
+export interface UpdateOrderRequest {
+  orderStatus?: OrderStatus;
+  deliveryStatus?: DeliveryStatus;
+  courierName?: CourierProvider;
+  trackingNumber?: string;
+}
+
+export interface OrdersResponse {
+  success: boolean;
+  data: Order[];
+  totalCount: number;
+}
+
+export interface OrderResponse {
+  success: boolean;
+  data: Order;
+}

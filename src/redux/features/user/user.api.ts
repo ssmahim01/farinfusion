@@ -1,4 +1,4 @@
-import { IRegister, IRegisterResponse } from "@/types/auth.types";
+import { IRegisterResponse } from "@/types/auth.types";
 import { baseApi } from "../baseApi";
 import type { IUser, IUserApiResponse, IResponse, GetQueryParams, IPaginationMeta } from "@/types";
 
@@ -18,7 +18,7 @@ export const userApi = baseApi.injectEndpoints({
         method: "POST",
         data: formData,
       }),
-      invalidatesTags: (result, error, arg) => ["USERS"],
+      invalidatesTags: () => ["USERS"],
     }),
 
     // UPDATE USER

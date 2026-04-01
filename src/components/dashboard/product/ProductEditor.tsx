@@ -60,7 +60,7 @@ const ProductEditor = ({content, onChange,}: { content?: string; onChange?: (con
                     <FloatingMenu editor={editor} />
                 </>
             )}
-            <EditorContent editor={editor} className="min-h-[300px] px-4 py-3" />
+            <EditorContent editor={editor} className="min-h-75 px-4 py-3" />
         </div>
     );
 };
@@ -179,7 +179,7 @@ const ToolBar = ({ editor }: { editor: Editor }) => {
                                         : "paragraph"
                 }
             >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-45">
                     <SelectValue placeholder="Paragraph" />
                 </SelectTrigger>
                 <SelectContent>

@@ -63,9 +63,17 @@ export const productApi = baseApi.injectEndpoints({
       query: (params) => ({
         url: "/product/all-products",
         method: "GET",
-        params,
+        params:{ ...params, isDeleted: true },
       }),
       providesTags: ["PRODUCTS"],
+    }),
+    // ⭐ TRASH UPDATE PRODUCT and Restore both work
+    trashUpdateProduct: builder.mutation<IResponse<IProduct>, { _id: string;}>({
+      query: ({ _id }) => ({
+        url: `/product/product-trash/${_id}`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, { _id }) => ["PRODUCTS", { type: "PRODUCT", _id }],
     }),
   }),
   overrideExisting: true,
@@ -78,4 +86,5 @@ export const {
     useDeleteProductMutation,
     useGetAllProductsQuery,
     useGetAllTrashProductsQuery,
+    useTrashUpdateProductMutation,
 } = productApi;
