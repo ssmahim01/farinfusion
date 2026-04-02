@@ -21,7 +21,7 @@ import { ProfileAvatar } from "./ProfileAvatar"
 
 export function ProfileDropdown() {
 
-  const {data, isLoading} = useGetMeQuery(undefined)
+  const {data} = useGetMeQuery(undefined)
 
   const router = useRouter()
 

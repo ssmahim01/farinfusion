@@ -18,9 +18,31 @@ export type DeliveryStatus =
   | "DELIVERED"
   | "FAILED";
 
+ export type CreateOrderPayload = {
+  orderType: "POS" | "ONLINE" | "DELIVERY";
+  paymentMethod?: "COD" | "ONLINE";
+
+  products: {
+    product: string;
+    quantity: number;
+  }[];
+
+  shippingCost?: number;
+
+  billingDetails: {
+    fullName?: string;
+    email: string;
+    phone?: string;
+    address?: string;
+  };
+
+  seller?: string;
+};
+
 export interface Order {
   _id: string;
-  orderID: string;
+  paymentMethod?: "COD" | "ONLINE" | "POS" | "BKASH" | "ROCKET" | "NAGAD" | "BANK";
+  orderId?: string;
   customerName: string;
   customerEmail: string;
   billingDetails?: {

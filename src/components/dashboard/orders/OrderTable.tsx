@@ -21,6 +21,7 @@ interface OrderTableProps {
   error: string | null;
   onConfirmOrder: (order: Order) => void;
   onViewOrder?: (order: Order) => void;
+  refetch: () => void;
 }
 
 export function OrderTable({
@@ -29,6 +30,7 @@ export function OrderTable({
   error,
   onConfirmOrder,
   onViewOrder,
+  refetch,
 }: OrderTableProps) {
   const { data: courierRes } = useGetAllCouriersQuery([]);
   const courierMap = new Map<string, any>();
@@ -83,6 +85,8 @@ export function OrderTable({
         <TableHeader>
           <TableRow>
             <TableHead className="w-30">Order ID</TableHead>
+            <TableHead className="w-30">Payment</TableHead>
+
             <TableHead>Customer</TableHead>
             <TableHead className="text-right">Total</TableHead>
             <TableHead className="w-32.5">Order Status</TableHead>
@@ -99,6 +103,17 @@ export function OrderTable({
               <TableRow key={order._id} className="hover:bg-muted/50">
                 <TableCell className="font-mono text-xs font-medium">
                   {order._id?.slice(0, 10)}...
+                </TableCell>
+                <TableCell>
+                  <span className="text-xs font-medium">
+                    {order.paymentMethod === "COD"
+                      ? "Cash on Delivery"
+                      : order.paymentMethod === "BKASH"
+                        ? "bKash"
+                        : order.paymentMethod === "BANK"
+                          ? "Bank"
+                          : order.paymentMethod}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
@@ -133,7 +148,7 @@ export function OrderTable({
                     />
                   )}
                 </TableCell>
-                 <TableCell>
+                <TableCell>
                   {courier ? (
                     <div className="flex items-center gap-1 text-xs text-blue-600">
                       <Truck size={14} />
@@ -150,6 +165,8 @@ export function OrderTable({
                 <TableCell className="text-center">
                   <OrderRowActions
                     order={order}
+                    refetch={refetch}
+                    courier={courier}
                     onConfirm={onConfirmOrder}
                     onView={onViewOrder}
                   />

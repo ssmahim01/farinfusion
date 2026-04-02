@@ -5,23 +5,25 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { POSProductCard } from "./PosProductCard";
+import { POSProductListCard } from "./PosProductListCard";
 import { POSCartSidebar, type CustomerData } from "./PosCartSidebar";
 import { useGetAllProductsQuery } from "@/redux/features/product/product.api";
-import { useCreatePOSOrderMutation } from "@/redux/features/pos/pos.api";
 import type { POSCartItem, OrderType } from "@/types/pos";
 import { IProduct } from "@/types";
+import { useCreateOrderMutation } from "@/lib/hooks";
+import { useGetMeQuery } from "@/redux/features/user/user.api";
 
 export default function POSManagement() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [category, setCategory] = React.useState("");
   const [cartItems, setCartItems] = useState<POSCartItem[]>([]);
+  const { data: user } = useGetMeQuery(undefined);
 
   const { data: productsData, isLoading: isLoadingProducts } =
     useGetAllProductsQuery({});
 
   const [createOrder, { isLoading: isCreatingOrder }] =
-    useCreatePOSOrderMutation();
+    useCreateOrderMutation();
 
   const products = productsData?.data || [];
   const categories = [
@@ -74,30 +76,36 @@ export default function POSManagement() {
     orderType: OrderType,
   ) => {
     try {
-      const subtotal = cartItems.reduce(
-        (sum, item) =>
-          sum +
-          (item.product.discountPrice || item.product.price) * item.quantity,
-        0,
-      );
-      const tax = subtotal * 0.15;
-      const deliveryFee = orderType === "DELIVERY" ? 100 : 0;
-      const total = subtotal + tax + deliveryFee;
+      if (!user?.data) {
+        toast.error("User not loaded");
+        return;
+      }
+
+      if (String(user.data.role) !== "ADMIN") {
+        toast.error("Only seller can create POS order");
+        return;
+      }
 
       await createOrder({
-        items: cartItems,
-        subtotal,
-        tax,
-        deliveryFee,
-        total,
-        orderType,
-        customerName: customerData.name,
-        customerEmail: customerData.email,
-        customerPhone: customerData.phone,
-        customerAddress: customerData.address,
-        customerCity: customerData.city,
-        customerZipCode: customerData.zipCode,
-        notes: customerData.notes,
+        orderType: "POS",
+
+        paymentMethod: "COD",
+
+        products: cartItems.map((item) => ({
+          product: item.product._id!,
+          quantity: item.quantity,
+        })),
+
+        shippingCost: orderType === "DELIVERY" ? 100 : 0,
+
+        billingDetails: {
+          fullName: customerData.name,
+          email: customerData.email,
+          phone: customerData.phone,
+          address: customerData.address,
+        },
+
+        seller: user.data?._id,
       }).unwrap();
 
       toast.success("Order created successfully!");
@@ -108,11 +116,11 @@ export default function POSManagement() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen">
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 md:p-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 p-4 md:p-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             POS System
           </h1>
@@ -121,13 +129,13 @@ export default function POSManagement() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1 h-5 w-5 text-gray-400" />
               <Input
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                //   setPage(1);
+                  //   setPage(1);
                 }}
                 className="pl-10 text-sm"
               />
@@ -135,12 +143,12 @@ export default function POSManagement() {
 
             {/* Category Filter */}
             <div className="relative">
-              <Filter className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Filter className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
               <select
                 value={category}
                 onChange={(e) => {
                   setCategory(e.target.value);
-                //   setPage(1);
+                  //   setPage(1);
                 }}
                 className="pl-10 pr-4 py-2 w-full text-sm rounded-lg border border-gray-300 bg-white text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               >
@@ -173,9 +181,9 @@ export default function POSManagement() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {products.map((product) => (
-                  <POSProductCard
+                  <POSProductListCard
                     key={product._id}
                     product={product}
                     onAddToCart={() => handleAddToCart(product)}

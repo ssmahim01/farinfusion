@@ -40,7 +40,7 @@ export function POSCartSidebar({
     address: "",
     city: "",
     zipCode: "",
-    notes: "",
+    notes: `কাস্টমার পেমেন্ট ছাড়া পার্সেল খুলবেন না। খুলতে চাইলে রাইডারকে পার্সেল পলি খোলার আগ থেকেই ভিডিও করা বাধ্যতামূলক, যাতে প্রডাক্ট পরিষ্কার দেখা যায়। ড্যামেজ বা আমাদের আসল প্রডাক্ট বদলে নকল দিয়ে রিটার্ন/পার্শিয়াল হলে তার দায়ভার মার্চেন্ট নিবে না। রিটার্ন রিসিভের সময় আমরা চেক করবো। এ বিষয়ে আগে একাধিকবার আপনাদের কুরিয়ার/রাইডার থেকে ক্ষতিপূরণ নেওয়া হয়েছে—সতর্ক থাকুন।`,
   });
 
   const subtotal = items.reduce(
@@ -78,7 +78,7 @@ export function POSCartSidebar({
       </div>
 
       {/* Cart Items */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="overflow-y-auto p-4 h-140 space-y-3">
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-8">
             <ShoppingCart className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-2" />
@@ -158,7 +158,7 @@ export function POSCartSidebar({
       </div>
 
       {/* Customer Details */}
-      <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-3 max-h-75 overflow-y-auto">
+      <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-3 h-280 overflow-y-auto">
         <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
           Customer Details
         </p>
