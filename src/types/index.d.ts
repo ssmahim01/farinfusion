@@ -91,6 +91,7 @@ export interface ICategory {
   description: string;
   image: string;
   status: CategoryStatus;
+  productCount: number;
 }
 
 export enum BrandStatus {
@@ -104,6 +105,7 @@ export interface IBrand {
     slug: string;
     description: string;
     image: string;
+    productCount: number;
     status: BrandStatus;
 }
 

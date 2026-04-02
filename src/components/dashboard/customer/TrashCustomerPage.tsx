@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
     Select,
@@ -34,14 +34,22 @@ import {
 import { MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
 import BreadCrumbPage from "@/components/shared/BreadCrumbPage";
 import DeleteAlert from "@/components/dashboard/DeleteAlert";
+import {SearchForm} from "@/components/shared/search-form";
+import Sort from "@/components/shared/Sort";
+import TablePagination from "@/components/shared/TablePagination";
 
 const TrashCustomerPage = () => {
-    const [search, setSearch] = useState("");
-    const [sort, setSort] = useState("");
+    // Search + sort + pagination
+    const [searchTerm, setSearchTerm] = React.useState("");
+    const [sort, setSort] = React.useState("");
+    const [page, setPage] = React.useState(1);
+    const limit = 10;
 
     const { data, isLoading } = useGetAllTrashCustomersQuery({
-        searchTerm: search,
-        sort,
+        ...(searchTerm && { searchTerm }),
+        ...(sort && { sort }),
+        page,
+        limit,
     });
 
     const users: IUser[] = data?.data || [];
@@ -103,23 +111,9 @@ const TrashCustomerPage = () => {
             />
 
             {/* Filters */}
-            <div className="flex sm:flex-col md:flex-row gap-4">
-                <Input
-                    placeholder="Search customer..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-
-                <Select onValueChange={(value) => setSort(value)}>
-                    <SelectTrigger className="w-[200px] cursor-pointer">
-                        <SelectValue placeholder="Sort By" />
-                    </SelectTrigger>
-
-                    <SelectContent>
-                        <SelectItem value="-createdAt">Newest</SelectItem>
-                        <SelectItem value="createdAt">Oldest</SelectItem>
-                    </SelectContent>
-                </Select>
+            <div className="flex items-center gap-5">
+                <SearchForm onSearchChange={setSearchTerm} />
+                <Sort onChange={setSort} />
             </div>
 
             {/* Table */}
@@ -196,6 +190,12 @@ const TrashCustomerPage = () => {
                     </TableBody>
                 </Table>
             </div>
+            {/*pagination*/}
+            <TablePagination
+                currentPage={page}
+                totalPages={data?.meta?.totalPage ?? 1}
+                onPageChange={setPage}
+            />
 
             {/* ✅ Alert */}
             <DeleteAlert

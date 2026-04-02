@@ -24,6 +24,9 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
+import PImage from "../../../../public/product-placeholder.png"
+import Image from "next/image";
+import ProductGallery from "@/components/shared/ProductGallery";
 
 export default function ProductSingleDetails() {
     const params = useParams();
@@ -49,6 +52,8 @@ export default function ProductSingleDetails() {
 
     const product = data?.data;
 
+
+
     return (
         <div className="p-6 space-y-6">
             {/* Breadcrumb */}
@@ -73,34 +78,8 @@ export default function ProductSingleDetails() {
 
                 {/* LEFT: IMAGE SECTION */}
                 <Card className="p-4 space-y-4">
-                    <div className="rounded-xl overflow-hidden border bg-muted">
-                        <img
-                            src={product?.images[selectedImage]}
-                            alt={product?.title}
-                            className="w-full h-[300px] object-cover"
-                        />
-                    </div>
-
                     {/* Thumbnails */}
-                    <div className="flex gap-3">
-                        {product?.images.map((img: string, i: number) => (
-                            <button
-                                key={i}
-                                onClick={() => setSelectedImage(i)}
-                                className={`w-20 h-20 rounded-lg border overflow-hidden ${
-                                    selectedImage === i
-                                        ? "ring-2 ring-primary"
-                                        : "opacity-70"
-                                }`}
-                            >
-                                <img
-                                    src={img}
-                                    alt=""
-                                    className="w-full h-full object-cover"
-                                />
-                            </button>
-                        ))}
-                    </div>
+                    {product && <ProductGallery product={product} />}
                 </Card>
 
                 {/* RIGHT: INFO SECTION */}

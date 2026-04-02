@@ -28,6 +28,8 @@ import { useGetAllCategoriesQuery } from "@/redux/features/category/category.api
 import { useGetAllBrandsQuery } from "@/redux/features/brand/brand.api";
 
 import { IBrand, ICategory } from "@/types";
+import {Breadcrumb} from "@/components/ui/breadcrumb";
+import BreadCrumbPage from "@/components/shared/BreadCrumbPage";
 
 // 🔥 Editor (No SSR)
 const ProductEditor = dynamic(
@@ -133,164 +135,175 @@ export default function CreateProduct() {
     };
 
     return (
-        <div className="p-6 max-w-5xl mx-auto">
-            <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="text-xl">Create Product</CardTitle>
-                </CardHeader>
+        <div>
 
-                <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className={"p-6"}>
+                <div className={"mb-6"}>
+                    <BreadCrumbPage
+                        BreadcrumbTitle={"Product Management"}
+                        BreadCrumbLink={"/staff/dashboard/admin/product-management"}
+                        BreadCrumbPage={"Create Product"}
+                    />
+                </div>
 
-                        {/* TITLE */}
-                        <div className="space-y-2">
-                            <Label>Product Title</Label>
-                            <Input {...register("title")} />
-                            <p className="text-red-500 text-xs">{errors.title?.message}</p>
-                        </div>
+                <Card className="shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="text-xl">Create Product</CardTitle>
+                    </CardHeader>
 
-                        {/* BRAND + CATEGORY */}
-                        <div className="grid md:grid-cols-2 gap-4">
+                    <CardContent>
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
+                            {/* TITLE */}
                             <div className="space-y-2">
-                                <Label>Brand</Label>
-                                <Controller
-                                    control={control}
-                                    name="brand"
-                                    render={({ field }) => (
-                                        <Select onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select brand" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {brands.map((b: IBrand) => (
-                                                    <SelectItem key={b._id} value={b._id}>
-                                                        {b.title}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                                <p className="text-red-500 text-xs">{errors.brand?.message}</p>
+                                <Label>Product Title</Label>
+                                <Input {...register("title")} />
+                                <p className="text-red-500 text-xs">{errors.title?.message}</p>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label>Category</Label>
-                                <Controller
-                                    control={control}
-                                    name="category"
-                                    render={({ field }) => (
-                                        <Select onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select category" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {categories.map((c: ICategory) => (
-                                                    <SelectItem key={c._id} value={c._id}>
-                                                        {c.title}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                                <p className="text-red-500 text-xs">{errors.category?.message}</p>
-                            </div>
+                            {/* BRAND + CATEGORY */}
+                            <div className="grid md:grid-cols-2 gap-4">
 
-                        </div>
-
-                        {/* PRICE */}
-                        <div className="grid md:grid-cols-4 gap-4">
-
-                            <div className="space-y-2">
-                                <Label>Buying Price</Label>
-                                <Input type="number" {...register("buyingPrice")} />
-                                <p className="text-red-500 text-xs">{errors.buyingPrice?.message}</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Price</Label>
-                                <Input type="number" {...register("price")} />
-                                <p className="text-red-500 text-xs">{errors.price?.message}</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Discount Price</Label>
-                                <Input type="number" {...register("discountPrice")} />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Stock</Label>
-                                <Input type="number" {...register("availableStock")} />
-                                <p className="text-red-500 text-xs">{errors.availableStock?.message}</p>
-                            </div>
-                        </div>
-
-                        {/* DESCRIPTION */}
-                        <div className="space-y-2">
-                            <Label>Description</Label>
-                            <Controller
-                                name="description"
-                                control={control}
-                                render={({ field }) => (
-                                    <ProductEditor
-                                        content={field.value || ""}
-                                        onChange={field.onChange}
+                                <div className="space-y-2">
+                                    <Label>Brand</Label>
+                                    <Controller
+                                        control={control}
+                                        name="brand"
+                                        render={({ field }) => (
+                                            <Select onValueChange={field.onChange}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select brand" />
+                                                </SelectTrigger>
+                                                <SelectContent position={"popper"} align={"start"}>
+                                                    {brands.map((b: IBrand) => (
+                                                        <SelectItem key={b._id} value={b._id}>
+                                                            {b.title}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
                                     />
-                                )}
-                            />
-                            <p className="text-red-500 text-xs">{errors.description?.message}</p>
-                        </div>
+                                    <p className="text-red-500 text-xs">{errors.brand?.message}</p>
+                                </div>
 
-                        {/* IMAGE */}
-                        <div className="space-y-3">
-                            <Label>Images</Label>
+                                <div className="space-y-2">
+                                    <Label>Category</Label>
+                                    <Controller
+                                        control={control}
+                                        name="category"
+                                        render={({ field }) => (
+                                            <Select onValueChange={field.onChange}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select category" />
+                                                </SelectTrigger>
+                                                <SelectContent position={"popper"} align={"end"}>
+                                                    {categories.map((c: ICategory) => (
+                                                        <SelectItem key={c._id} value={c._id}>
+                                                            {c.title}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    />
+                                    <p className="text-red-500 text-xs">{errors.category?.message}</p>
+                                </div>
 
-                            <label className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center cursor-pointer hover:bg-muted transition">
-                                <Upload className="mb-2" />
-                                <span className="text-sm text-muted-foreground">
+                            </div>
+
+                            {/* PRICE */}
+                            <div className="grid md:grid-cols-4 gap-4">
+
+                                <div className="space-y-2">
+                                    <Label>Buying Price</Label>
+                                    <Input type="number" {...register("buyingPrice")} />
+                                    <p className="text-red-500 text-xs">{errors.buyingPrice?.message}</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Sell Price</Label>
+                                    <Input type="number" {...register("price")} />
+                                    <p className="text-red-500 text-xs">{errors.price?.message}</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Sell Discount Price</Label>
+                                    <Input type="number" {...register("discountPrice")} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Stock</Label>
+                                    <Input type="number" {...register("availableStock")} />
+                                    <p className="text-red-500 text-xs">{errors.availableStock?.message}</p>
+                                </div>
+                            </div>
+
+                            {/* DESCRIPTION */}
+                            <div className="space-y-2">
+                                <Label>Description</Label>
+                                <Controller
+                                    name="description"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <ProductEditor
+                                            content={field.value || ""}
+                                            onChange={field.onChange}
+                                        />
+                                    )}
+                                />
+                                <p className="text-red-500 text-xs">{errors.description?.message}</p>
+                            </div>
+
+                            {/* IMAGE */}
+                            <div className="space-y-3">
+                                <Label>Image Gallary</Label>
+
+                                <label className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center cursor-pointer hover:bg-muted transition">
+                                    <Upload className="mb-2" />
+                                    <span className="text-sm text-muted-foreground">
                                   Upload Images
                                 </span>
-                                <input
-                                    type="file"
-                                    multiple
-                                    className="hidden"
-                                    onChange={handleImageChange}
-                                />
-                            </label>
+                                    <input
+                                        type="file"
+                                        multiple
+                                        className="hidden"
+                                        onChange={handleImageChange}
+                                    />
+                                </label>
 
-                            <div className="flex gap-3 flex-wrap">
-                                {previews.map((src, index) => (
-                                    <div key={index} className="relative w-24 h-24">
-                                        <Image
-                                            src={src}
-                                            alt="preview"
-                                            fill
-                                            className="object-cover rounded"
-                                        />
-                                        <button
-                                            type="button"
-                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
-                                            onClick={() => handleRemoveImage(index)}
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                    </div>
-                                ))}
+                                <div className="flex gap-3 flex-wrap">
+                                    {previews.map((src, index) => (
+                                        <div key={index} className="relative w-24 h-24">
+                                            <Image
+                                                src={src}
+                                                alt="preview"
+                                                fill
+                                                className="object-cover rounded"
+                                            />
+                                            <button
+                                                type="button"
+                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                                                onClick={() => handleRemoveImage(index)}
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <p className="text-red-500 text-xs">{errors.images?.message}</p>
                             </div>
 
-                            <p className="text-red-500 text-xs">{errors.images?.message}</p>
-                        </div>
+                            {/* SUBMIT */}
+                            <Button className="w-full" type="submit" disabled={isLoading}>
+                                {isLoading ? "Creating..." : "Create Product"}
+                            </Button>
 
-                        {/* SUBMIT */}
-                        <Button className="w-full" type="submit" disabled={isLoading}>
-                            {isLoading ? "Creating..." : "Create Product"}
-                        </Button>
-
-                    </form>
-                </CardContent>
-            </Card>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }

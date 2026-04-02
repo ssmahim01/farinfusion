@@ -109,7 +109,6 @@ const LeadsTable: React.FC = () => {
             ) : (
                 <>
                     <DashboardPageHeader title="Leads Management" />
-
                     {/* Search + Sort + Add / Trash */}
                     <div className="sm:flex sm:justify-between items-center">
                         <div className="flex items-center gap-5">

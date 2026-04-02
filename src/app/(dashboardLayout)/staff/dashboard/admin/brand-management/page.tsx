@@ -37,6 +37,8 @@ const BrandManagementPage = () => {
     limit,
   });
 
+
+
   // Modal states
   const [selectedBrand, setSelectedBrand] = React.useState<IBrand | null>(null);
   const [openViewModal, setOpenViewModal] = React.useState(false);
@@ -62,7 +64,9 @@ const BrandManagementPage = () => {
   // Table columns
   const columns: ColumnDef<IBrand>[] = [
     { accessorKey: "title", header: "Title" },
-    { accessorKey: "product count", header: "Product Count" },
+    { accessorKey: "productCount", header: "Product Count",
+      cell: ({ row }) => row.original.productCount ?? 0,
+    },
     { accessorKey: "status", header: "Status" },
   ];
 
