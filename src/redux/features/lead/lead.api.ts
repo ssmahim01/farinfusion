@@ -59,7 +59,26 @@ export const leadApi = baseApi.injectEndpoints({
         params: params
       }),
       providesTags: ["LEADS"],
+    }),
 
+
+    // ⭐ GET ALL TRASH
+    getAllTrashLeads: builder.query<GetAllLeadResponse, GetQueryParams>({
+      query: (params) => ({
+        url: "/lead/all-trash-leads",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["LEADS"],
+    }),
+
+    // ⭐ TRASH UPDATE  and Restore both work
+    trashUpdateLead: builder.mutation<IResponse<ILead>, { _id: string;}>({
+      query: ({ _id }) => ({
+        url: `/lead/lead-trash/${_id}`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, { _id }) => ["LEADS", { type: "LEAD", _id }],
     }),
 
 
@@ -73,4 +92,6 @@ export const {
   useDeleteLeadMutation,
   useGetSingleLeadQuery,
   useGetAllLeadQuery,
+    useGetAllTrashLeadsQuery,
+    useTrashUpdateLeadMutation,
 } = leadApi;

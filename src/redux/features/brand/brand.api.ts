@@ -69,7 +69,7 @@ export const brandApi = baseApi.injectEndpoints({
       providesTags: ["BRANDS"],
     }),
 
-    //
+    // ⭐ GET ALL TRASH
     getAllTrashBrands: builder.query<GetAllBrandsResponse, GetQueryParams>({
       query: (params) => ({
         url: "/brand/all-trash-brands",
@@ -82,11 +82,13 @@ export const brandApi = baseApi.injectEndpoints({
     // ⭐ TRASH UPDATE PRODUCT and Restore both work
     trashUpdateBrand: builder.mutation<IResponse<IBrand>, { _id: string;}>({
       query: ({ _id }) => ({
-        url: `/product/brand-trash/${_id}`,
+        url: `/brand/brand-trash/${_id}`,
         method: "POST",
       }),
       invalidatesTags: (result, error, { _id }) => ["BRANDS", { type: "BRAND", _id }],
     }),
+
+
   }),
 
   overrideExisting: true,

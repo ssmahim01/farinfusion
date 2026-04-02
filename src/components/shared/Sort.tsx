@@ -4,14 +4,14 @@ import { ArrowUpDown } from "lucide-react";
 export default function Sort({ onChange }: { onChange?: (value: string) => void }) {
   return (
     <Select onValueChange={(value) => onChange?.(value)}>
-      <SelectTrigger className="h-7.5 w-40">
+      <SelectTrigger className="h-7.5 w-40 cursor-pointer">
         <ArrowUpDown size={13} />
         <SelectValue placeholder="Sort" />
       </SelectTrigger>
 
       <SelectContent position="popper">
-        <SelectItem value="-createdAt">Newest</SelectItem>
-        <SelectItem value="createdAt">Oldest</SelectItem>
+        <SelectItem className={"cursor-pointer"} value="-createdAt">Newest</SelectItem>
+        <SelectItem className={"cursor-pointer"} value="createdAt">Oldest</SelectItem>
       </SelectContent>
     </Select>
   );

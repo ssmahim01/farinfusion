@@ -3,8 +3,11 @@
 
 "use client";
 
-import { useGetAllUsersQuery, useDeleteUserMutation, useGetAllCustomersQuery } from "@/redux/features/user/user.api";
-import { IUser } from "@/types";
+import {
+  useGetAllCustomersQuery,
+  useTrashUpdateCustomerMutation
+} from "@/redux/features/user/user.api";
+import {ICategory, IUser} from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 
@@ -20,7 +23,7 @@ import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import CustomerToolbar from "@/components/dashboard/customer/CustomerToolbar";
 
 const CustomerManagementPage = () => {
-  const [deleteUser] = useDeleteUserMutation();
+  const [trashCustomer] = useTrashUpdateCustomerMutation();
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [sort, setSort] = React.useState("");
@@ -41,15 +44,15 @@ const CustomerManagementPage = () => {
   const [userToDelete, setUserToDelete] = React.useState<IUser | null>(null);
   const [openDeleteAlert, setOpenDeleteAlert] = React.useState(false);
 
-  // Delete handler
-  const handleDelete = async (user: IUser) => {
+  // ✅ Trash handler
+  const handleDelete = async (Data: IUser) => {
     try {
-      const res = await deleteUser(user._id);
-      if (res?.data?.success) {
-        toast.success("User deleted successfully");
+      const res = await trashCustomer({ _id: Data._id as string }).unwrap();
+      if (res.success) {
+        toast.success("Product moved to trash");
       }
     } catch (error: any) {
-      toast.error("Failed to delete user");
+      toast.error(error?.data?.message || "Failed to delete product");
     }
   };
 

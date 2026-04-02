@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 import {
   useGetAllBrandsQuery,
-  useDeleteBrandMutation,
+  useTrashUpdateBrandMutation,
 } from "@/redux/features/brand/brand.api";
 
 import DashboardManagementPageSkeleton from "@/components/dashboard/DashboardManagePageSkeleton";
@@ -23,7 +23,7 @@ import UpdateBrandModal from "@/components/dashboard/brand/UpdateBrandModal";
 import { IBrand } from "@/types";
 
 const BrandManagementPage = () => {
-  const [deleteBrand] = useDeleteBrandMutation();
+  const [trashBrand] = useTrashUpdateBrandMutation();
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [sort, setSort] = React.useState("");
@@ -47,15 +47,15 @@ const BrandManagementPage = () => {
   const [brandToDelete, setBrandToDelete] = React.useState<IBrand | null>(null);
   const [openDeleteAlert, setOpenDeleteAlert] = React.useState(false);
 
-  // Delete handler
+  // Trash handler
   const handleDelete = async (brand: IBrand) => {
     try {
-      const res = await deleteBrand(brand._id as string).unwrap();
+      const res = await trashBrand({ _id: brand._id as string }).unwrap();
       if (res.success) {
-        toast.success("Brand deleted successfully");
+        toast.success("Moved to trash");
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to delete brand");
+      toast.error(error?.data?.message || "Failed to Trash");
     }
   };
 

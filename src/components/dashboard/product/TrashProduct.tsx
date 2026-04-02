@@ -20,21 +20,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
     useDeleteProductMutation,
     useGetAllTrashProductsQuery,
     useTrashUpdateProductMutation
 } from "@/redux/features/product/product.api";
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
-import {MoreHorizontal, RotateCcw, Trash2, Trash2Icon} from "lucide-react";
-
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
+import BreadCrumbPage from "@/components/shared/BreadCrumbPage";
+import DeleteAlert from "@/components/dashboard/DeleteAlert";
 
 const TrashProductsPage = () => {
     const [search, setSearch] = useState("");
@@ -50,49 +48,60 @@ const TrashProductsPage = () => {
     const [restoreProduct] = useTrashUpdateProductMutation();
     const [deleteProduct] = useDeleteProductMutation();
 
+    // ✅ Alert states
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [actionType, setActionType] = useState<"restore" | "delete">("delete");
+
+    const openAlert = (id: string, type: "restore" | "delete") => {
+        setSelectedId(id);
+        setActionType(type);
+        setAlertOpen(true);
+    };
+
     // ✅ Restore
-    const handleRestore = async (id: string) => {
+    const handleRestore = async () => {
+        if (!selectedId) return;
+
         try {
-            const res = await restoreProduct({ _id: id }).unwrap();
+            const res = await restoreProduct({ _id: selectedId }).unwrap();
             if (res.success) {
                 toast.success("Product restored successfully");
             }
         } catch (err: any) {
             toast.error(err?.data?.message || "Restore failed");
+        } finally {
+            setAlertOpen(false);
         }
     };
 
     // ❌ Permanent Delete
-    const handleHardDelete = async (id: string) => {
+    const handleHardDelete = async () => {
+        if (!selectedId) return;
+
         try {
-            const res = await deleteProduct(id).unwrap();
+            const res = await deleteProduct(selectedId).unwrap();
             if (res.success) {
                 toast.success("Product permanently deleted");
             }
         } catch (err: any) {
             toast.error(err?.data?.message || "Delete failed");
+        } finally {
+            setAlertOpen(false);
         }
     };
 
     return (
         <div className="px-2 sm:px-6 py-6 space-y-6">
             {/* Breadcrumb */}
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/staff/dashboard/admin/product-management">
-                            Product Management
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Product Trash</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadCrumbPage
+                BreadcrumbTitle={"Product Management"}
+                BreadCrumbLink={"/staff/dashboard/admin/product-management"}
+                BreadCrumbPage={"Product Trash"}
+            />
 
             {/* Filters */}
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex sm:flex-col md:flex-row gap-4">
                 <Input
                     placeholder="Search product..."
                     value={search}
@@ -117,7 +126,7 @@ const TrashProductsPage = () => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Product</TableHead>
-                            <TableHead>Price</TableHead>
+                            <TableHead>Selling Price</TableHead>
                             <TableHead>Stock</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-right">Action</TableHead>
@@ -144,23 +153,24 @@ const TrashProductsPage = () => {
                                         {product.title}
                                     </TableCell>
                                     <TableCell>৳ {product.price}</TableCell>
-                                    <TableCell>{product.availableStock}</TableCell>
+                                    <TableCell>{product.availableStock && product?.availableStock>0 ? product?.availableStock : "Out of Stock"}</TableCell>
                                     <TableCell className="text-red-500">
                                         Deleted
                                     </TableCell>
-                                    <TableCell className="text-right space-x-2">
+                                    <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button className={"cursor-pointer"} variant="ghost" size="icon">
                                                     <MoreHorizontal />
                                                 </Button>
                                             </DropdownMenuTrigger>
+
                                             <DropdownMenuContent align="end" className="w-44">
 
                                                 {/* Restore */}
                                                 <DropdownMenuItem
-                                                    className="cursor-pointer"
-                                                    onClick={() => handleRestore(product._id as string)}
+                                                    className={"cursor-pointer"}
+                                                    onClick={() => openAlert(product._id as string, "restore")}
                                                 >
                                                     <RotateCcw className="w-4 h-4 mr-2 text-green-500" />
                                                     Restore
@@ -168,8 +178,8 @@ const TrashProductsPage = () => {
 
                                                 {/* Hard Delete */}
                                                 <DropdownMenuItem
-                                                    className="cursor-pointer text-red-500 focus:text-red-600"
-                                                    onClick={() => handleHardDelete(product._id as string)}
+                                                    className="text-red-500 focus:text-red-600 cursor-pointer"
+                                                    onClick={() => openAlert(product._id as string, "delete")}
                                                 >
                                                     <Trash2 className="w-4 h-4 mr-2" />
                                                     Delete Forever
@@ -184,6 +194,20 @@ const TrashProductsPage = () => {
                     </TableBody>
                 </Table>
             </div>
+
+            {/* ✅ Delete Alert */}
+            <DeleteAlert
+                open={alertOpen}
+                onOpenChange={setAlertOpen}
+                description={
+                    actionType === "delete"
+                        ? "This action will permanently delete the product. Are you sure?"
+                        : "Are you sure you want to restore this product?"
+                }
+                onConfirm={
+                    actionType === "delete" ? handleHardDelete : handleRestore
+                }
+            />
         </div>
     );
 };

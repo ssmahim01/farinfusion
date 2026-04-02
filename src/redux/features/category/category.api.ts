@@ -69,6 +69,26 @@ export const categoryApi = baseApi.injectEndpoints({
       providesTags: ["CATEGORIES"],
     }),
 
+// ⭐ GET ALL TRASH
+    getAllTrashCategories: builder.query<GetAllCategoriesResponse, GetQueryParams>({
+      query: (params) => ({
+        url: "/category/all-trash-categories",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["CATEGORIES"],
+    }),
+
+    // ⭐ TRASH UPDATE and Restore both work
+    trashUpdateCategory: builder.mutation<IResponse<ICategory>, { _id: string;}>({
+      query: ({ _id }) => ({
+        url: `/category/category-trash/${_id}`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, { _id }) => ["CATEGORIES", { type: "CATEGORY", _id }],
+    }),
+
+
   }),
 
   overrideExisting: true,
@@ -81,4 +101,6 @@ export const {
   useDeleteCategoryMutation,
   useGetSingleCategoryQuery,
   useGetAllCategoriesQuery,
+    useGetAllTrashCategoriesQuery,
+    useTrashUpdateCategoryMutation,
 } = categoryApi;
