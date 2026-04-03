@@ -19,7 +19,7 @@ export default function CategoryToolbar({
 }: CategoryToolbarProps) {
     const router = useRouter();
   return (
-    <div className="flex items-center justify-between gap-2 w-full my-4">
+    <div className="sm:flex space-y-2 sm:space-y-0 items-center justify-between gap-2 w-full my-4">
       <div className="flex items-center gap-4">
         {/* Search */}
         <SearchForm onSearchChange={onSearchChange} />
@@ -29,7 +29,7 @@ export default function CategoryToolbar({
       </div>
 
       {/* Create Category Modal */}
-        <div className="flex items-center gap-4">
+        <div className="grid grid-cols-2 items-center gap-4">
             <Button
                 type="button"
                 variant="destructive"

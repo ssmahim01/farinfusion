@@ -32,7 +32,7 @@ export default function ProductToolbar({ onSearchChange, onSortChange }: Product
                 Trash
             </Button>
             <Link href="/staff/dashboard/admin/product-management/create-product">
-                <Button>Add Product</Button>
+                <Button className={"cursor-pointer"}>Add Product</Button>
             </Link>
         </div>
     </div>

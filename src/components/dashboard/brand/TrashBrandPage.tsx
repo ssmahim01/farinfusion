@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import React, {useState} from "react";
+import {Input} from "@/components/ui/input";
 import {
     Select,
     SelectContent,
@@ -17,42 +17,79 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import {Button} from "@/components/ui/button";
 
-
-import {IBrand, IProduct} from "@/types";
+import {IBrand} from "@/types";
 import {toast} from "sonner";
 import BreadCrumbPage from "@/components/shared/BreadCrumbPage";
-import {useGetAllTrashBrandsQuery, useTrashUpdateBrandMutation} from "@/redux/features/brand/brand.api";
-
+import {
+    useDeleteBrandMutation,
+    useGetAllTrashBrandsQuery,
+    useTrashUpdateBrandMutation
+} from "@/redux/features/brand/brand.api";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import {MoreHorizontal, RotateCcw, Trash2} from "lucide-react";
+import DeleteAlert from "@/components/dashboard/DeleteAlert";
+import TablePagination from "@/components/shared/TablePagination";
+import {SearchForm} from "@/components/shared/search-form";
+import Sort from "@/components/shared/Sort";
 
 const TrashBrandPage = () => {
-    const [search, setSearch] = useState("");
-    const [sort, setSort] = useState("");
+    // Search + sort + pagination
+    const [searchTerm, setSearchTerm] = React.useState("");
+    const [sort, setSort] = React.useState("");
+    const [page, setPage] = React.useState(1);
+    const limit = 10;
 
-    const { data, isLoading } = useGetAllTrashBrandsQuery({
-        searchTerm: search,
-        sort,
+    const {data, isLoading} = useGetAllTrashBrandsQuery({
+        ...(searchTerm && {searchTerm}),
+        ...(sort && {sort}),
+        page,
+        limit,
     });
 
     const brands: IBrand[] = data?.data || [];
-    console.log(brands);
 
-    const [updateTrash] = useTrashUpdateBrandMutation();
+    const [restoreBrand] = useTrashUpdateBrandMutation();
+    const [deleteBrand] = useDeleteBrandMutation();
 
-    const handleRestore = async (id: string) => {
-        // try {
-        //     await updateTrash({
-        //         _id: id,
-        //         data: { isDeleted: false },
-        //     }).unwrap();
-        //     toast.success("Product restored successfully!");
-        // } catch (err) {
-        //     toast.error("Failed to restore product");
-        // }
-        toast.success("Pending work");
+    // DeleteAlert states
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
+    const [alertType, setAlertType] = useState<"restore" | "delete">("delete");
+
+    // Open alert
+    const openAlert = (id: string, type: "restore" | "delete") => {
+        setSelectedBrandId(id);
+        setAlertType(type);
+        setAlertOpen(true);
     };
 
+    // ✅ Restore
+    const handleRestore = async () => {
+        if (!selectedBrandId) return;
+        try {
+            const res = await restoreBrand({_id: selectedBrandId}).unwrap();
+            if (res.success) toast.success("Brand restored successfully");
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Restore failed");
+        } finally {
+            setAlertOpen(false);
+        }
+    };
+
+    // ❌ Permanent Delete
+    const handleHardDelete = async () => {
+        if (!selectedBrandId) return;
+        try {
+            const res = await deleteBrand(selectedBrandId).unwrap();
+            if (res.success) toast.success("Brand permanently deleted");
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Delete failed");
+        } finally {
+            setAlertOpen(false);
+        }
+    };
 
     return (
         <div className="px-2 sm:px-6 py-6 space-y-6">
@@ -62,24 +99,11 @@ const TrashBrandPage = () => {
                 BreadCrumbLink={"/staff/dashboard/admin/brand-management"}
                 BreadCrumbPage={"Brand Trash"}
             />
+
             {/* 🔍 Filters */}
-            <div className="flex flex-col md:flex-row gap-4">
-                <Input
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-
-                <Select onValueChange={(value) => setSort(value)}>
-                    <SelectTrigger className="w-[200px] cursor-pointer">
-                        <SelectValue placeholder="Sort By" />
-                    </SelectTrigger>
-
-                    <SelectContent position="popper">
-                        <SelectItem value="-createdAt">Newest</SelectItem>
-                        <SelectItem value="createdAt">Oldest</SelectItem>
-                    </SelectContent>
-                </Select>
+            <div className="flex items-center gap-5">
+                <SearchForm onSearchChange={setSearchTerm} />
+                <Sort onChange={setSort} />
             </div>
 
             {/* 📊 Table */}
@@ -104,21 +128,44 @@ const TrashBrandPage = () => {
                         ) : brands.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center py-6">
-                                    No Trash Customer Found
+                                    No Trash Brand Found
                                 </TableCell>
                             </TableRow>
                         ) : (
                             brands.map((item) => (
                                 <TableRow key={item._id}>
                                     <TableCell className="font-medium">{item.title}</TableCell>
+                                    <TableCell className="font-medium">{item?.productCount ?? 0}</TableCell>
                                     <TableCell className="text-red-500">Deleted</TableCell>
                                     <TableCell className="text-right">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => handleRestore(item._id as string)}
-                                        >
-                                            Restore
-                                        </Button>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className={"cursor-pointer"}>
+                                                    <MoreHorizontal/>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-44">
+
+                                                {/* Restore */}
+                                                <DropdownMenuItem
+                                                    className={"cursor-pointer"}
+                                                    onClick={() => openAlert(item._id, "restore")}
+                                                >
+                                                    <RotateCcw className="w-4 h-4 mr-2 text-green-500"/>
+                                                    Restore
+                                                </DropdownMenuItem>
+
+                                                {/* Hard Delete */}
+                                                <DropdownMenuItem
+                                                    className="text-red-500 focus:text-red-600 cursor-pointer"
+                                                    onClick={() => openAlert(item._id, "delete")}
+                                                >
+                                                    <Trash2 className="w-4 h-4 mr-2"/>
+                                                    Delete Forever
+                                                </DropdownMenuItem>
+
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -126,6 +173,24 @@ const TrashBrandPage = () => {
                     </TableBody>
                 </Table>
             </div>
+
+            <TablePagination
+                currentPage={page}
+                totalPages={data?.meta?.totalPage ?? 1}
+                onPageChange={setPage}
+            />
+
+            {/* DeleteAlert */}
+            <DeleteAlert
+                open={alertOpen}
+                onOpenChange={setAlertOpen}
+                description={
+                    alertType === "delete"
+                        ? "This action will permanently delete the brand. Are you sure?"
+                        : "Are you sure you want to restore this brand?"
+                }
+                onConfirm={alertType === "delete" ? handleHardDelete : handleRestore}
+            />
         </div>
     );
 };

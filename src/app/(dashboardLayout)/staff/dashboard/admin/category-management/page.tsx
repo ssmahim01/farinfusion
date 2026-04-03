@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 import {
   useGetAllCategoriesQuery,
-  useDeleteCategoryMutation,
+  useTrashUpdateCategoryMutation,
 } from "@/redux/features/category/category.api";
 
 
@@ -20,12 +20,11 @@ import TablePagination from "@/components/shared/TablePagination";
 import { DynamicDataTable } from "@/components/dashboard/DataTable";
 import CategoryToolbar from "@/components/dashboard/category/CategoryToolbar";
 import CategoryDetailsModal from "@/components/dashboard/category/CategoryDetailsModal";
-// import UpdateCategoryModal from "@/components/dashboard/category/UpdateCategoryModal";
 import { ICategory } from "@/types";
 import UpdateCategoryModal from "@/components/dashboard/category/UpdateCategoryModal";
 
 const CategoryManagementPage = () => {
-  const [deleteCategory] = useDeleteCategoryMutation();
+  const [trashCategory] = useTrashUpdateCategoryMutation();
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [sort, setSort] = React.useState("");
@@ -49,15 +48,16 @@ const CategoryManagementPage = () => {
   const [categoryToDelete, setCategoryToDelete] = React.useState<ICategory | null>(null);
   const [openDeleteAlert, setOpenDeleteAlert] = React.useState(false);
 
-  // Delete handler
-  const handleDelete = async (category: ICategory) => {
+
+  // ✅ Trash handler
+  const handleDelete = async (Data: ICategory) => {
     try {
-      const res = await deleteCategory(category._id as string).unwrap();
+      const res = await trashCategory({ _id: Data._id as string }).unwrap();
       if (res.success) {
-        toast.success("Category deleted successfully");
+        toast.success("Product moved to trash");
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to delete category");
+      toast.error(error?.data?.message || "Failed to delete product");
     }
   };
 
@@ -65,7 +65,9 @@ const CategoryManagementPage = () => {
   // Table columns
   const columns: ColumnDef<ICategory>[] = [
     { accessorKey: "title", header: "Title" },
-    { accessorKey: "Product Count", header: "Product Count" },
+    { accessorKey: "productCount", header: "Product Count" ,
+      cell: ({ row }) => row.original.productCount ?? 0,
+    },
     { accessorKey: "status", header: "Status" },
   ];
 

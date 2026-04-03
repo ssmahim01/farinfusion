@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
     Select,
@@ -18,72 +18,100 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
-import {useGetAllTrashProductsQuery, useUpdateProductMutation,} from "@/redux/features/product/product.api";
-import {IProduct} from "@/types";
-import {toast} from "sonner";
 import BreadCrumbPage from "@/components/shared/BreadCrumbPage";
+import DeleteAlert from "@/components/dashboard/DeleteAlert";
 
+import {
+    useGetAllTrashUsersQuery,
+    useTrashUpdateUserMutation,
+    useDeleteUserMutation,
+} from "@/redux/features/user/user.api";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
+import { IUser } from "@/types";
+import {SearchForm} from "@/components/shared/search-form";
+import Sort from "@/components/shared/Sort";
+import TablePagination from "@/components/shared/TablePagination";
 
 const TrashUserPage = () => {
-    const [search, setSearch] = useState("");
-    const [sort, setSort] = useState("");
+    // Search + sort + pagination
+    const [searchTerm, setSearchTerm] = React.useState("");
+    const [sort, setSort] = React.useState("");
+    const [page, setPage] = React.useState(1);
+    const limit = 10;
 
-    const { data, isLoading } = useGetAllTrashProductsQuery({
-        searchTerm: search,
-        sort,
+
+    const { data, isLoading } = useGetAllTrashUsersQuery({
+        ...(searchTerm && { searchTerm }),
+        ...(sort && { sort }),
+        page,
+        limit,
     });
 
-    const products: IProduct[] = data?.data || [];
+    const users: IUser[] = data?.data || [];
+    const trashUsers = users.filter((user) => user.isDeleted);
 
-    const [updateTrash] = useUpdateProductMutation();
+    const [updateTrash] = useTrashUpdateUserMutation();
+    const [deleteUser] = useDeleteUserMutation();
 
-    const handleRestore = async (id: string) => {
-        // try {
-        //     await updateTrash({
-        //         _id: id,
-        //         data: { isDeleted: false },
-        //     }).unwrap();
-        //     toast.success("Product restored successfully!");
-        // } catch (err) {
-        //     toast.error("Failed to restore product");
-        // }
-        toast.success("Pending work");
+    // ✅ Alert states
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [actionType, setActionType] = useState<"restore" | "delete">("delete");
+
+    const openAlert = (id: string, type: "restore" | "delete") => {
+        setSelectedUserId(id);
+        setActionType(type);
+        setAlertOpen(true);
     };
 
-    // Filter deleted products only
-    const trashProducts = products.filter((product) => product.isDeleted === true);
+    // ✅ Restore
+    const handleRestore = async () => {
+        if (!selectedUserId) return;
 
+        try {
+            // @ts-expect-error
+            await updateTrash({ _id: selectedUserId, data: { isDeleted: false } }).unwrap();
+            toast.success("User restored successfully!");
+        } catch {
+            toast.error("Failed to restore user");
+        } finally {
+            setAlertOpen(false);
+        }
+    };
+
+    // ❌ Permanent Delete
+    const handleHardDelete = async () => {
+        if (!selectedUserId) return;
+
+        try {
+            await deleteUser(selectedUserId).unwrap();
+            toast.success("User permanently deleted!");
+        } catch {
+            toast.error("Failed to delete user");
+        } finally {
+            setAlertOpen(false);
+        }
+    };
 
     return (
         <div className="px-2 sm:px-6 py-6 space-y-6">
-            {/*Breadcrumb */}
+            {/* Breadcrumb */}
             <BreadCrumbPage
-                BreadcrumbTitle={"User Management"}
-                BreadCrumbLink={"/staff/dashboard/admin/user-management"}
-                BreadCrumbPage={"User Trash"}
+                BreadcrumbTitle="User Management"
+                BreadCrumbLink="/staff/dashboard/admin/user-management"
+                BreadCrumbPage="User Trash"
             />
-            {/* 🔍 Filters */}
-            <div className="flex flex-col md:flex-row gap-4">
-                <Input
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
 
-                <Select onValueChange={(value) => setSort(value)}>
-                    <SelectTrigger className="w-[200px] cursor-pointer">
-                        <SelectValue placeholder="Sort By" />
-                    </SelectTrigger>
-
-                    <SelectContent position="popper">
-                        <SelectItem value="-createdAt">Newest</SelectItem>
-                        <SelectItem value="createdAt">Oldest</SelectItem>
-                    </SelectContent>
-                </Select>
+            {/* Filters */}
+            <div className="flex items-center gap-5">
+                <SearchForm onSearchChange={setSearchTerm} />
+                <Sort onChange={setSort} />
             </div>
 
-            {/* 📊 Table */}
+            {/* Table */}
             <div className="border rounded-xl">
                 <Table>
                     <TableHeader>
@@ -100,30 +128,50 @@ const TrashUserPage = () => {
                     <TableBody>
                         {isLoading ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center">
+                                <TableCell colSpan={6} className="text-center py-6">
                                     Loading...
                                 </TableCell>
                             </TableRow>
-                        ) : trashProducts.length === 0 ? (
+                        ) : trashUsers.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center py-6">
-                                    No Trash User Found
+                                <TableCell colSpan={6} className="text-center py-6">
+                                    No Trash Users Found
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            trashProducts.map((product) => (
-                                <TableRow key={product._id}>
-                                    <TableCell className="font-medium">{product.title}</TableCell>
-                                    <TableCell>৳ {product.price}</TableCell>
-                                    <TableCell>{product.availableStock}</TableCell>
+                            trashUsers.map((user) => (
+                                <TableRow key={user._id}>
+                                    <TableCell className="font-medium">{user.name}</TableCell>
+                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell>{user.phone || "N/A"}</TableCell>
+                                    <TableCell>{user.role || "N/A"}</TableCell>
                                     <TableCell className="text-red-500">Deleted</TableCell>
                                     <TableCell className="text-right">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => handleRestore(product._id as string)}
-                                        >
-                                            Restore
-                                        </Button>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreHorizontal />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+
+                                            <DropdownMenuContent align="end" className="w-44">
+                                                <DropdownMenuItem
+                                                    className="cursor-pointer"
+                                                    onClick={() => openAlert(user._id, "restore")}
+                                                >
+                                                    <RotateCcw className="w-4 h-4 mr-2 text-green-500" />
+                                                    Restore
+                                                </DropdownMenuItem>
+
+                                                <DropdownMenuItem
+                                                    className="text-red-500 cursor-pointer"
+                                                    onClick={() => openAlert(user._id, "delete")}
+                                                >
+                                                    <Trash2 className="w-4 h-4 mr-2" />
+                                                    Delete Forever
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -131,6 +179,25 @@ const TrashUserPage = () => {
                     </TableBody>
                 </Table>
             </div>
+
+            {/*pagination*/}
+            <TablePagination
+                currentPage={page}
+                totalPages={data?.meta?.totalPage ?? 1}
+                onPageChange={setPage}
+            />
+
+            {/* Delete Alert */}
+            <DeleteAlert
+                open={alertOpen}
+                onOpenChange={setAlertOpen}
+                description={
+                    actionType === "delete"
+                        ? "This action will permanently delete the user. Are you sure?"
+                        : "Are you sure you want to restore this user?"
+                }
+                onConfirm={actionType === "delete" ? handleHardDelete : handleRestore}
+            />
         </div>
     );
 };

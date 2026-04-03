@@ -2,11 +2,10 @@
 
 import { SearchForm } from "@/components/shared/search-form";
 import Sort from "@/components/shared/Sort";
-import CreateCategoryModal from "./CreateBrandModal";
 import {Button} from "@/components/ui/button";
 import {Trash2} from "lucide-react";
 import {useRouter} from "next/navigation";
-// import CreateCategoryModal from "./CreateCategoryModal";
+import CreateBrandModal from "./CreateBrandModal";
 
 type CategoryToolbarProps = {
   onSearchChange?: (value: string) => void;
@@ -19,7 +18,7 @@ export default function CategoryToolbar({
 }: CategoryToolbarProps) {
     const router = useRouter();
   return (
-    <div className="flex items-center justify-between gap-2 w-full my-4">
+    <div className="sm:flex space-y-2 sm:space-y-0 items-center justify-between gap-2 w-full my-4">
       <div className="flex items-center gap-4">
         {/* Search */}
         <SearchForm onSearchChange={onSearchChange} />
@@ -29,7 +28,7 @@ export default function CategoryToolbar({
       </div>
 
       {/* Create Category Modal */}
-        <div className="flex items-center gap-4">
+        <div className="grid grid-cols-2 gap-4 items-center gap-4">
             <Button
                 type="button"
                 variant="destructive"
@@ -40,7 +39,7 @@ export default function CategoryToolbar({
                 Trash
             </Button>
 
-            <CreateCategoryModal />
+            <CreateBrandModal />
         </div>
     </div>
   );
