@@ -13,6 +13,7 @@ import { CourierInfo } from "./CourierInfo";
 import { User, Mail, Phone, MapPin, DollarSign, Clock } from "lucide-react";
 import type { Order } from "@/types/orders";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useGetCourierByOrderIdQuery } from "@/lib/hooks";
 
 interface OrderDetailsModalProps {
   order: Order | null;
@@ -25,6 +26,12 @@ export function OrderDetailsModal({
   open,
   onOpenChange,
 }: OrderDetailsModalProps) {
+  const { data: courierRes } = useGetCourierByOrderIdQuery(order?._id || '', {
+    skip: !order?._id,
+  });
+
+  const courier = courierRes?.data;
+
   if (!order) return null;
 
   return (
@@ -146,7 +153,7 @@ export function OrderDetailsModal({
             </div>
           </div>
 
-          {order.orderStatus === "CONFIRMED" && <CourierInfo order={order} />}
+          {courier && <CourierInfo courier={courier} />}
         </div>
         <ScrollBar orientation="vertical" />
         </ScrollArea>

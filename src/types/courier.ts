@@ -14,6 +14,5 @@ export interface Courier {
 }
 
 export interface CreateCourierRequest {
-  orderID: string;
-  courierName: CourierProvider;
+  orderId: string;
 }

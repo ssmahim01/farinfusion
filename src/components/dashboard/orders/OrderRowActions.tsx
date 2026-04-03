@@ -1,4 +1,5 @@
-'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
 import {
   DropdownMenu,
@@ -7,19 +8,42 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { MoreHorizontal, CheckCircle, Eye } from 'lucide-react';
-import type { Order } from '@/types/orders';
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, CheckCircle, Eye } from "lucide-react";
+import type { Order } from "@/types/orders";
+import { useCreateCourierMutation } from "@/lib/hooks";
+import { toast } from "sonner";
 
 interface OrderRowActionsProps {
   order: Order;
+  courier?: any;
   onConfirm?: (order: Order) => void;
   onView?: (order: Order) => void;
+  refetch: () => void;
 }
 
-export function OrderRowActions({ order, onConfirm, onView }: OrderRowActionsProps) {
-  const isPending = order.orderStatus === 'PENDING';
+export function OrderRowActions({
+  order,
+  courier,
+  onConfirm,
+  onView,
+  refetch,
+}: OrderRowActionsProps) {
+  const isPending = order.orderStatus === "PENDING";
+  const [createCourier] = useCreateCourierMutation();
+  const handleAssignCourier = async (order: Order) => {
+  try {
+    await createCourier({
+      orderId: order?._id,
+    }).unwrap();
+
+    toast.success("Courier assigned successfully");
+    refetch();
+  } catch (err: any) {
+    toast.error(err?.data?.message || "Failed to assign courier");
+  }
+};
 
   return (
     <DropdownMenu>
@@ -49,8 +73,16 @@ export function OrderRowActions({ order, onConfirm, onView }: OrderRowActionsPro
         {!isPending && (
           <DropdownMenuItem disabled>
             <span className="text-xs text-muted-foreground">
-              {order.orderStatus === 'CONFIRMED' ? 'Already Confirmed' : 'Order Cancelled'}
+              {order.orderStatus === "CONFIRMED"
+                ? "Already Confirmed"
+                : "Order Cancelled"}
             </span>
+          </DropdownMenuItem>
+        )}
+
+        {order.orderStatus === "CONFIRMED" && !courier && (
+          <DropdownMenuItem onClick={() => handleAssignCourier(order)}>
+            🚚 Assign Courier
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

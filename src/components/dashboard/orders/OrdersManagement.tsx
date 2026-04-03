@@ -24,7 +24,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import type { Order } from "@/types/orders";
-import { CourierProvider } from "@/types/courier";
 import { toast } from "sonner";
 import {
   resetFilters,
@@ -110,20 +109,19 @@ export default function OrdersManagement() {
     dispatch(setSelectedOrderAction(order._id));
   };
 
-  const handleConfirmOrder = async (courierName: CourierProvider) => {
+  const handleConfirmOrder = async () => {
     if (!confirmingOrder) return;
 
     try {
       await confirmOrder({
         _id: confirmingOrder._id,
-        courierName,
         orderStatus: "CONFIRMED",
       }).unwrap();
 
       await refetch();
 
       toast.success("Success", {
-        description: `Order ${confirmingOrder._id} has been confirmed with ${courierName}.`,
+        description: `Order ${confirmingOrder._id} has been confirmed.`,
       });
 
       setConfirmModalOpen(false);
@@ -177,6 +175,7 @@ export default function OrdersManagement() {
           loading={isLoading}
           error={error ? "Failed to load orders" : null}
           onConfirmOrder={handleConfirmClick}
+          refetch={refetch}
           onViewOrder={handleViewClick}
         />
       </div>

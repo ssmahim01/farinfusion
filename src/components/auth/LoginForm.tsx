@@ -22,7 +22,6 @@ import Image from 'next/image'
 import logo from "../../../public/assets/FRN-Logo-scaled.webp"
 import { toast } from 'sonner'
 import { loginUser } from '@/utils/loginUser'
-import { useRouter } from 'next/navigation'
 import { useUser } from '@/context/UserContext'
 
 
@@ -49,7 +48,6 @@ export function LoginForm({
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const { login } = useUser();
-  const router = useRouter()
 
   const {
     register,
