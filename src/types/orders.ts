@@ -25,6 +25,7 @@ export type DeliveryStatus =
   products: {
     product: string;
     quantity: number;
+      title: string;
   }[];
 
   shippingCost?: number;
@@ -41,9 +42,12 @@ export type DeliveryStatus =
 
 export interface Order {
   _id: string;
+  customOrderId?: string;
+  transactionId?: string;
   paymentMethod?: "COD" | "ONLINE" | "POS" | "BKASH" | "ROCKET" | "NAGAD" | "BANK";
   orderId?: string;
   customerName: string;
+  totalAmount?: number;
   customerEmail: string;
   billingDetails?: {
     fullName: string;

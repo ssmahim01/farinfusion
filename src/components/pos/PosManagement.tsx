@@ -12,6 +12,7 @@ import type { POSCartItem, OrderType } from "@/types/pos";
 import { IProduct } from "@/types";
 import { useCreateOrderMutation } from "@/lib/hooks";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
+import { useGetAllCategoriesQuery } from "@/redux/features/category/category.api";
 
 export default function POSManagement() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -21,19 +22,14 @@ export default function POSManagement() {
 
   const { data: productsData, isLoading: isLoadingProducts } =
     useGetAllProductsQuery({});
+  const { data: categoriesData } = useGetAllCategoriesQuery({});
 
   const [createOrder, { isLoading: isCreatingOrder }] =
     useCreateOrderMutation();
 
   const products = productsData?.data || [];
-  const categories = [
-    "All Categories",
-    "Pizza",
-    "Panini",
-    "Drinks",
-    "Desserts",
-    "Sides",
-  ];
+
+  const categories = categoriesData?.data || [];
 
   const handleAddToCart = (product: IProduct) => {
     setCartItems((prev) => {
@@ -93,6 +89,7 @@ export default function POSManagement() {
 
         products: cartItems.map((item) => ({
           product: item.product._id!,
+          title: item?.product?.title || "Unknown Product",
           quantity: item.quantity,
         })),
 
@@ -153,8 +150,11 @@ export default function POSManagement() {
                 className="pl-10 pr-4 py-2 w-full text-sm rounded-lg border border-gray-300 bg-white text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               >
                 {categories.map((cat) => (
-                  <option key={cat} value={cat === "All Categories" ? "" : cat}>
-                    {cat}
+                  <option
+                    key={cat?._id}
+                    value={cat?.title === "All Categories" ? "" : cat?.title}
+                  >
+                    {cat?.title}
                   </option>
                 ))}
               </select>

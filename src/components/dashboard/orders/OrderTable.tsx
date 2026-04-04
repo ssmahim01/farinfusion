@@ -102,17 +102,15 @@ export function OrderTable({
             return (
               <TableRow key={order._id} className="hover:bg-muted/50">
                 <TableCell className="font-mono text-xs font-medium">
-                  {order._id?.slice(0, 10)}...
+                  {order?.customOrderId || order._id?.slice(0, 10)}...
                 </TableCell>
                 <TableCell>
                   <span className="text-xs font-medium">
-                    {order.paymentMethod === "COD"
-                      ? "Cash on Delivery"
-                      : order.paymentMethod === "BKASH"
-                        ? "bKash"
-                        : order.paymentMethod === "BANK"
-                          ? "Bank"
-                          : order.paymentMethod}
+                    {order?.transactionId ? (
+                      <span className="text-green-600">PAID</span>
+                    ) : (
+                      <span className="text-red-600">COD</span>
+                    )}
                   </span>
                 </TableCell>
                 <TableCell>
