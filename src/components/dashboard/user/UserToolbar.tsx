@@ -16,7 +16,7 @@ export default function UserToolbar({ onSearchChange, onSortChange }: UserToolba
     const router = useRouter();
 
     return (
-        <div className="flex items-center justify-between gap-2 w-full my-4">
+        <div className="sm:flex items-center justify-between gap-2 space-y-2 sm:space-y-0 w-full my-4">
             <div className="flex items-center gap-4">
                 {/* Search */}
                 <SearchForm onSearchChange={onSearchChange} />
@@ -25,7 +25,7 @@ export default function UserToolbar({ onSearchChange, onSortChange }: UserToolba
                 <Sort onChange={onSortChange} />
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
                 {/* Trash button */}
                 <Button
                     type="button"

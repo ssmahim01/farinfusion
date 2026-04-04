@@ -196,7 +196,7 @@ export default function RegisterModal() {
             <DialogTrigger asChild>
                 <Button className={"cursor-pointer"}>
                     <Plus className="h-4 w-4" />
-                    Add User
+                    Add Staff
                 </Button>
             </DialogTrigger>
 
