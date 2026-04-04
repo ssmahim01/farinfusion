@@ -96,7 +96,7 @@ const UserManagementPage = () => {
 
   return (
     <div>
-      <DashboardPageHeader title="User Management" />
+      <DashboardPageHeader title="Staff Management" />
       <UserToolbar
         onSearchChange={setSearchTerm}
         onSortChange={setSort}

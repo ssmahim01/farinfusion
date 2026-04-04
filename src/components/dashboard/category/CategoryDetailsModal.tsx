@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -6,130 +5,179 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { CalendarDays, FileText, Tag } from "lucide-react";
+import Image from "next/image";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {ICategory} from "@/types";
 
 interface CategoryDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   category?: {
     title: string;
+    slug?: string;
     description?: string;
+    productCount: number;
+    showOrder: number;
     status?: "ACTIVE" | "INACTIVE";
     image?: string;
     createdAt?: string;
   };
 }
 
-export default function CategoryDetailsModal({
-  open,
-  onOpenChange,
-  category,
-}: CategoryDetailsModalProps) {
+
+export default function CategoryDetailsModal({open, onOpenChange, category} : CategoryDetailsModalProps) {
+  console.log(category)
   if (!category) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 rounded-2xl border-0 shadow-2xl">
-        {/* Hidden header for accessibility */}
-        <VisuallyHidden>
-          <DialogHeader>
-            <DialogTitle>Category Details</DialogTitle>
-            <DialogDescription>
-              Detailed information about the selected category.
-            </DialogDescription>
-          </DialogHeader>
-        </VisuallyHidden>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="p-6 sm:p-6 sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          {/* Accent line */}
+          <div className="w-full" />
 
-        {/* Image */}
-        {category.image && (
-          <div className="flex justify-center mt-4">
-            <img
-              src={category.image}
-              alt={category.title}
-              className="w-40 h-40 object-cover rounded-xl shadow-md"
-            />
-          </div>
-        )}
+          <Card className="shadow-lg">
+            <CardContent>
+              <CardHeader className="text-center mb-2">
+                <CardTitle className="text-2xl font-bold tracking-wide uppercase">
+                  Category Details
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Detailed information about the selected category
+                </CardDescription>
+              </CardHeader>
 
-        {/* Header */}
-        <DialogHeader className="px-6 pt-4 pb-2 text-center">
-          <div className="flex gap-4 items-center">
+              <Separator className="my-3" />
 
-          <h2 className="text-2xl font-semibold">{category.title}</h2>
-          {category.status && (
-            <Badge
-            variant={category.status === "ACTIVE" ? "secondary" : "destructive"}
-            className="mt-2 px-3 py-1 text-sm"
-            >
-              {category.status}
-            </Badge>
-          )}
-          </div>
-        </DialogHeader>
+              {/* category Image */}
+              <div className="flex justify-center mb-6">
+                {category.image ? (
+                    <Image
+                        src={category.image}
+                        alt={category.title}
+                        width={200}
+                        height={200}
+                        className="rounded-xl object-cover shadow-md"
+                    />
+                ) : (
+                    <div className="w-32 h-32 rounded-xl bg-muted flex items-center justify-center shadow-inner">
+                      <Tag className="w-10 h-10 text-muted-foreground" />
+                    </div>
+                )}
+              </div>
 
-        {/* Details Card */}
-           <div className="px-6 pb-6 space-y-4">
-         <Card className="border-0 shadow-sm bg-gray-50/70">
-           <div className="p-5 space-y-4">
-             {/* Name */}
-             <div className="flex gap-4">
-               <div className="text-muted-foreground">
-                 <span className="font-medium text-[#65758B]">Name :</span>
-                 </div>
-                <span className=" font-medium text-[#002047] break-all">
-                   {category.title}
-                 </span>
-               </div>
-               <Separator />
+              <Separator className="my-3" />
 
-               {/* Description */}
-               <div className="flex gap-4">
-                 <div className=" flex gap-2 text-muted-foreground">
-                   <span className="font-medium text-[#65758B]">Description</span>
-                   <span className="font-medium text-[#65758B]"> :</span>
-                 </div>
-                 <span className="font-medium text-[#002047] break-all">
-                   {category.description || "N/A"}
-                 </span>
-               </div>
-               <Separator />
+              {/* category Info */}
+              <div className="space-y-4">
+                {/* Title */}
+                <div className={"flex items-center gap-5"}>
+                  <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                    Title
+                  </p>
+                  :
+                  <p className="text-sm">{category.title}</p>
+                </div>
 
-               {/* Created At */}
-               {category.createdAt && (
-                 <div className="flex gap-4">
-                   <div className=" text-muted-foreground">
-                     <span className="font-medium text-[#65758B]">Created at :</span>
-                   </div>
-                   <span className="font-medium text-[#002047]">
-                     {new Date(category.createdAt).toLocaleDateString("en-US", {
-                       month: "long",
-                       year: "numeric",
-                     })}
-                   </span>
-                 </div>
-               )}
-             </div>
-           </Card>
-         </div>
+                <Separator className="my-3" />
 
-        {/* Footer */}
-        <DialogFooter className="border-t bg-gray-50/80 px-6 py-4">
+                {/* Description */}
+                {category.description && (
+                    <div className={"flex items-center gap-5"}>
+                      <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                        Description
+                      </p>
+                      :
+                      <p className="text-sm">{category.description}</p>
+                    </div>
+                )}
+
+                <Separator className="my-3" />
+
+                {/* showOrder */}
+                {category.showOrder && (
+                    <div className={"flex items-center gap-5"}>
+                      <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                        Show Order
+                      </p>
+                      :
+                      <p className="text-sm">{category.showOrder}</p>
+                    </div>
+                )}
+
+                <Separator className="my-3" />
+
+                {/* productCount */}
+                {category.productCount && (
+                    <div className={"flex items-center gap-5"}>
+                      <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                        Product Count
+                      </p>
+                      :
+                      <p className="text-sm">{category.productCount}</p>
+                    </div>
+                )}
+
+                <Separator className="my-3" />
+
+                {/* productCount */}
+                {category.status && (
+                    <div className={"flex items-center gap-5"}>
+                      <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                        Status
+                      </p>
+                      :
+                      <Badge
+                          variant={category.status === "ACTIVE" ? "default" : "destructive"}
+                      >
+                        {category.status}
+                      </Badge>
+                    </div>
+                )}
+
+                <Separator className="my-3" />
+
+                {/* Created At */}
+                {category.createdAt && (
+                    <div className={"flex items-center gap-5"}>
+                      <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                        Created At
+                      </p>
+                      :
+                      <div className="text-sm flex items-center gap-2">
+                        <CalendarDays className="w-4 h-4 text-muted-foreground" />
+                        {new Date(category.createdAt).toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </div>
+                    </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Close Button */}
           <Button
-            variant="outline"
-            className="w-full sm:w-auto font-medium"
-            onClick={() => onOpenChange(false)}
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="w-full hover:bg-gray-200 transition-colors cursor-pointer"
           >
             Close
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
   );
 }

@@ -38,7 +38,7 @@ export default function BrandDetailsModal({open, onOpenChange, brand,}: BrandDet
 
   return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="p-6 sm:p-6  sm:max-w-lg">
+        <DialogContent className="p-6 sm:p-6 sm:max-w-lg max-h-[90vh] overflow-y-auto">
           {/* Accent line */}
           <div className="w-full" />
 

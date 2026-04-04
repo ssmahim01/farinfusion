@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
 import { useGetSingleProductQuery } from "@/redux/features/product/product.api";
-import { useState } from "react";
 import { AlertCircle, CheckIcon } from "lucide-react";
 import {
     Breadcrumb,
@@ -24,8 +23,6 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
-import PImage from "../../../../public/product-placeholder.png"
-import Image from "next/image";
 import ProductGallery from "@/components/shared/ProductGallery";
 
 export default function ProductSingleDetails() {
@@ -35,8 +32,6 @@ export default function ProductSingleDetails() {
     const { data, isLoading, isError } = useGetSingleProductQuery(slug, {
         skip: !slug,
     });
-
-    const [selectedImage, setSelectedImage] = useState(0);
 
     if (isLoading) {
         return <p className="text-center mt-10">Loading...</p>;
@@ -51,6 +46,8 @@ export default function ProductSingleDetails() {
     }
 
     const product = data?.data;
+
+    // console.log(product);
 
 
 
@@ -92,14 +89,16 @@ export default function ProductSingleDetails() {
                                 {product?.title}
                             </h2>
                             <p className="text-sm text-muted-foreground">
-                                Brand • Category
+                                Brand : {typeof product?.brand === "string" ? "" : product?.brand?.title}
+                                | Category : {typeof product?.category === "string" ? "" : product?.category?.title}
                             </p>
                         </div>
 
                         {/* Description */}
-                        <p className="text-muted-foreground">
-                            {product?.description}
-                        </p>
+                        <p
+                            className="text-muted-foreground prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: product?.description || "" }}
+                        />
 
                         <Separator />
 

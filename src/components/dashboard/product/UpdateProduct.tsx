@@ -60,10 +60,8 @@ const schema = z.object({
     ),
     status: z.nativeEnum(ProductStatus),
     description: z.string(),
-    images: z.array(z.instanceof(File)).optional(),
+    images: z.any().optional(), // Changed to any for easier local state handling
 });
-
-
 
 type FormValues = z.infer<typeof schema>;
 
@@ -88,7 +86,6 @@ const  UpdateProduct = () => {
         control,
         handleSubmit,
         setValue,
-        watch,
         reset,
         formState: { errors },
     } = useForm<FormValues>({
@@ -98,21 +95,20 @@ const  UpdateProduct = () => {
     // Image state
     const [previews, setPreviews] = useState<string[]>([]);
     const [oldImages, setOldImages] = useState<string[]>([]);
+    const [newFiles, setNewFiles] = useState<File[]>([]); // Added local state for new files
 
-    const images = watch("images");
-    const brandTitle = brands.find(
-        (b: IBrand) => b._id === productData?.data?.brand
-    )?.title;
 
-    // Prefill data
+    const getId = (val: string | { _id: string; title?: string }) =>
+        typeof val === "string" ? val : val._id;
+
     useEffect(() => {
         if (productData?.data) {
             const p = productData.data;
 
             reset({
                 title: p.title,
-                brand: p.brand,
-                category: p.category,
+                brand: getId(p.brand),
+                category: getId(p.category),
                 buyingPrice: p.buyingPrice,
                 price: p.price,
                 discountPrice: p.discountPrice,
@@ -125,31 +121,40 @@ const  UpdateProduct = () => {
         }
     }, [productData, reset]);
 
-    // New image upload
+    // New image upload logic
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
-        setValue("images", files);
 
+        // Append new files to the existing newFiles array
+        const updatedFiles = [...newFiles, ...files];
+        setNewFiles(updatedFiles);
+
+        // Append new previews
         const urls = files.map((f) => URL.createObjectURL(f));
-        setPreviews(urls);
+        setPreviews((prev) => [...prev, ...urls]);
+
+        // Update react-hook-form value
+        setValue("images", updatedFiles);
     };
 
-    // ❌ Remove old image
+    // ❌ Remove specific old image
     const removeOldImage = (index: number) => {
         const updated = [...oldImages];
         updated.splice(index, 1);
         setOldImages(updated);
     };
 
-    // ❌ Remove new image
+    // ❌ Remove specific new image
     const removeNewImage = (index: number) => {
-        const updated = [...(images || [])];
-        updated.splice(index, 1);
+        // Remove from local files state
+        const updatedFiles = [...newFiles];
+        updatedFiles.splice(index, 1);
+        setNewFiles(updatedFiles);
+        setValue("images", updatedFiles); // Sync with form
 
+        // Remove from previews
         const updatedPreview = [...previews];
         updatedPreview.splice(index, 1);
-
-        setValue("images", updated);
         setPreviews(updatedPreview);
     };
 
@@ -162,11 +167,12 @@ const  UpdateProduct = () => {
                 "data",
                 JSON.stringify({
                     ...data,
-                    oldImages, // send remaining old images
+                    oldImages, // Sending ONLY the remaining old images
                 })
             );
 
-            data.images?.forEach((file) => {
+            // Append all new files from local state
+            newFiles.forEach((file) => {
                 formData.append("images", file);
             });
 
@@ -210,7 +216,7 @@ const  UpdateProduct = () => {
                                     control={control}
                                     name="brand"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} key={field.value} onValueChange={field.onChange}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Brand" />
                                             </SelectTrigger>
@@ -232,7 +238,7 @@ const  UpdateProduct = () => {
                                     control={control}
                                     name="category"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} key={field.value} onValueChange={field.onChange}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Category" />
                                             </SelectTrigger>
@@ -248,7 +254,6 @@ const  UpdateProduct = () => {
                                 />
                             </div>
 
-                            {/*status update*/}
                             <div className={"space-y-2"}>
                                 <Label>Product Status</Label>
 
@@ -256,7 +261,7 @@ const  UpdateProduct = () => {
                                     control={control}
                                     name="status"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} key={field.value} onValueChange={field.onChange}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select status" />
                                             </SelectTrigger>
@@ -277,10 +282,10 @@ const  UpdateProduct = () => {
 
                         {/* PRICE */}
                         <div className="grid md:grid-cols-4 gap-4">
-                           <div className={"space-y-2"}>
-                               <Label>Buying Price</Label>
-                               <Input type="number" placeholder="Buying Price" {...register("buyingPrice")} />
-                           </div>
+                            <div className={"space-y-2"}>
+                                <Label>Buying Price</Label>
+                                <Input type="number" placeholder="Buying Price" {...register("buyingPrice")} />
+                            </div>
                             <div className={"space-y-2"}>
                                 <Label>Price</Label>
                                 <Input type="number" placeholder="Price" {...register("price")} />
@@ -333,7 +338,6 @@ const  UpdateProduct = () => {
                         <div className="space-y-4">
                             <Label className="text-sm font-medium">Upload New Images</Label>
 
-                            {/* Upload Box */}
                             <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-6 cursor-pointer hover:border-primary hover:bg-muted transition">
                                 <Upload className="w-6 h-6 mb-2 text-gray-500" />
                                 <p className="text-sm text-gray-600">
@@ -363,7 +367,6 @@ const  UpdateProduct = () => {
                                                 className="object-cover group-hover:scale-105 transition"
                                             />
 
-                                            {/* Overlay */}
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                                                 <button
                                                     type="button"
@@ -378,7 +381,7 @@ const  UpdateProduct = () => {
                                 </div>
                             )}
                         </div>
-                        <Button type="submit" disabled={isLoading}>
+                        <Button className={"w-full cursor-pointer"} type="submit" disabled={isLoading}>
                             {isLoading ? "Updating..." : "Update Product"}
                         </Button>
 

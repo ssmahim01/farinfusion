@@ -1,12 +1,12 @@
 "use client";
 
 import { SearchForm } from "@/components/shared/search-form";
-import Sort from "@/components/shared/Sort";
 import CreateCategoryModal from "./CreateCategoryModal";
 import {Button} from "@/components/ui/button";
 import {Trash2} from "lucide-react";
 import {useRouter} from "next/navigation";
-// import CreateCategoryModal from "./CreateCategoryModal";
+import CategorySort from "@/components/dashboard/category/CategorySort";
+
 
 type CategoryToolbarProps = {
   onSearchChange?: (value: string) => void;
@@ -25,7 +25,7 @@ export default function CategoryToolbar({
         <SearchForm onSearchChange={onSearchChange} />
 
         {/* Sort */}
-        <Sort onChange={onSortChange} />
+        <CategorySort onChange={onSortChange} />
       </div>
 
       {/* Create Category Modal */}

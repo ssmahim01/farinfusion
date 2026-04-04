@@ -21,7 +21,7 @@ export const adminSidebar = [
       { title: "Products", url: "/staff/dashboard/admin/product-management", icon: ToolCase },
       { title: "Categories", url: "/staff/dashboard/admin/category-management", icon: ToolCase },
       { title: "Brands", url: "/staff/dashboard/admin/brand-management", icon: ToolCase },
-      { title: "Users", url: "/staff/dashboard/admin/user-management", icon: Users },
+      { title: "Staff", url: "/staff/dashboard/admin/user-management", icon: Users },
       { title: "Customers", url: "/staff/dashboard/admin/customer-management", icon: Users },
       { title: "Orders", url: "/staff/dashboard/admin/orders-management", icon: ListOrdered },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
