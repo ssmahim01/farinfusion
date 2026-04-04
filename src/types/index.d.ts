@@ -92,6 +92,7 @@ export interface ICategory {
   image: string;
   status: CategoryStatus;
   productCount: number;
+  showOrder: number;
 }
 
 export enum BrandStatus {
