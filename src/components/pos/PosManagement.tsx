@@ -3,8 +3,9 @@
 
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, ShoppingCart, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { POSProductListCard } from "./PosProductListCard";
 import { POSCartSidebar, type CustomerData } from "./PosCartSidebar";
 import { useGetAllProductsQuery } from "@/redux/features/product/product.api";
@@ -13,11 +14,14 @@ import { IProduct } from "@/types";
 import { useCreateOrderMutation } from "@/lib/hooks";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
 import { useGetAllCategoriesQuery } from "@/redux/features/category/category.api";
+import { cn } from "@/lib/utils";
 
 export default function POSManagement() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [category, setCategory] = React.useState("");
   const [cartItems, setCartItems] = useState<POSCartItem[]>([]);
+  const [mobileCartOpen, setMobileCartOpen] = useState(false);
+
   const { data: user } = useGetMeQuery(undefined);
 
   const { data: productsData, isLoading: isLoadingProducts } =
@@ -28,8 +32,9 @@ export default function POSManagement() {
     useCreateOrderMutation();
 
   const products = productsData?.data || [];
-
   const categories = categoriesData?.data || [];
+
+  const totalCartItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleAddToCart = (product: IProduct) => {
     setCartItems((prev) => {
@@ -84,70 +89,76 @@ export default function POSManagement() {
 
       await createOrder({
         orderType: "POS",
-
         paymentMethod: "COD",
-
         products: cartItems.map((item) => ({
           product: item.product._id!,
           title: item?.product?.title || "Unknown Product",
           quantity: item.quantity,
         })),
-
         shippingCost: orderType === "DELIVERY" ? 100 : 0,
-
         billingDetails: {
           fullName: customerData.name,
           email: customerData.email,
           phone: customerData.phone,
           address: customerData.address,
         },
-
         seller: user.data?._id,
       }).unwrap();
 
       toast.success("Order created successfully!");
       setCartItems([]);
+      setMobileCartOpen(false);
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create order");
     }
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
+      {/* ── Main Content ── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 p-4 md:p-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            POS System
-          </h1>
+        <div className="border-b border-gray-200 dark:border-gray-700 p-4 md:p-6 shrink-0">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+              POS System
+            </h1>
+
+            {/* Mobile cart button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="relative flex items-center gap-2 lg:hidden"
+              onClick={() => setMobileCartOpen(true)}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm font-medium">Cart</span>
+              {totalCartItems > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                  {totalCartItems > 99 ? "99+" : totalCartItems}
+                </span>
+              )}
+            </Button>
+          </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {/* Search */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search products..."
                 value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  //   setPage(1);
-                }}
-                className="pl-10 text-sm"
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 text-sm"
               />
             </div>
 
-            {/* Category Filter */}
             <div className="relative">
-              <Filter className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" />
               <select
                 value={category}
-                onChange={(e) => {
-                  setCategory(e.target.value);
-                  //   setPage(1);
-                }}
-                className="pl-10 pr-4 py-2 w-full text-sm rounded-lg border border-gray-300 bg-white text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                onChange={(e) => setCategory(e.target.value)}
+                className="pl-9 pr-4 py-2 h-10 w-full text-sm rounded-md border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               >
                 {categories.map((cat) => (
                   <option
@@ -166,22 +177,22 @@ export default function POSManagement() {
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 md:p-6">
             {isLoadingProducts ? (
-              <div className="flex items-center justify-center h-96">
+              <div className="flex items-center justify-center h-64">
                 <div className="text-center">
-                  <div className="w-12 h-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin mx-auto mb-4"></div>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <div className="w-10 h-10 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin mx-auto mb-3" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Loading products...
                   </p>
                 </div>
               </div>
             ) : products.length === 0 ? (
-              <div className="flex items-center justify-center h-96">
-                <p className="text-gray-500 dark:text-gray-400">
+              <div className="flex items-center justify-center h-64">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   No products found
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {products.map((product) => (
                   <POSProductListCard
                     key={product._id}
@@ -196,8 +207,7 @@ export default function POSManagement() {
         </div>
       </div>
 
-      {/* Cart Sidebar */}
-      <div className="hidden lg:block w-96 border-l border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="hidden lg:flex w-96 shrink-0 border-l border-gray-200 dark:border-gray-700 overflow-hidden">
         <POSCartSidebar
           items={cartItems}
           onItemQuantityChange={handleUpdateQuantity}
@@ -207,7 +217,44 @@ export default function POSManagement() {
         />
       </div>
 
-      {/* Mobile Cart Modal - could be implemented as a drawer */}
+      {mobileCartOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setMobileCartOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <div
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 w-full max-w-sm flex flex-col bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-300 ease-in-out lg:hidden",
+          mobileCartOpen ? "translate-x-0" : "translate-x-full",
+        )}
+        aria-label="Cart"
+      >
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 py-3 shrink-0">
+          <span className="text-sm font-bold text-gray-900 dark:text-gray-50">
+            Your Cart
+          </span>
+          <button
+            onClick={() => setMobileCartOpen(false)}
+            className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Close cart"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-hidden">
+          <POSCartSidebar
+            items={cartItems}
+            onItemQuantityChange={handleUpdateQuantity}
+            onItemRemove={handleRemoveFromCart}
+            onCheckout={handleCheckout}
+            isProcessing={isCreatingOrder}
+          />
+        </div>
+      </div>
     </div>
   );
 }

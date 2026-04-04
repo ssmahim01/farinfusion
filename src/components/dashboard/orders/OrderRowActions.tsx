@@ -1,26 +1,32 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
+'use client';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal, CheckCircle, Eye } from "lucide-react";
-import type { Order } from "@/types/orders";
-import { useCreateCourierMutation } from "@/lib/hooks";
-import { toast } from "sonner";
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import {
+  MoreHorizontal,
+  Eye,
+  CheckCircle,
+  Truck,
+  CheckCircle2,
+} from 'lucide-react';
+import type { Order } from '@/types/orders';
+import { cn } from '@/lib/utils';
+import { Courier } from '@/types/courier';
 
 interface OrderRowActionsProps {
   order: Order;
-  courier?: any;
+  courier?: Courier | null;
+  refetch: () => void;
   onConfirm?: (order: Order) => void;
   onView?: (order: Order) => void;
-  refetch: () => void;
+  onAssignCourier?: (order: Order) => void;
+  onComplete?: (order: Order) => void;
 }
 
 export function OrderRowActions({
@@ -28,62 +34,91 @@ export function OrderRowActions({
   courier,
   onConfirm,
   onView,
-  refetch,
+  onAssignCourier,
+  onComplete,
 }: OrderRowActionsProps) {
-  const isPending = order.orderStatus === "PENDING";
-  const [createCourier] = useCreateCourierMutation();
-  const handleAssignCourier = async (order: Order) => {
-  try {
-    await createCourier({
-      orderId: order?._id,
-    }).unwrap();
+  const isPending = order.orderStatus === 'PENDING';
+  const isConfirmed = order.orderStatus === 'CONFIRMED';
+  const isCompleted = order.orderStatus === 'COMPLETED';
+  const isDelivered = courier?.deliveryStatus === 'DELIVERED';
 
-    toast.success("Courier assigned successfully");
-    refetch();
-  } catch (err: any) {
-    toast.error(err?.data?.message || "Failed to assign courier");
-  }
-};
+  const canComplete = isConfirmed && isDelivered && !isCompleted;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+        >
           <MoreHorizontal className="h-4 w-4" />
+          <span className="sr-only">Order actions</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+      <DropdownMenuContent align="end" className="w-48">
         {onView && (
-          <>
-            <DropdownMenuItem onClick={() => onView(order)}>
-              <Eye className="mr-2 h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
-        )}
-        {isPending && onConfirm && (
-          <DropdownMenuItem onClick={() => onConfirm(order)}>
-            <CheckCircle className="mr-2 h-4 w-4" />
-            Confirm Order
-          </DropdownMenuItem>
-        )}
-        {!isPending && (
-          <DropdownMenuItem disabled>
-            <span className="text-xs text-muted-foreground">
-              {order.orderStatus === "CONFIRMED"
-                ? "Already Confirmed"
-                : "Order Cancelled"}
-            </span>
+          <DropdownMenuItem
+            className="gap-2 text-sm"
+            onClick={() => onView(order)}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            View Details
           </DropdownMenuItem>
         )}
 
-        {order.orderStatus === "CONFIRMED" && !courier && (
-          <DropdownMenuItem onClick={() => handleAssignCourier(order)}>
-            🚚 Assign Courier
-          </DropdownMenuItem>
+        {isPending && onConfirm && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="gap-2 text-sm text-emerald-600 focus:text-emerald-600 dark:text-emerald-400"
+              onClick={() => onConfirm(order)}
+            >
+              <CheckCircle className="h-3.5 w-3.5" />
+              Confirm Order
+            </DropdownMenuItem>
+          </>
+        )}
+
+        {isConfirmed && !courier && onAssignCourier && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="gap-2 text-sm text-blue-600 focus:text-blue-600 dark:text-blue-400"
+              onClick={() => onAssignCourier(order)}
+            >
+              <Truck className="h-3.5 w-3.5" />
+              Assign Courier
+            </DropdownMenuItem>
+          </>
+        )}
+
+        {canComplete && onComplete && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className={cn(
+                'gap-2 text-sm font-semibold',
+                'text-violet-600 focus:text-violet-600',
+                'dark:text-violet-400 focus:dark:text-violet-400',
+              )}
+              onClick={() => onComplete(order)}
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Mark as Completed
+            </DropdownMenuItem>
+          </>
+        )}
+
+        {isCompleted && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem disabled className="gap-2 text-sm text-gray-400">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Order Completed
+            </DropdownMenuItem>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

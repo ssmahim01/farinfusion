@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -26,7 +27,7 @@ export function OrderDetailsModal({
   open,
   onOpenChange,
 }: OrderDetailsModalProps) {
-  const { data: courierRes } = useGetCourierByOrderIdQuery(order?._id || '', {
+  const { data: courierRes } = useGetCourierByOrderIdQuery(order?._id || "", {
     skip: !order?._id,
   });
 
@@ -38,124 +39,128 @@ export function OrderDetailsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <ScrollArea className="max-h-[90vh] overflow-y-auto pr-4">
-            <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>Order Details</span>
-            <Badge variant="outline" className="font-mono">
-              {order._id?.slice(0, 10)}...
-            </Badge>
-          </DialogTitle>
-          <DialogDescription>
-            Created on {new Date(order.createdAt).toLocaleDateString()}
-          </DialogDescription>
-        </DialogHeader>
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Order Details</span>
+              <Badge variant="outline" className="font-mono">
+                {order._id?.slice(0, 10)}...
+              </Badge>
+            </DialogTitle>
+            <DialogDescription>
+              Created on {new Date(order.createdAt).toLocaleDateString()}
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Status Section */}
-          <div className="space-y-3 rounded-lg border p-4">
-            <p className="text-sm font-semibold">Status Information</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-muted-foreground">Order Status</p>
-                <div className="mt-1">
-                  <OrderStatusBadge status={order.orderStatus} type="order" />
+          <div className="space-y-6 py-4">
+            {/* Status Section */}
+            <div className="space-y-3 rounded-lg border p-4">
+              <p className="text-sm font-semibold">Status Information</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">Order Status</p>
+                  <div className="mt-1">
+                    <OrderStatusBadge status={order.orderStatus} type="order" />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Delivery Status</p>
-                <div className="mt-1">
-                  <OrderStatusBadge
-                    status={order.deliveryStatus}
-                    type="delivery"
-                  />
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Delivery Status
+                  </p>
+                  <div className="mt-1">
+                    <OrderStatusBadge
+                      status={order.deliveryStatus}
+                      type="delivery"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Customer Information */}
-          <div className="space-y-3 rounded-lg border p-4">
-            <p className="text-sm font-semibold">Customer Information</p>
-            <div className="space-y-2">
-              <div className="flex items-start gap-3">
-                <User className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Name</p>
-                  <p className="font-medium">
-                    {order.billingDetails?.fullName}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Mail className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="font-medium">{order.billingDetails?.email}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Phone className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Phone</p>
-                  <p className="font-medium">{order.billingDetails?.phone}</p>
-                </div>
-              </div>
-              {order?.billingDetails?.address && (
+            {/* Customer Information */}
+            <div className="space-y-3 rounded-lg border p-4">
+              <p className="text-sm font-semibold">Customer Information</p>
+              <div className="space-y-2">
                 <div className="flex items-start gap-3">
-                  <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                  <User className="mt-0.5 h-4 w-4 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">
-                      Shipping Address
-                    </p>
+                    <p className="text-xs text-muted-foreground">Name</p>
                     <p className="font-medium">
-                      {order.billingDetails?.address}
+                      {order.billingDetails?.fullName}
                     </p>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-3 rounded-lg border p-4">
-            <p className="text-sm font-semibold">Order Items</p>
-            <div className="space-y-2">
-              {[order.products || []].map((product, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start justify-between border-t pt-2 first:border-t-0 first:pt-0"
-                >
+                <div className="flex items-start gap-3">
+                  <Mail className="mt-0.5 h-4 w-4 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="font-medium">{product.product?.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Qty: {product.quantity} × ৳{product?.price?.toFixed(2)}
+                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="font-medium">{order.billingDetails?.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Phone className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Phone</p>
+                    <p className="font-medium">{order.billingDetails?.phone}</p>
+                  </div>
+                </div>
+                {order?.billingDetails?.address && (
+                  <div className="flex items-start gap-3">
+                    <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">
+                        Shipping Address
+                      </p>
+                      <p className="font-medium">
+                        {order.billingDetails?.address}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-lg border p-4">
+              <p className="text-sm font-semibold">Order Items</p>
+              <div className="space-y-2">
+                {order?.products.map((product: any, idx: number) => (
+                  <div
+                    key={idx}
+                    className="flex items-start justify-between border-t pt-2 first:border-t-0 first:pt-0"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{product.product?.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Qty: {product.quantity} × ৳{product?.price?.toFixed(2)}
+                      </p>
+                    </div>
+                    <p className="font-medium">
+                      ৳{(product.quantity * product.price)?.toFixed(2)}
                     </p>
                   </div>
-                  <p className="font-medium">
-                    ৳{(product.quantity * product.price)?.toFixed(2)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Order Summary */}
-          <div className="space-y-3 rounded-lg border bg-muted/50 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Total Amount</span>
+                ))}
               </div>
-              <p className="text-xl font-bold">৳{order?.total?.toFixed(2)}</p>
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span>Updated: {new Date(order.updatedAt).toLocaleString()}</span>
-            </div>
-          </div>
 
-          {courier && <CourierInfo courier={courier} />}
-        </div>
-        <ScrollBar orientation="vertical" />
+            {/* Order Summary */}
+            <div className="space-y-3 rounded-lg border bg-muted/50 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Total Amount</span>
+                </div>
+                <p className="text-xl font-bold">৳{order?.total?.toFixed(2)}</p>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                <span>
+                  Updated: {new Date(order.updatedAt).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {courier && <CourierInfo courier={courier} />}
+          </div>
+          <ScrollBar orientation="vertical" />
         </ScrollArea>
       </DialogContent>
     </Dialog>

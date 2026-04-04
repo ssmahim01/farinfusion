@@ -11,7 +11,7 @@ export interface GetQueryParams {
   [key: string]: any;
 }
 
-export type OrderStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
+export type OrderStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
 export type DeliveryStatus =
   | "NOT_SHIPPED"
   | "IN_TRANSIT"
@@ -58,6 +58,7 @@ export interface Order {
   customerPhone: string;
   totalPrice: number;
   products: {
+    map: any;
     productId: string;
     product: {
         title: string

@@ -21,7 +21,9 @@ interface OrderTableProps {
   error: string | null;
   onConfirmOrder: (order: Order) => void;
   onViewOrder?: (order: Order) => void;
+  onAssignCourier?: (order: Order) => void;
   refetch: () => void;
+   onCompleteOrder?: (order: Order) => void;
 }
 
 export function OrderTable({
@@ -29,10 +31,14 @@ export function OrderTable({
   loading,
   error,
   onConfirmOrder,
+  onAssignCourier,
   onViewOrder,
+  onCompleteOrder,
   refetch,
 }: OrderTableProps) {
-  const { data: courierRes } = useGetAllCouriersQuery([]);
+  const { data: courierRes } = useGetAllCouriersQuery([], {
+    pollingInterval: 10000,
+  });
   const courierMap = new Map<string, any>();
 
   courierRes?.data?.forEach((c: any) => {
@@ -130,20 +136,18 @@ export function OrderTable({
                   <OrderStatusBadge status={order.orderStatus} type="order" />
                 </TableCell>
                 <TableCell>
-                  {courier?.deliveryStatus ? (
+                  {order.orderStatus === "CONFIRMED" && !courier ? (
+                    <span className="text-xs text-yellow-600 flex items-center gap-1">
+                      <Truck size={12} className="animate-pulse" />
+                      Assigning courier...
+                    </span>
+                  ) : courier?.deliveryStatus ? (
                     <OrderStatusBadge
                       status={courier.deliveryStatus}
                       type="delivery"
                     />
-                  ) : order.orderStatus === "CONFIRMED" ? (
-                    <span className="text-xs text-orange-500">
-                      Waiting for courier
-                    </span>
                   ) : (
-                    <OrderStatusBadge
-                      status={order.deliveryStatus}
-                      type="delivery"
-                    />
+                    "-"
                   )}
                 </TableCell>
                 <TableCell>
@@ -167,6 +171,8 @@ export function OrderTable({
                     courier={courier}
                     onConfirm={onConfirmOrder}
                     onView={onViewOrder}
+                    onAssignCourier={onAssignCourier}
+                    onComplete={onCompleteOrder}
                   />
                 </TableCell>
               </TableRow>
