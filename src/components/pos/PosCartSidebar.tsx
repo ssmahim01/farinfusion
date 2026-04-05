@@ -14,7 +14,12 @@ interface POSCartSidebarProps {
   items: POSCartItem[];
   onItemQuantityChange: (productId: string, quantity: number) => void;
   onItemRemove: (productId: string) => void;
-  onCheckout: (customerData: CustomerData, orderType: OrderType) => void;
+  onCheckout: (
+    customerData: CustomerData,
+    orderType: OrderType,
+    totalAmount: number,
+    discountAmount: number,
+  ) => void;
   isProcessing?: boolean;
 }
 
@@ -78,16 +83,14 @@ export function POSCartSidebar({
       sum + (item.product.discountPrice || item.product.price) * item.quantity,
     0,
   );
-  const tax = subtotal * 0.15;
   const deliveryFee = orderType === "DELIVERY" ? 100 : 0;
 
-  // Validate and parse discount
   const rawDiscount = parseFloat(discountInput || "0");
   const discountAmount =
     !isNaN(rawDiscount) && rawDiscount >= 0 ? rawDiscount : 0;
-  const discountCapped = Math.min(discountAmount, subtotal); 
+  const discountCapped = Math.min(discountAmount, subtotal);
 
-  const total = Math.max(0, subtotal + tax + deliveryFee - discountCapped);
+  const totalAmount = Math.max(0, subtotal + deliveryFee - discountCapped);
 
   const handleDiscountChange = (val: string) => {
     setDiscountInput(val);
@@ -114,7 +117,7 @@ export function POSCartSidebar({
 
   const handleCheckout = () => {
     if (isFormValid && items.length > 0 && !discountError) {
-      onCheckout(customerData, orderType);
+      onCheckout(customerData, orderType, totalAmount, discountCapped);
     }
   };
 
@@ -122,7 +125,6 @@ export function POSCartSidebar({
     "text-sm rounded-lg border-gray-200 bg-gray-50/50 dark:border-gray-700 dark:bg-gray-800/50 focus:border-blue-400 dark:focus:border-blue-500 transition-colors";
 
   return (
-    // Outer: full height flex column — header pinned top, checkout pinned bottom, middle scrolls
     <div className="flex h-full w-full flex-col bg-white dark:bg-gray-900 overflow-hidden">
 
       {/* ── PINNED: Header ── */}
@@ -150,7 +152,7 @@ export function POSCartSidebar({
         </div>
       </div>
 
-      {/* ── SCROLLABLE: Everything between header and checkout button ── */}
+      {/* ── SCROLLABLE middle ── */}
       <div className="flex-1 overflow-y-auto">
 
         {/* Cart items */}
@@ -184,12 +186,6 @@ export function POSCartSidebar({
               ৳{subtotal.toFixed(2)}
             </span>
           </div>
-          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-            <span>Tax (15%)</span>
-            <span className="font-semibold text-gray-800 dark:text-gray-200 tabular-nums">
-              ৳{tax.toFixed(2)}
-            </span>
-          </div>
           {orderType === "DELIVERY" && (
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
               <span>Delivery</span>
@@ -212,7 +208,7 @@ export function POSCartSidebar({
           <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-1.5 text-sm font-bold">
             <span className="text-gray-900 dark:text-gray-50">Total</span>
             <span className="text-blue-600 dark:text-blue-400 tabular-nums">
-              ৳{total.toFixed(2)}
+              ৳{totalAmount.toFixed(2)}
             </span>
           </div>
         </div>
@@ -371,8 +367,6 @@ export function POSCartSidebar({
             )}
             rows={3}
           />
-
-          {/* Bottom padding so last field isn't flush against checkout button */}
           <div className="h-2" />
         </div>
       </div>
@@ -400,9 +394,9 @@ export function POSCartSidebar({
           ) : (
             <span className="flex items-center justify-center gap-2">
               Confirm & Place Order
-              {total > 0 && (
+              {totalAmount > 0 && (
                 <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold tabular-nums">
-                  ৳{total.toFixed(2)}
+                  ৳{totalAmount.toFixed(2)}
                 </span>
               )}
             </span>

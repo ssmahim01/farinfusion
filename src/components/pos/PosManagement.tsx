@@ -39,7 +39,6 @@ export default function POSManagement() {
   const filteredProducts = useMemo(() => {
     let result = allProducts;
 
-    // Filter by search term (title or description)
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase().trim();
       result = result.filter(
@@ -105,18 +104,20 @@ export default function POSManagement() {
   const handleCheckout = async (
     customerData: CustomerData,
     orderType: OrderType,
+    totalAmount: number,   
+    discountAmount: number, 
   ) => {
     try {
       if (!user?.data) {
         toast.error("User not loaded");
         return;
       }
-
+ 
       if (String(user.data.role) !== "ADMIN") {
         toast.error("Only seller can create POS order");
         return;
       }
-
+ 
       await createOrder({
         orderType: "POS",
         paymentMethod: "COD",
@@ -125,6 +126,8 @@ export default function POSManagement() {
           title: item?.product?.title || "Unknown Product",
           quantity: item.quantity,
         })),
+        total: totalAmount,              
+        discount: discountAmount ?? 0, 
         shippingCost: orderType === "DELIVERY" ? 100 : 0,
         billingDetails: {
           fullName: customerData.name,
@@ -133,9 +136,9 @@ export default function POSManagement() {
           address: customerData.address,
         },
         note: customerData.notes ?? "",
-        seller: user.data?._id,
+        seller: user?.data?._id,
       }).unwrap();
-
+ 
       toast.success("Order created successfully!");
       setCartItems([]);
       setMobileCartOpen(false);

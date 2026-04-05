@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import {
   useGetAllOrdersQuery,
   useConfirmOrderMutation,
-  useCompleteOrderMutation, 
+  useCompleteOrderMutation,
 } from '@/redux/features/orders/ordersApi';
 import {
   useAppDispatch,
@@ -18,6 +18,7 @@ import { OrderTable } from './OrderTable';
 import { ConfirmOrderModal } from './ConfirmOrderModal';
 import { CompleteOrderModal } from './CompleteOrderModal';
 import { OrderDetailsModal } from './OrderDetailsModal';
+import { AssignCourierModal } from './AssignCourierModal';
 import {
   Pagination,
   PaginationContent,
@@ -36,7 +37,6 @@ import {
   setSelectedOrder as setSelectedOrderAction,
   setConfirmingOrder as setConfirmingOrderAction,
 } from '@/redux/features/orders/ordersSlice';
-import { AssignCourierModal } from './AssignCourierModal';
 
 export default function OrdersManagement() {
   const dispatch = useAppDispatch();
@@ -47,11 +47,11 @@ export default function OrdersManagement() {
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [confirmingOrder, setConfirmingOrder] = useState<Order | null>(null);
-  const [completingOrder, setCompletingOrder] = useState<Order | null>(null); 
+  const [completingOrder, setCompletingOrder] = useState<Order | null>(null);
 
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [completeModalOpen, setCompleteModalOpen] = useState(false); 
+  const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [courierModalOpen, setCourierModalOpen] = useState(false);
 
   const {
@@ -59,15 +59,22 @@ export default function OrdersManagement() {
     isLoading,
     error,
     refetch,
-  } = useGetAllOrdersQuery([], { pollingInterval: 10000 });
+  } = useGetAllOrdersQuery(
+    {
+      page: filters.page,
+      limit: filters.limit,
+      ...(filters.search && { search: filters.search }),
+      ...(filters.status && { status: filters.status }),
+    },
+    { pollingInterval: 10000 },
+  );
+
+  const { data: allOrdersData } = useGetAllOrdersQuery({ page: 1, limit: 1000 });
 
   const [confirmOrder, { isLoading: isConfirming, error: confirmError }] =
     useConfirmOrderMutation();
-
   const [completeOrder, { isLoading: isCompleting, error: completeError }] =
-    useCompleteOrderMutation(); 
-
-  const { data: allOrdersData } = useGetAllOrdersQuery({ page: 1, limit: 1000 });
+    useCompleteOrderMutation();
   const [createCourier] = useCreateCourierMutation();
 
   useEffect(() => {
@@ -94,12 +101,14 @@ export default function OrdersManagement() {
     }
   }, [confirmingOrderId, ordersData]);
 
-  const handleStatusChange = (status: string | '') => {
+  const handleStatusChange = (status: string) => {
     dispatch(setStatusFilter(status as any));
+    dispatch(setPage(1)); 
   };
 
   const handleSearchChange = (search: string) => {
     dispatch(setSearchFilter(search));
+    dispatch(setPage(1)); 
   };
 
   const handleReset = () => {
@@ -117,29 +126,6 @@ export default function OrdersManagement() {
   const handleCompleteClick = (order: Order) => {
     setCompletingOrder(order);
     setCompleteModalOpen(true);
-  };
-
-  const handleCompleteOrder = async (orderId: string) => {
-    if (!completingOrder) return;
-    try {
-      await completeOrder({
-        _id: orderId,
-        orderStatus: 'COMPLETED',
-      }).unwrap();
-
-      await refetch();
-
-      toast.success('Order completed', {
-        description: `Order ${completingOrder.customOrderId || completingOrder._id?.slice(0, 10)} marked as completed.`,
-      });
-
-      setCompleteModalOpen(false);
-      setCompletingOrder(null);
-    } catch (err: any) {
-      toast.error('Failed to complete order', {
-        description: err?.data?.message || 'Please try again.',
-      });
-    }
   };
 
   const handleOpenCourierModal = (order: Order) => {
@@ -166,13 +152,30 @@ export default function OrdersManagement() {
       await confirmOrder({ _id: orderId, orderStatus: 'CONFIRMED' }).unwrap();
       await refetch();
       toast.success('Order confirmed', {
-        description: `Order ${confirmingOrder._id} has been confirmed.`,
+        description: `Order ${confirmingOrder.customOrderId || confirmingOrder._id} has been confirmed.`,
       });
       setConfirmModalOpen(false);
       dispatch(setConfirmingOrderAction(null));
       setConfirmingOrder(null);
     } catch (err: any) {
       toast.error(err?.data?.message || 'Failed to confirm order');
+    }
+  };
+
+  const handleCompleteOrder = async (orderId: string) => {
+    if (!completingOrder) return;
+    try {
+      await completeOrder({ _id: orderId, orderStatus: 'COMPLETED' }).unwrap();
+      await refetch();
+      toast.success('Order completed', {
+        description: `Order ${completingOrder.customOrderId || completingOrder._id?.slice(0, 10)} marked as completed.`,
+      });
+      setCompleteModalOpen(false);
+      setCompletingOrder(null);
+    } catch (err: any) {
+      toast.error('Failed to complete order', {
+        description: err?.data?.message || 'Please try again.',
+      });
     }
   };
 
@@ -187,11 +190,11 @@ export default function OrdersManagement() {
   const allOrders = allOrdersData?.data || [];
 
   return (
-    <div className="min-h-screen space-y-8 bg-background p-4 md:p-8">
+    <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Orders</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Manage and track all customer orders and shipments
         </p>
       </div>
@@ -200,29 +203,26 @@ export default function OrdersManagement() {
       <OrderStats orders={allOrders} />
 
       {/* Filters */}
-      <div className="rounded-lg border bg-card p-6">
-        <OrderFilters
-          statusFilter={filters.status}
-          searchFilter={filters.search}
-          onStatusChange={handleStatusChange}
-          onSearchChange={handleSearchChange}
-          onReset={handleReset}
-        />
-      </div>
+      <OrderFilters
+        statusFilter={filters.status}
+        searchFilter={filters.search}
+        onStatusChange={handleStatusChange}
+        onSearchChange={handleSearchChange}
+        onReset={handleReset}
+        totalResults={totalCount}
+      />
 
       {/* Table */}
-      <div className="rounded-lg bg-card">
-        <OrderTable
-          orders={orders}
-          loading={isLoading}
-          error={error ? 'Failed to load orders' : null}
-          onConfirmOrder={handleConfirmClick}
-          refetch={refetch}
-          onViewOrder={handleViewClick}
-          onAssignCourier={handleOpenCourierModal}
-          onCompleteOrder={handleCompleteClick} 
-        />
-      </div>
+      <OrderTable
+        orders={orders}
+        loading={isLoading}
+        error={error ? 'Failed to load orders' : null}
+        onConfirmOrder={handleConfirmClick}
+        refetch={refetch}
+        onViewOrder={handleViewClick}
+        onAssignCourier={handleOpenCourierModal}
+        onCompleteOrder={handleCompleteClick}
+      />
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -231,8 +231,12 @@ export default function OrdersManagement() {
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  onClick={() => filters.page > 1 && handlePageChange(filters.page - 1)}
-                  className={filters.page === 1 ? 'pointer-events-none opacity-50' : ''}
+                  onClick={() =>
+                    filters.page > 1 && handlePageChange(filters.page - 1)
+                  }
+                  className={
+                    filters.page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                  }
                 />
               </PaginationItem>
 
@@ -253,6 +257,7 @@ export default function OrdersManagement() {
                     <PaginationLink
                       onClick={() => handlePageChange(pageNum)}
                       isActive={filters.page === pageNum}
+                      className="cursor-pointer"
                     >
                       {pageNum}
                     </PaginationLink>
@@ -265,7 +270,11 @@ export default function OrdersManagement() {
                   onClick={() =>
                     filters.page < totalPages && handlePageChange(filters.page + 1)
                   }
-                  className={filters.page === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  className={
+                    filters.page === totalPages
+                      ? 'pointer-events-none opacity-50'
+                      : 'cursor-pointer'
+                  }
                 />
               </PaginationItem>
             </PaginationContent>
@@ -273,6 +282,7 @@ export default function OrdersManagement() {
         </div>
       )}
 
+      {/* Modals */}
       <AssignCourierModal
         open={courierModalOpen}
         onClose={() => setCourierModalOpen(false)}
@@ -294,7 +304,6 @@ export default function OrdersManagement() {
         }}
       />
 
-      {/* ← new */}
       <CompleteOrderModal
         open={completeModalOpen}
         order={completingOrder}

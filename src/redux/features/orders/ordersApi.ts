@@ -53,7 +53,7 @@ export const ordersApi = baseApi.injectEndpoints({
       query: ({ _id, data }) => ({
         url: `/order/${_id}`,
         method: "PATCH",
-        body: data,
+        data,
       }),
       invalidatesTags: (_result, _error, { _id }) => [
         { type: "ORDER", id: _id },
