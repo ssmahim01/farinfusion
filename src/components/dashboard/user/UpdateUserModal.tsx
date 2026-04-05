@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import { toast } from "sonner";
-import { Upload, X } from "lucide-react";
+import {PencilLine, Upload, X} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,7 @@ import {
 
 import { useUpdateUserMutation } from "@/redux/features/user/user.api";
 import { IUser } from "@/types";
+import FormHeader from "@/components/shared/FormHeader";
 
 enum Role {
   ADMIN = "ADMIN",
@@ -66,16 +67,12 @@ interface UpdateUserModalProps {
 
 // ─── Component ────────────────────────────────────────────────────────────
 
-export default function UpdateUserModal({
-                                          open,
-                                          onOpenChange,
-                                          user,
-                                        }: UpdateUserModalProps) {
+export default function UpdateUserModal({ open, onOpenChange, user,}: UpdateUserModalProps) {
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [picturePreview, setPicturePreview] = useState<string | null>(null);
   const [updateUser, { isLoading }] = useUpdateUserMutation();
 
-  const { register: registerField, handleSubmit, formState: { errors }, reset, setValue, watch } =
+  const { register: registerField, handleSubmit, formState: { errors }, reset, setValue, watch, control } =
       useForm<UpdateUserFormValues>({
         resolver: zodResolver(updateUserSchema) as any,
         defaultValues: {
@@ -88,7 +85,6 @@ export default function UpdateUserModal({
         },
       });
 
-  const selectedRole = watch("role");
 
   useEffect(() => {
     if (user) {
@@ -157,25 +153,26 @@ export default function UpdateUserModal({
 
   return (
       <Dialog open={open} onOpenChange={(val) => (val ? onOpenChange(true) : handleClose())}>
-        <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto p-6">
-          <DialogHeader className="text-center pb-2">
-            <DialogTitle className="text-xl font-bold">Update User</DialogTitle>
-            <DialogDescription>Edit user information below</DialogDescription>
+        <DialogContent className="max-w-sm md:max-w-[500] max-h-[90vh] overflow-y-auto p-6">
+          <DialogHeader>
+            <FormHeader title={"Update Staff"} description={"Edit staff information below"} type={"update"} />
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Name */}
-            <div className={"space-y-1.5"}>
-              <Label className={"uppercase"} htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="Enter full name" {...registerField("name")} />
-              {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
-            </div>
+            <div className={"grid grid-cols-1 space-y-1.5 sm:space-y-0 sm:grid-cols-2 gap-2 items-center "}>
+              <div className={"space-y-1.5"}>
+                <Label className={"uppercase"} htmlFor="name">Full Name</Label>
+                <Input id="name" placeholder="Enter full name" {...registerField("name")} />
+                {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+              </div>
 
-            {/* Email */}
-            <div className={"space-y-1.5"}>
-              <Label className={"uppercase"} htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" placeholder="you@example.com" {...registerField("email")} />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+              {/* Email */}
+              <div className={"space-y-1.5"}>
+                <Label className={"uppercase"} htmlFor="email">Email Address</Label>
+                <Input id="email" type="email" placeholder="you@example.com" {...registerField("email")} />
+                {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+              </div>
             </div>
 
             {/* Phone */}
@@ -238,16 +235,29 @@ export default function UpdateUserModal({
 
               <div className={"space-y-1.5"}>
                 <Label className={"uppercase"}>Role</Label>
-                <Select value={selectedRole ?? ""} onValueChange={(val) => setValue("role", val as Role)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent position={"popper"}>
-                    {Object.values(Role).map((r) => (
-                        <SelectItem key={r} value={r}>{r}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                    name="role"
+                    control={control}
+                    render={({ field }) => (
+                        <Select
+                            value={field.value}
+                            key={field.value}
+                            onValueChange={(val) => field.onChange(val)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+
+                          <SelectContent>
+                            {Object.values(Role).map((r) => (
+                                <SelectItem key={r} value={r}>
+                                  {r}
+                                </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                    )}
+                />
                 {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
               </div>
             </div>
