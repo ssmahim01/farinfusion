@@ -26,6 +26,7 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCircle2,
+  UserCheck,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -35,7 +36,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { useGetAllLeadQuery, useTrashUpdateLeadMutation } from "@/redux/features/lead/lead.api";
+import {
+  useGetAllLeadQuery,
+  useTrashUpdateLeadMutation,
+} from "@/redux/features/lead/lead.api";
 import DashboardManagementPageSkeleton from "@/components/dashboard/DashboardManagePageSkeleton";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import { LeadDetailModal } from "@/components/dashboard/leads/LeadDetailModal";
@@ -72,10 +76,28 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   },
 };
 
-const PRIORITY_MAP: Record<string, { label: string; dot: string }> = {
-  HIGH: { label: "High", dot: "bg-red-500" },
-  MEDIUM: { label: "Medium", dot: "bg-amber-500" },
-  LOW: { label: "Low", dot: "bg-emerald-500" },
+const PRIORITY_MAP: Record<
+  string,
+  { label: string; dot: string; badgeCls: string }
+> = {
+  HIGH: {
+    label: "High",
+    dot: "bg-red-500",
+    badgeCls:
+      "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
+  },
+  MEDIUM: {
+    label: "Medium",
+    dot: "bg-amber-500",
+    badgeCls:
+      "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800",
+  },
+  LOW: {
+    label: "Low",
+    dot: "bg-emerald-500",
+    badgeCls:
+      "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800",
+  },
 };
 
 function LeadAvatar({ name }: { name: string }) {
@@ -164,7 +186,7 @@ const LeadsTable: React.FC = () => {
   };
 
   const handleSelectAll = (checked: boolean) =>
-    setSelectedIds(checked ? leadData.map((l) => l._id) : []);
+    setSelectedIds(checked ? leadData.map((l) => l._id as string) : []);
 
   const handleSelectOne = (id: string, checked: boolean) =>
     setSelectedIds((prev) =>
@@ -187,8 +209,12 @@ const LeadsTable: React.FC = () => {
 
   // Stat counts
   const newCount = leadData.filter((l) => l.status === "NEW").length;
-  const contactedCount = leadData.filter((l) => l.status === "CONTACTED").length;
-  const highPriorityCount = leadData.filter((l) => l.priority === "HIGH").length;
+  const contactedCount = leadData.filter(
+    (l) => l.status === "CONTACTED",
+  ).length;
+  const highPriorityCount = leadData.filter(
+    (l) => l.priority === "HIGH",
+  ).length;
   const totalCount = data?.meta?.total ?? leadData.length;
 
   return (
@@ -198,13 +224,15 @@ const LeadsTable: React.FC = () => {
       ) : isError ? (
         <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-400">
           <AlertCircle className="h-5 w-5 shrink-0" />
-          <p className="text-sm font-medium">Failed to load leads. Please try again.</p>
+          <p className="text-sm font-medium">
+            Failed to load leads. Please try again.
+          </p>
         </div>
       ) : (
         <>
           <DashboardPageHeader title="Leads Management" />
 
-          {/* ── Stats ── */}
+          {/* Stats */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatCard
               label="Total"
@@ -232,7 +260,7 @@ const LeadsTable: React.FC = () => {
             />
           </div>
 
-          {/* ── Toolbar ── */}
+          {/* Toolbar */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
               <SearchForm onSearchChange={setSearchTerm} />
@@ -263,7 +291,7 @@ const LeadsTable: React.FC = () => {
             </div>
           </div>
 
-          {/* ── Table ── */}
+          {/* Table */}
           <div className="overflow-hidden rounded-xl border border-gray-200/80 bg-white shadow-sm dark:border-gray-700/60 dark:bg-gray-900">
             <Table>
               <TableHeader>
@@ -287,6 +315,9 @@ const LeadsTable: React.FC = () => {
                   <TableHead className="hidden text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 lg:table-cell">
                     Priority
                   </TableHead>
+                  <TableHead className="hidden text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 xl:table-cell">
+                    Added By
+                  </TableHead>
                   <TableHead className="pr-4 text-right text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     Actions
                   </TableHead>
@@ -296,10 +327,7 @@ const LeadsTable: React.FC = () => {
               <TableBody>
                 {leadData.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="py-20 text-center"
-                    >
+                    <TableCell colSpan={7} className="py-20 text-center">
                       <div className="flex flex-col items-center gap-3">
                         <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
                           <Users className="h-8 w-8 text-gray-400 dark:text-gray-500" />
@@ -317,20 +345,28 @@ const LeadsTable: React.FC = () => {
                   </TableRow>
                 ) : (
                   leadData.map((item, idx) => {
-                    const status = STATUS_MAP[item.status ?? "NEW"] ?? STATUS_MAP.NEW;
-                    const priority = PRIORITY_MAP[item.priority ?? "LOW"] ?? PRIORITY_MAP.LOW;
-                    const isSelected = selectedIds.includes(item._id);
+                    const status =
+                      STATUS_MAP[item.status ?? "NEW"] ?? STATUS_MAP.NEW;
+                    const priority =
+                      PRIORITY_MAP[item.priority ?? "MEDIUM"] ??
+                      PRIORITY_MAP.MEDIUM;
+                    const isSelected = selectedIds.includes(item._id as string);
+
+                    // assignedBy may be a populated object or just an id
+                    const assignedByName =
+                      item.assignedBy?.name ?? item.assignedBy?.email ?? null;
+                    const assignedByRole = item.assignedBy?.role ?? null;
 
                     return (
                       <TableRow
-                        key={item._id}
+                        key={item._id as string}
                         className={cn(
                           "border-b border-gray-100/80 transition-colors duration-100 dark:border-gray-800/60",
                           isSelected
                             ? "bg-blue-50/70 dark:bg-blue-900/10"
                             : idx % 2 === 0
-                            ? "bg-white dark:bg-gray-900"
-                            : "bg-gray-50/40 dark:bg-gray-800/20",
+                              ? "bg-white dark:bg-gray-900"
+                              : "bg-gray-50/40 dark:bg-gray-800/20",
                           "hover:bg-blue-50/40 dark:hover:bg-blue-900/10",
                         )}
                       >
@@ -339,12 +375,12 @@ const LeadsTable: React.FC = () => {
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={(c) =>
-                              handleSelectOne(item._id, c === true)
+                              handleSelectOne(item._id as string, c === true)
                             }
                           />
                         </TableCell>
 
-                        {/* Name + mobile contact */}
+                        {/* Name + mobile info */}
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <LeadAvatar name={item.name ?? "?"} />
@@ -364,6 +400,13 @@ const LeadsTable: React.FC = () => {
                               >
                                 {status.label}
                               </span>
+                              {/* AssignedBy on mobile (xl hidden) */}
+                              {assignedByName && (
+                                <p className="mt-0.5 flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500 xl:hidden">
+                                  <UserCheck className="h-2.5 w-2.5 shrink-0" />
+                                  {assignedByName}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </TableCell>
@@ -393,25 +436,54 @@ const LeadsTable: React.FC = () => {
                           </Badge>
                         </TableCell>
 
-                        {/* Priority */}
+                        {/* Priority — colored badge with dot */}
                         <TableCell className="hidden lg:table-cell">
-                          <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "rounded-full border px-2.5 py-0.5 text-[11px] font-semibold",
+                              priority.badgeCls,
+                            )}
+                          >
                             <span
                               className={cn(
-                                "h-2 w-2 rounded-full shadow-sm",
+                                "mr-1.5 inline-block h-1.5 w-1.5 rounded-full",
                                 priority.dot,
                               )}
                             />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {priority.label}
+                            {priority.label}
+                          </Badge>
+                        </TableCell>
+
+                        {/* Added By — xl+ only */}
+                        <TableCell className="hidden xl:table-cell">
+                          {assignedByName ? (
+                            <div className="flex items-center gap-2">
+                              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                                <UserCheck className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="truncate text-xs font-medium text-gray-700 dark:text-gray-300">
+                                  {assignedByName}
+                                </p>
+                                {assignedByRole && (
+                                  <p className="truncate text-[10px] capitalize text-gray-400 dark:text-gray-500">
+                                    {assignedByRole.toLowerCase()}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-xs italic text-gray-400 dark:text-gray-600">
+                              —
                             </span>
-                          </div>
+                          )}
                         </TableCell>
 
                         {/* Actions */}
                         <TableCell className="pr-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            {/* Sell button — shimmer on hover */}
+                            {/* Sell button */}
                             <button
                               onClick={() => handleSell(item)}
                               className={cn(
@@ -426,7 +498,6 @@ const LeadsTable: React.FC = () => {
                               )}
                               aria-label={`Sell to ${item.name}`}
                             >
-                              {/* shimmer sweep */}
                               <span
                                 aria-hidden
                                 className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/25 transition-transform duration-500 group-hover:translate-x-[200%]"
@@ -436,7 +507,7 @@ const LeadsTable: React.FC = () => {
                               <ArrowUpRight className="-translate-x-0.5 h-3 w-3 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
                             </button>
 
-                            {/* ⋯ menu */}
+                            {/* More menu */}
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
@@ -451,7 +522,7 @@ const LeadsTable: React.FC = () => {
                                 <DropdownMenuItem
                                   className="gap-2 text-sm"
                                   onClick={() => {
-                                    setLeadID(item._id);
+                                    setLeadID(item._id as string);
                                     setViewModalOpen(true);
                                   }}
                                 >
@@ -460,7 +531,7 @@ const LeadsTable: React.FC = () => {
                                 <DropdownMenuItem
                                   className="gap-2 text-sm"
                                   onClick={() => {
-                                    setLeadID(item._id);
+                                    setLeadID(item._id as string);
                                     setEditModalOpen(true);
                                   }}
                                 >

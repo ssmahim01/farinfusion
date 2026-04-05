@@ -38,6 +38,7 @@ import {
   StickyNote,
   PencilLine,
   Check,
+  Flag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -50,13 +51,41 @@ enum LeadStatus {
   INACTIVE = "INACTIVE",
 }
 
+enum LeadPriority {
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+}
+
 const STATUS_COLORS: Record<string, string> = {
-  NEW: "text-amber-600 dark:text-amber-400",
+  NEW: "text-blue-600 dark:text-blue-400",
   CONTACTED: "text-amber-600 dark:text-amber-400",
   QUALIFIED: "text-violet-600 dark:text-violet-400",
   WON: "text-emerald-600 dark:text-emerald-400",
   LOST: "text-red-600 dark:text-red-400",
   INACTIVE: "text-gray-500 dark:text-gray-400",
+};
+
+// Priority config with dot color + label color
+const PRIORITY_CONFIG: Record<
+  string,
+  { label: string; dot: string; cls: string }
+> = {
+  HIGH: {
+    label: "High",
+    dot: "bg-red-500",
+    cls: "text-red-600 dark:text-red-400",
+  },
+  MEDIUM: {
+    label: "Medium",
+    dot: "bg-amber-500",
+    cls: "text-amber-600 dark:text-amber-400",
+  },
+  LOW: {
+    label: "Low",
+    dot: "bg-emerald-500",
+    cls: "text-emerald-600 dark:text-emerald-400",
+  },
 };
 
 const LeadUpdateSchema = z.object({
@@ -65,6 +94,7 @@ const LeadUpdateSchema = z.object({
   phone: z.string().min(10, "Please enter a valid phone number"),
   address: z.string().min(5, "Address must be at least 5 characters"),
   status: z.string().optional(),
+  priority: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -138,6 +168,7 @@ const LeadUpdateModal = ({ open, onOpenChange, leadId }: Props) => {
         address: data.data.address || "",
         notes: data.data.notes || "",
         status: data.data.status || "",
+        priority: data.data.priority || "MEDIUM",
       });
     }
   }, [data, reset]);
@@ -163,6 +194,7 @@ const LeadUpdateModal = ({ open, onOpenChange, leadId }: Props) => {
         address: data.data.address || "",
         notes: data.data.notes || "",
         status: data.data.status || "",
+        priority: data.data.priority || "MEDIUM",
       });
     }
   };
@@ -285,20 +317,90 @@ const LeadUpdateModal = ({ open, onOpenChange, leadId }: Props) => {
                 </FormField>
               </div>
 
-              {/* Address */}
-              <FormField
-                icon={MapPin}
-                label="Address"
-                htmlFor="address"
-                error={errors.address?.message}
-              >
-                <Input
-                  id="address"
-                  placeholder="House no., Road, Area, City"
-                  className={inputCls}
-                  {...register("address")}
-                />
-              </FormField>
+              {/* Address + Priority row */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  icon={MapPin}
+                  label="Address"
+                  htmlFor="address"
+                  error={errors.address?.message}
+                >
+                  <Input
+                    id="address"
+                    placeholder="House no., Road, Area, City"
+                    className={inputCls}
+                    {...register("address")}
+                  />
+                </FormField>
+
+                {/* Priority select */}
+                <FormField
+                  icon={Flag}
+                  label="Priority"
+                  htmlFor="priority"
+                  error={errors.priority?.message}
+                >
+                  <Controller
+                    name="priority"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        key={field.value}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          id="priority"
+                          className={cn(inputCls, "w-full")}
+                        >
+                          <SelectValue placeholder="Select priority">
+                            {field.value && PRIORITY_CONFIG[field.value] && (
+                              <span className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "h-2 w-2 rounded-full shrink-0",
+                                    PRIORITY_CONFIG[field.value].dot,
+                                  )}
+                                />
+                                <span
+                                  className={cn(
+                                    "font-medium",
+                                    PRIORITY_CONFIG[field.value].cls,
+                                  )}
+                                >
+                                  {PRIORITY_CONFIG[field.value].label}
+                                </span>
+                              </span>
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.values(LeadPriority).map((p) => {
+                            const cfg = PRIORITY_CONFIG[p];
+                            return (
+                              <SelectItem key={p} value={p}>
+                                <span className="flex items-center gap-2">
+                                  <span
+                                    className={cn(
+                                      "h-2 w-2 rounded-full shrink-0",
+                                      cfg.dot,
+                                    )}
+                                  />
+                                  <span
+                                    className={cn("font-medium", cfg.cls)}
+                                  >
+                                    {cfg.label}
+                                  </span>
+                                </span>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </FormField>
+              </div>
 
               {/* Notes */}
               <FormField

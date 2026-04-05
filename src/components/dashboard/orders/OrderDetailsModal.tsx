@@ -43,7 +43,7 @@ export function OrderDetailsModal({
             <DialogTitle className="flex items-center justify-between">
               <span>Order Details</span>
               <Badge variant="outline" className="font-mono">
-                {order._id?.slice(0, 10)}...
+                {order.customOrderId || order._id?.slice(0, 10)}
               </Badge>
             </DialogTitle>
             <DialogDescription>

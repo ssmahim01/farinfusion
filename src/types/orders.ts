@@ -18,14 +18,17 @@ export type DeliveryStatus =
   | "DELIVERED"
   | "FAILED";
 
- export type CreateOrderPayload = {
+export type CreateOrderPayload = {
   orderType: "POS" | "ONLINE" | "DELIVERY";
   paymentMethod?: "COD" | "ONLINE";
+  note: string;
+  total: number;
+  discount: number;
 
   products: {
     product: string;
     quantity: number;
-      title: string;
+    title: string;
   }[];
 
   shippingCost?: number;
@@ -43,8 +46,20 @@ export type DeliveryStatus =
 export interface Order {
   _id: string;
   customOrderId?: string;
+  seller: {
+    name: string;
+    role: string;
+    email?: string;
+  };
   transactionId?: string;
-  paymentMethod?: "COD" | "ONLINE" | "POS" | "BKASH" | "ROCKET" | "NAGAD" | "BANK";
+  paymentMethod?:
+    | "COD"
+    | "ONLINE"
+    | "POS"
+    | "BKASH"
+    | "ROCKET"
+    | "NAGAD"
+    | "BANK";
   orderId?: string;
   customerName: string;
   totalAmount?: number;
@@ -61,11 +76,11 @@ export interface Order {
     map: any;
     productId: string;
     product: {
-        title: string
-    },
+      title: string;
+    };
     quantity: number;
     price: number;
-  }
+  };
   total: number;
   orderStatus: OrderStatus;
   deliveryStatus: DeliveryStatus;
@@ -87,6 +102,7 @@ export interface OrderItem {
 export interface UpdateOrderRequest {
   orderStatus?: OrderStatus;
   deliveryStatus?: DeliveryStatus;
+  seller: any;
   courierName?: CourierProvider;
   trackingNumber?: string;
 }
