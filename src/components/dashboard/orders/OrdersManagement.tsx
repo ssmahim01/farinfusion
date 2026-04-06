@@ -51,9 +51,9 @@ export default function OrdersManagement() {
   } = useGetAllOrdersQuery(
     {
       page,
-      limit: LIMIT,
-      ...(search.trim() && { search: search.trim() }),
-      ...(status && { status }),
+     limit: LIMIT,
+  ...(search && { search }),
+  ...(status && { orderStatus: status }),
     },
     { pollingInterval: 10000 },
   );
