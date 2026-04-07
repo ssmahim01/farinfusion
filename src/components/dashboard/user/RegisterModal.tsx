@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
+// import logo from "../../../../public/assets/FRN-Logo-scaled.webp";
 import { registerUser } from "@/utils/registerUser";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,7 +32,7 @@ enum Role {
     ADMIN = "ADMIN",
     MANAGER = "MANAGER",
     MODERATOR = "MODERATOR",
-    CUSTOMER = "CUSTOMER",
+    TELLICELSS = "TELLICELSS",
 }
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -44,6 +44,11 @@ const signupSchema = z
         phone: z.string().min(10, "Please enter a valid phone number"),
         address: z.string().min(5, "Address must be at least 5 characters"),
         salary: z.preprocess((val) => {
+            if (val === "" || val === undefined || val === null) return undefined;
+            const num = Number(val);
+            return isNaN(num) ? undefined : num;
+        }, z.number().min(0, "Salary must be a positive number").optional()),
+        commissionSalary: z.preprocess((val) => {
             if (val === "" || val === undefined || val === null) return undefined;
             const num = Number(val);
             return isNaN(num) ? undefined : num;
@@ -107,7 +112,6 @@ export default function RegisterModal() {
         handleSubmit,
         formState: { errors },
         reset,
-        setValue,
         control
     } = useForm<SignupFormValues>({
         resolver: zodResolver(signupSchema) as any,
@@ -117,6 +121,7 @@ export default function RegisterModal() {
             phone: "",
             address: "",
             salary: undefined,
+            commissionSalary: undefined,
             role: undefined,
             password: "",
             confirmPassword: "",
@@ -320,7 +325,7 @@ export default function RegisterModal() {
                     </div>
 
                     {/* Salary & Role — side by side */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                         {/* Salary */}
                         <div className="space-y-1.5">
                             <Label htmlFor="salary" className="text-xs font-semibold tracking-widest uppercase">
@@ -331,10 +336,24 @@ export default function RegisterModal() {
                                 id="salary"
                                 type="number"
                                 min={0}
-                                placeholder="e.g. 25000"
+                                placeholder="e.g. 20,000"
                                 {...registerField("salary")}
                             />
                             {errors.salary && <p className="text-xs text-red-400">{errors.salary.message}</p>}
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="commissionSalary" className="text-xs font-semibold tracking-widest uppercase">
+                               Commission Based Salary{" "}
+                                <span className="text-[#96999A] normal-case font-normal">(optional)</span>
+                            </Label>
+                            <Input
+                                id="commissionSalary"
+                                type="number"
+                                min={0}
+                                placeholder="e.g. 25"
+                                {...registerField("commissionSalary")}
+                            />
+                            {errors.commissionSalary && <p className="text-xs text-red-400">{errors?.commissionSalary?.message}</p>}
                         </div>
 
                         {/* Role */}

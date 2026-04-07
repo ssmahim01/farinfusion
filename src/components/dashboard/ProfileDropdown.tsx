@@ -32,7 +32,7 @@ export function ProfileDropdown() {
 
   }
 
-  console.log("user data in dropdown ", data)
+  // console.log("user data in dropdown ", data)
 
   return (
     <DropdownMenu>

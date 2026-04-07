@@ -50,7 +50,7 @@ export enum Role {
     ADMIN = "ADMIN",
     MANAGER = "MANAGER",
     MODERATOR = "MODERATOR",
-    CUSTOMER = "CUSTOMER"
+    TELLICELSS = "TELLICELSS"
 }
 export enum IsActive {
     ACTIVE = "ACTIVE",
@@ -70,6 +70,7 @@ export interface IUser {
     isVerified?: boolean;
     isDeleted?: boolean;
     salary?: number;
+    commissionSalary?: number;
     role?: Role;
     createdAt?: string
     updatedAt?: string

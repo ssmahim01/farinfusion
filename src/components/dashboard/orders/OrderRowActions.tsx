@@ -1,29 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
-  DialogFooter,
   DialogDescription,
-} from '@/components/ui/dialog';
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import {
   MoreHorizontal,
   Eye,
@@ -32,13 +32,18 @@ import {
   CheckCircle2,
   UserCog,
   User,
-} from 'lucide-react';
-import type { Order } from '@/types/orders';
-import { Courier } from '@/types/courier';
-import { cn } from '@/lib/utils';
-import { useGetAllUsersQuery } from '@/redux/features/user/user.api';
-import { useUpdateOrderMutation } from '@/lib/hooks';
-import { toast } from 'sonner';
+  PencilLine,
+} from "lucide-react";
+import type { Order } from "@/types/orders";
+import { Courier } from "@/types/courier";
+import { cn } from "@/lib/utils";
+import {
+  useGetAllUsersQuery,
+  useGetMeQuery,
+} from "@/redux/features/user/user.api";
+import { useUpdateOrderMutation } from "@/lib/hooks";
+import { toast } from "sonner";
+import { EditOrderModal } from "./EditOrderModal";
 
 interface OrderRowActionsProps {
   order: Order;
@@ -59,46 +64,55 @@ export function OrderRowActions({
   onAssignCourier,
   onComplete,
 }: OrderRowActionsProps) {
-  const isPending = order.orderStatus === 'PENDING';
-  const isConfirmed = order.orderStatus === 'CONFIRMED';
-  const isCompleted = order.orderStatus === 'COMPLETED';
-  const isDelivered = courier?.deliveryStatus === 'DELIVERED';
+  const isPending = order.orderStatus === "PENDING";
+  const isConfirmed = order.orderStatus === "CONFIRMED";
+  const isCompleted = order.orderStatus === "COMPLETED";
+  const isDelivered = courier?.deliveryStatus === "DELIVERED";
   const canComplete = isConfirmed && isDelivered && !isCompleted;
+  const { data } = useGetMeQuery(undefined);
+  const userRole = data?.data?.role;
+  const canEdit =
+    ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) &&
+    !order?.courierName;
+
+  const [editOpen, setEditOpen] = useState(false);
 
   const [sellerDialogOpen, setSellerDialogOpen] = useState(false);
   const [selectedSellerId, setSelectedSellerId] = useState<string>(
-    (order.seller as any)?._id ?? order.seller ?? '',
+    (order.seller as any)?._id ?? order.seller ?? "",
   );
   const [isSaving, setIsSaving] = useState(false);
 
   const { data: users } = useGetAllUsersQuery({});
   const [updateOrder] = useUpdateOrderMutation();
 
-  // Filter to staff/admin roles only
   const sellerOptions =
     users?.data?.filter((u) =>
-      ['ADMIN', 'STAFF', 'SELLER'].includes(u.role?.toUpperCase?.() ?? ''),
+      ["ADMIN", "STAFF", "SELLER"].includes(u.role?.toUpperCase?.() ?? ""),
     ) ?? [];
-
-  const handleSaveSeller = async () => {
-    if (!selectedSellerId) return;
-    setIsSaving(true);
-    try {
-      await updateOrder({ _id: order._id, data: { seller: selectedSellerId } }).unwrap();
-      toast.success('Seller assigned successfully');
-      refetch();
-      setSellerDialogOpen(false);
-    } catch {
-      toast.error('Failed to assign seller');
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const currentSellerName =
     (order.seller as any)?.name ??
     sellerOptions.find((u) => u._id === order.seller)?.name ??
     null;
+
+  const handleSaveSeller = async () => {
+    if (!selectedSellerId) return;
+    setIsSaving(true);
+    try {
+      await updateOrder({
+        _id: order._id,
+        data: { seller: selectedSellerId },
+      }).unwrap();
+      toast.success("Seller assigned successfully");
+      refetch();
+      setSellerDialogOpen(false);
+    } catch {
+      toast.error("Failed to assign seller");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <>
@@ -126,6 +140,17 @@ export function OrderRowActions({
             </DropdownMenuItem>
           )}
 
+          {/* Edit */}
+          {canEdit && (
+            <DropdownMenuItem
+              className="gap-2 text-sm cursor-pointer text-blue-600 focus:text-blue-600 dark:text-blue-400"
+              onClick={() => setEditOpen(true)}
+            >
+              <PencilLine className="h-3.5 w-3.5" />
+              Edit Order
+            </DropdownMenuItem>
+          )}
+
           {/* Assign Seller */}
           <DropdownMenuItem
             className="gap-2 text-sm cursor-pointer"
@@ -140,7 +165,7 @@ export function OrderRowActions({
             )}
           </DropdownMenuItem>
 
-          {/* Confirm — PENDING only */}
+          {/* Confirm */}
           {isPending && onConfirm && (
             <>
               <DropdownMenuSeparator />
@@ -154,11 +179,12 @@ export function OrderRowActions({
             </>
           )}
 
+          {/* Assign Courier */}
           {isConfirmed && !courier && onAssignCourier && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="gap-2 text-sm cursor-pointer text-amber-600 focus:text-amber-600 dark:text-amber-400"
+                className="gap-2 text-sm cursor-pointer text-blue-600 focus:text-blue-600 dark:text-blue-400"
                 onClick={() => onAssignCourier(order)}
               >
                 <Truck className="h-3.5 w-3.5" />
@@ -167,14 +193,14 @@ export function OrderRowActions({
             </>
           )}
 
+          {/* Mark as Completed */}
           {canComplete && onComplete && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className={cn(
-                  'gap-2 text-sm font-semibold cursor-pointer',
-                  'text-violet-600 focus:text-violet-600',
-                  'dark:text-violet-400',
+                  "gap-2 text-sm font-semibold cursor-pointer",
+                  "text-violet-600 focus:text-violet-600 dark:text-violet-400",
                 )}
                 onClick={() => onComplete(order)}
               >
@@ -188,7 +214,10 @@ export function OrderRowActions({
           {isCompleted && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem disabled className="gap-2 text-sm text-gray-400 cursor-default">
+              <DropdownMenuItem
+                disabled
+                className="gap-2 text-sm text-gray-400 cursor-default"
+              >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Order Completed
               </DropdownMenuItem>
@@ -197,15 +226,22 @@ export function OrderRowActions({
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* ── Edit Order Modal ── */}
+      <EditOrderModal
+        open={editOpen}
+        order={order}
+        onOpenChange={setEditOpen}
+        onSuccess={refetch}
+      />
+
       {/* ── Assign Seller Dialog ── */}
       <Dialog open={sellerDialogOpen} onOpenChange={setSellerDialogOpen}>
         <DialogContent className="sm:max-w-95 gap-0 p-0 overflow-hidden rounded-2xl border-gray-200/80 dark:border-gray-700/60">
-          {/* Accent bar */}
-          <div className="h-1 w-full bg-linear-to-r from-amber-500 via-indigo-500 to-violet-500" />
+          <div className="h-1 w-full bg-linear-to-r from-blue-500 via-indigo-500 to-violet-500" />
 
           <div className="flex items-center gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/20">
-              <UserCog className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/20">
+              <UserCog className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
               <DialogTitle className="text-base font-bold text-gray-900 dark:text-gray-50">
@@ -218,12 +254,12 @@ export function OrderRowActions({
           </div>
 
           <div className="px-5 py-5 space-y-3">
-            {/* Current seller indicator */}
             {currentSellerName && (
-              <div className="flex items-center gap-2 rounded-lg border border-amber-100 bg-amber-50/60 px-3 py-2 dark:border-amber-800/40 dark:bg-amber-900/10">
-                <User className="h-3.5 w-3.5 shrink-0 text-amber-500" />
-                <p className="text-xs text-amber-700 dark:text-amber-400">
-                  Currently: <span className="font-semibold">{currentSellerName}</span>
+              <div className="flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2 dark:border-blue-800/40 dark:bg-blue-900/10">
+                <User className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+                <p className="text-xs text-blue-700 dark:text-blue-400">
+                  Currently:{" "}
+                  <span className="font-semibold">{currentSellerName}</span>
                 </p>
               </div>
             )}
@@ -255,16 +291,18 @@ export function OrderRowActions({
                           <div
                             className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white"
                             style={{
-                              background: `hsl(${[...u.name].reduce(
-                                (a, c) => a + c.charCodeAt(0),
-                                0,
-                              ) % 360},52%,50%)`,
+                              background: `hsl(${
+                                [...u.name].reduce(
+                                  (a, c) => a + c.charCodeAt(0),
+                                  0,
+                                ) % 360
+                              },52%,50%)`,
                             }}
                           >
-                            {u.name?.[0]?.toUpperCase() ?? '?'}
+                            {u.name?.[0]?.toUpperCase() ?? "?"}
                           </div>
                           <span>{u.name}</span>
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                          <span className="text-[10px] text-gray-400">
                             ({u.role})
                           </span>
                         </div>
@@ -276,7 +314,7 @@ export function OrderRowActions({
             </div>
           </div>
 
-          <DialogFooter className="items-center my-1 flex gap-2 border-t border-gray-100 px-5 py-2 dark:border-gray-800">
+          <DialogFooter className="flex gap-2 border-t border-gray-100 px-5 py-4 dark:border-gray-800">
             <Button
               variant="outline"
               size="sm"
@@ -290,11 +328,11 @@ export function OrderRowActions({
               onClick={handleSaveSeller}
               disabled={!selectedSellerId || isSaving}
               className={cn(
-                'hover:cursor-pointer hover:scale-105 ease-in-out transition-transform transform duration-500 group relative overflow-hidden inline-flex items-center gap-1.5',
-                'rounded-lg px-4 py-2 text-sm font-semibold text-white',
-                'bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600',
-                'transition-all duration-200 active:scale-95',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+                "group relative overflow-hidden inline-flex items-center gap-1.5",
+                "rounded-lg px-4 py-2 text-sm font-semibold text-white",
+                "bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600",
+                "transition-all duration-200 active:scale-95",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
               )}
             >
               <span
@@ -307,7 +345,7 @@ export function OrderRowActions({
                   Saving…
                 </span>
               ) : (
-                'Assign'
+                "Assign"
               )}
             </button>
           </DialogFooter>

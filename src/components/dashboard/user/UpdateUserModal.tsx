@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -28,12 +30,13 @@ import {
 
 import { useUpdateUserMutation } from "@/redux/features/user/user.api";
 import { IUser } from "@/types";
+import Image from "next/image";
 
 enum Role {
   ADMIN = "ADMIN",
   MANAGER = "MANAGER",
   MODERATOR = "MODERATOR",
-  CUSTOMER = "CUSTOMER",
+  TELLICELSS = "TELLICELSS",
 }
 
 // ─── Schema ───────────────────────────────────────────────────────────────
@@ -43,14 +46,16 @@ const updateUserSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   phone: z.string().min(10, "Please enter a valid phone number"),
   address: z.string().min(5, "Address must be at least 5 characters"),
-  salary: z.preprocess(
-      (val) => {
-        if (val === "" || val === undefined || val === null) return undefined;
-        const num = Number(val);
-        return isNaN(num) ? undefined : num;
-      },
-      z.number().min(0, "Salary must be a positive number").optional()
-  ),
+  salary: z.preprocess((val) => {
+    if (val === "" || val === undefined || val === null) return undefined;
+    const num = Number(val);
+    return isNaN(num) ? undefined : num;
+  }, z.number().min(0, "Salary must be a positive number").optional()),
+  commissionSalary: z.preprocess((val) => {
+    if (val === "" || val === undefined || val === null) return undefined;
+    const num = Number(val);
+    return isNaN(num) ? undefined : num;
+  }, z.number().min(0, "Salary must be a positive number").optional()),
   role: z.nativeEnum(Role, { message: "Please select a role" }),
 });
 
@@ -67,26 +72,33 @@ interface UpdateUserModalProps {
 // ─── Component ────────────────────────────────────────────────────────────
 
 export default function UpdateUserModal({
-                                          open,
-                                          onOpenChange,
-                                          user,
-                                        }: UpdateUserModalProps) {
+  open,
+  onOpenChange,
+  user,
+}: UpdateUserModalProps) {
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [picturePreview, setPicturePreview] = useState<string | null>(null);
   const [updateUser, { isLoading }] = useUpdateUserMutation();
 
-  const { register: registerField, handleSubmit, formState: { errors }, reset, setValue, watch } =
-      useForm<UpdateUserFormValues>({
-        resolver: zodResolver(updateUserSchema) as any,
-        defaultValues: {
-          name: user?.name ?? "",
-          email: user?.email ?? "",
-          phone: user?.phone ?? "",
-          address: user?.address ?? "",
-          salary: user?.salary ?? undefined,
-          role: user?.role as Role ?? undefined,
-        },
-      });
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+    watch,
+  } = useForm<UpdateUserFormValues>({
+    resolver: zodResolver(updateUserSchema) as any,
+    defaultValues: {
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+      phone: user?.phone ?? "",
+      address: user?.address ?? "",
+      salary: user?.salary ?? undefined,
+      commissionSalary: user?.commissionSalary ?? undefined,
+      role: (user?.role as Role) ?? undefined,
+    },
+  });
 
   const selectedRole = watch("role");
 
@@ -98,7 +110,8 @@ export default function UpdateUserModal({
         phone: user.phone ?? "",
         address: user.address ?? "",
         salary: user.salary ?? undefined,
-        role: user.role as Role ?? undefined,
+        commissionSalary: user.commissionSalary ?? undefined,
+        role: (user?.role as Role) ?? undefined,
       });
       setPicturePreview(user.picture ?? null);
       setPictureFile(null);
@@ -156,108 +169,199 @@ export default function UpdateUserModal({
   };
 
   return (
-      <Dialog open={open} onOpenChange={(val) => (val ? onOpenChange(true) : handleClose())}>
-        <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto p-6">
-          <DialogHeader className="text-center pb-2">
-            <DialogTitle className="text-xl font-bold">Update User</DialogTitle>
-            <DialogDescription>Edit user information below</DialogDescription>
-          </DialogHeader>
+    <Dialog
+      open={open}
+      onOpenChange={(val) => (val ? onOpenChange(true) : handleClose())}
+    >
+      <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto p-6">
+        <DialogHeader className="text-center pb-2">
+          <DialogTitle className="text-xl font-bold">Update User</DialogTitle>
+          <DialogDescription>Edit user information below</DialogDescription>
+        </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Name */}
-            <div className={"space-y-1.5"}>
-              <Label className={"uppercase"} htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="Enter full name" {...registerField("name")} />
-              {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Name */}
+          <div className={"space-y-1.5"}>
+            <Label className={"uppercase"} htmlFor="name">
+              Full Name
+            </Label>
+            <Input
+              id="name"
+              placeholder="Enter full name"
+              {...registerField("name")}
+            />
+            {errors.name && (
+              <p className="text-sm text-red-500">{errors.name.message}</p>
+            )}
+          </div>
 
-            {/* Email */}
-            <div className={"space-y-1.5"}>
-              <Label className={"uppercase"} htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" placeholder="you@example.com" {...registerField("email")} />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-            </div>
+          {/* Email */}
+          <div className={"space-y-1.5"}>
+            <Label className={"uppercase"} htmlFor="email">
+              Email Address
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              {...registerField("email")}
+            />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
+          </div>
 
-            {/* Phone */}
-            <div className={"space-y-1.5"}>
-              <Label className={"uppercase"} htmlFor="phone">Phone Number</Label>
-              <Input id="phone" type="tel" placeholder="+880 1XXX-XXXXXX" {...registerField("phone")} />
-              {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
-            </div>
+          {/* Phone */}
+          <div className={"space-y-1.5"}>
+            <Label className={"uppercase"} htmlFor="phone">
+              Phone Number
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="+880 1XXX-XXXXXX"
+              {...registerField("phone")}
+            />
+            {errors.phone && (
+              <p className="text-sm text-red-500">{errors.phone.message}</p>
+            )}
+          </div>
 
-            {/* Address */}
-            <div className={"space-y-1.5"}>
-              <Label className={"uppercase"} htmlFor="address">Address</Label>
-              <Textarea id="address" rows={3} placeholder="House no., Road, Area, City" {...registerField("address")} />
-              {errors.address && <p className="text-sm text-red-500">{errors.address.message}</p>}
-            </div>
+          {/* Address */}
+          <div className={"space-y-1.5"}>
+            <Label className={"uppercase"} htmlFor="address">
+              Address
+            </Label>
+            <Textarea
+              id="address"
+              rows={3}
+              placeholder="House no., Road, Area, City"
+              {...registerField("address")}
+            />
+            {errors.address && (
+              <p className="text-sm text-red-500">{errors.address.message}</p>
+            )}
+          </div>
 
-            {/* Picture */}
-            <div className={"space-y-1.5"}>
-              <Label className={"uppercase"}>Profile Picture (optional)</Label>
-              {picturePreview ? (
-                  <div className="flex items-center gap-2 border p-2">
-                    <img src={picturePreview} alt="Preview" className="h-16 w-16 object-cover" />
-                    <div className="flex-1">
-                      <p>{pictureFile ? pictureFile.name : "Current photo"}</p>
-                      {pictureFile && <p>{(pictureFile.size / 1024).toFixed(1)} KB</p>}
-                    </div>
-                    <Button variant={"outline"} type="button" className={"cursor-pointer"} onClick={clearPicture}><X /></Button>
-                  </div>
-              ) : (
-                  <label
-                      htmlFor="picture-upload"
-                      className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed
+          {/* Picture */}
+          <div className={"space-y-1.5"}>
+            <Label className={"uppercase"}>Profile Picture (optional)</Label>
+            {picturePreview ? (
+              <div className="flex items-center gap-2 border p-2">
+                <Image
+                  src={picturePreview}
+                  alt="Preview"
+                  width={500}
+                  height={500}
+                  priority
+                  quality={90}
+                  className="h-16 w-16 object-cover"
+                />
+                <div className="flex-1">
+                  <p>{pictureFile ? pictureFile.name : "Current photo"}</p>
+                  {pictureFile && (
+                    <p>{(pictureFile.size / 1024).toFixed(1)} KB</p>
+                  )}
+                </div>
+                <Button
+                  variant={"outline"}
+                  type="button"
+                  className={"cursor-pointer"}
+                  onClick={clearPicture}
+                >
+                  <X />
+                </Button>
+              </div>
+            ) : (
+              <label
+                htmlFor="picture-upload"
+                className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed
                   border-[#4a5568]  px-4 py-6 cursor-pointer hover:bg-gray-200"
-                  >
-                    <Upload className="h-6 w-6 text-[#96999A]   " />
-                    <div className="text-center">
-                      <p className="text-sm">
-                        Click to upload photo
-                      </p>
-                      <p className="text-xs text-[#96999A]/70">PNG, JPG, WEBP — max 2MB</p>
-                    </div>
-                    <input
-                        id="picture-upload"
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        className="hidden"
-                        onChange={handleFileChange}
-                    />
-                  </label>
+              >
+                <Upload className="h-6 w-6 text-[#96999A]   " />
+                <div className="text-center">
+                  <p className="text-sm">Click to upload photo</p>
+                  <p className="text-xs text-[#96999A]/70">
+                    PNG, JPG, WEBP — max 2MB
+                  </p>
+                </div>
+                <input
+                  id="picture-upload"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            )}
+          </div>
+
+          {/* Salary & Role */}
+          <div className="grid grid-cols-1 gap-2">
+            <div className={"space-y-1.5"}>
+              <Label className={"uppercase"} htmlFor="salary">
+                Salary (optional)
+              </Label>
+              <Input
+                id="salary"
+                type="number"
+                min={0}
+                placeholder="e.g. 20,000"
+                {...registerField("salary")}
+              />
+              {errors.salary && (
+                <p className="text-sm text-red-500">{errors.salary.message}</p>
+              )}
+            </div>
+            <div className={"space-y-1.5"}>
+              <Label className={"uppercase"} htmlFor="commissionSalary">
+                Commission Based Salary (optional)
+              </Label>
+              <Input
+                id="commissionSalary"
+                type="number"
+                min={0}
+                placeholder="e.g. 25"
+                {...registerField("commissionSalary")}
+              />
+              {errors.commissionSalary && (
+                <p className="text-sm text-red-500">{errors.commissionSalary.message}</p>
               )}
             </div>
 
-            {/* Salary & Role */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className={"space-y-1.5"}>
-                <Label className={"uppercase"} htmlFor="salary">Salary (optional)</Label>
-                <Input id="salary" type="number" min={0} placeholder="e.g. 25000" {...registerField("salary")} />
-                {errors.salary && <p className="text-sm text-red-500">{errors.salary.message}</p>}
-              </div>
-
-              <div className={"space-y-1.5"}>
-                <Label className={"uppercase"}>Role</Label>
-                <Select value={selectedRole ?? ""} onValueChange={(val) => setValue("role", val as Role)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent position={"popper"}>
-                    {Object.values(Role).map((r) => (
-                        <SelectItem key={r} value={r}>{r}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
-              </div>
+            <div className={"space-y-1.5"}>
+              <Label className={"uppercase"}>Role</Label>
+              <Select
+                value={selectedRole ?? ""}
+                onValueChange={(val) => setValue("role", val as Role)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent position={"popper"}>
+                  {Object.values(Role).map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.role && (
+                <p className="text-sm text-red-500">{errors.role.message}</p>
+              )}
             </div>
+          </div>
 
-            {/* Submit */}
-            <Button type="submit" disabled={isLoading} className="w-full uppercase cursor-pointer py-5 bg-blue-500 hover:bg-blue-600 mt-2">
-              {isLoading ? "Updating..." : "Update User"}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+          {/* Submit */}
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full uppercase cursor-pointer py-5 bg-blue-500 hover:bg-blue-600 mt-2"
+          >
+            {isLoading ? "Updating..." : "Update User"}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

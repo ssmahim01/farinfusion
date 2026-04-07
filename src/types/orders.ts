@@ -47,10 +47,13 @@ export interface Order {
   _id: string;
   customOrderId?: string;
   seller: {
-    name: string;
-    role: string;
+    name?: string;
+    role?: string;
     email?: string;
   };
+  shippingCost?: number;
+  note: string;
+  orderType: "POS" | "ONLINE" | "DELIVERY";
   transactionId?: string;
   paymentMethod?:
     | "COD"
@@ -63,16 +66,19 @@ export interface Order {
   orderId?: string;
   customerName: string;
   totalAmount?: number;
+  subTotal?: number;
+  discount?: number;
   customerEmail: string;
   billingDetails?: {
     fullName: string;
     email: string;
     address: string;
-    phone: number;
+    phone: string;
   };
   customerPhone: string;
   totalPrice: number;
   products: {
+    length: number;
     map: any;
     productId: string;
     product: {
@@ -102,7 +108,16 @@ export interface OrderItem {
 export interface UpdateOrderRequest {
   orderStatus?: OrderStatus;
   deliveryStatus?: DeliveryStatus;
-  seller: any;
+  seller?: any;
+  billingDetails?: {
+    fullName: string;
+    email: string;
+    phone: string;
+    address: string;
+  }
+  paymentMethod?: string
+  shippingCost?: number
+  note?: string
   courierName?: CourierProvider;
   trackingNumber?: string;
 }

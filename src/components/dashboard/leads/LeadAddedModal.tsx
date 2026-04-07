@@ -105,9 +105,11 @@ const LeadAddedModal = ({ open, onOpenChange }: Props) => {
 
   const onSubmit = async (formData: LeadFormData) => {
     try {
+      
       await createLead({
         ...formData,
         email: formData.email ?? "",
+        phone: formData.phone ?? "",
       }).unwrap();
       reset();
       onOpenChange(false);
