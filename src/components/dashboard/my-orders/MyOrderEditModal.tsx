@@ -377,7 +377,6 @@ export function MyOrderEditModal({
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-6"
             >
-              {/* ── SECTION: Products ── */}
               <div>
                 <SectionLabel>
                   <ShoppingCart className="h-3 w-3 text-amber-500" />
