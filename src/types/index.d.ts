@@ -1,3 +1,8 @@
+export * from './pos';
+export type { Order, OrderStatus, DeliveryStatus } from '../types/orders';
+export type { CourierProvider } from '../types/courier';
+export type { GetQueryParams } from '../types/orders';
+
 export interface IIngredient {
   name: string;
   price: number;
@@ -7,6 +12,7 @@ export type GetQueryParams = {
   searchTerm?: string;
   sort?: string;
   category?: string;
+  search?: string;
   page?: number;
   limit?: number;
   status?: string;
@@ -44,7 +50,7 @@ export enum Role {
     ADMIN = "ADMIN",
     MANAGER = "MANAGER",
     MODERATOR = "MODERATOR",
-    CUSTOMER = "CUSTOMER"
+    TELLICELSS = "TELLICELSS"
 }
 export enum IsActive {
     ACTIVE = "ACTIVE",
@@ -64,6 +70,7 @@ export interface IUser {
     isVerified?: boolean;
     isDeleted?: boolean;
     salary?: number;
+    commissionSalary?: number;
     role?: Role;
     createdAt?: string
     updatedAt?: string
@@ -85,6 +92,7 @@ export interface ICategory {
   description: string;
   image: string;
   status: CategoryStatus;
+  productCount: number;
 }
 
 export enum BrandStatus {
@@ -98,6 +106,7 @@ export interface IBrand {
     slug: string;
     description: string;
     image: string;
+    productCount: number;
     status: BrandStatus;
 }
 

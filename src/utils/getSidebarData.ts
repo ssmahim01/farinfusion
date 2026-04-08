@@ -1,15 +1,20 @@
-import { adminSidebar, customerSidebar } from "./sidebarItems";
+import { UserRole } from "./auth-utils";
+import { adminSidebar, customerSidebar, managerSidebar, moderatorSidebar, telecallerSidebar } from "./sidebarItems";
 
 
-export const getSidebarData = (role: "ADMIN" | "MANAGER" | "MODERATOR" | "CUSTOMER") => {
-  if (role === "ADMIN") {
-    return adminSidebar;
-  }
-  if (role === "MODERATOR") {
-    return adminSidebar;
-  }
-
-  if (role === "CUSTOMER") {
-    return customerSidebar;
+export const getSidebarData = (role: UserRole) => {
+  switch (role) {
+    case "ADMIN":
+      return adminSidebar;
+    case "MANAGER":
+      return managerSidebar;
+    case "MODERATOR":
+      return moderatorSidebar;
+    case "TELLICELSS":
+      return telecallerSidebar;
+    case "CUSTOMER":
+      return customerSidebar;
+    default:
+      return [];
   }
 };

@@ -24,7 +24,7 @@ import {
     UndoIcon,
     UnlinkIcon,
 } from "lucide-react";
-import { ReactNode, useState } from "react";
+import {ReactNode, useEffect, useState} from "react";
 
 import { BubbleMenu as TiptapBubbleMenu } from "@tiptap/react/menus";
 import { FloatingMenu as TiptapFloatingMenu } from "@tiptap/react/menus";
@@ -33,23 +33,32 @@ import {Toggle} from "@/components/ui/toggle";
 import {Button} from "@/components/ui/button";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Input} from "@/components/ui/input";
+import Underline from "@tiptap/extension-underline";
 
 
 const ProductEditor = ({content, onChange,}: { content?: string; onChange?: (content: string) => void; }) => {
     const editor = useEditor({
-        extensions: [StarterKit, Highlight.configure({ multicolor: true })], // define your extension array
+        extensions: [StarterKit, Highlight.configure({ multicolor: true }), Underline],
         editorProps: {
             attributes: {
                 class:
                     "prose dark:prose-invert prose-sm sm:prose-base focus:outline-none max-w-none",
             },
         },
-        content,
+        content: content || "",
         onUpdate: ({ editor }) => {
             onChange?.(editor.getHTML());
         },
         immediatelyRender: false,
     });
+
+    // 🔥 Sync editor content when prop `content` changes
+    useEffect(() => {
+        if (!editor) return;
+        if (content !== editor.getHTML()) {
+            editor.commands.setContent(content || "");
+        }
+    }, [content, editor]);
 
     return (
         <div className="bg-background relative rounded-lg border shadow-sm">

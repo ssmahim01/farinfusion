@@ -1,6 +1,7 @@
 import { IRegisterResponse } from "@/types/auth.types";
 import { baseApi } from "../baseApi";
 import type { IUser, IUserApiResponse, IResponse, GetQueryParams, IPaginationMeta } from "@/types";
+import {ILead} from "@/types/lead.types";
 
 interface GetAllUsersResponse {
   success: boolean;
@@ -44,8 +45,9 @@ export const userApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (result, error, id) => [
-        "USERS",
+        "USERS", "CUSTOMERS",
         { type: "USER", id },
+        { type: "CUSTOMER", id },
       ],
     }),
 
@@ -85,6 +87,47 @@ export const userApi = baseApi.injectEndpoints({
 
       providesTags: ["ME", "USER"],
     }),
+
+    // ⭐ GET ALL TRASH
+    getAllTrashUsers: builder.query<GetAllUsersResponse, GetQueryParams>({
+      query: (params) => ({
+        url: "/user/all-trash-users",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["USERS"],
+    }),
+
+    // ⭐ TRASH UPDATE  and Restore both work
+    trashUpdateUser: builder.mutation<IResponse<ILead>, { _id: string;}>({
+      query: ({ _id }) => ({
+        url: `/user/user-trash/${_id}`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, { _id }) => ["USERS", { type: "USER", _id }],
+    }),
+
+    // ⭐ GET ALL TRASH Customer
+    getAllTrashCustomers: builder.query<GetAllUsersResponse, GetQueryParams>({
+      query: (params) => ({
+        url: "/user/all-trash-customers",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["CUSTOMERS"],
+    }),
+
+    // ⭐ TRASH UPDATE  and Restore both work customers
+    trashUpdateCustomer: builder.mutation<IResponse<IUser>, { _id: string;}>({
+      query: ({ _id }) => ({
+        url: `/user/customer-trash/${_id}`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, { _id }) => ["CUSTOMERS", { type: "CUSTOMER", _id }],
+    }),
+
+
+
   }),
   overrideExisting: true,
 });
@@ -95,6 +138,11 @@ export const {
   useDeleteUserMutation,
   useGetSingleUserQuery,
   useGetAllUsersQuery,
-  useGetAllCustomersQuery,
-  useGetMeQuery
+    useGetAllCustomersQuery,
+    useGetMeQuery,
+    useGetAllTrashUsersQuery,
+    useTrashUpdateUserMutation,
+
+    useGetAllTrashCustomersQuery,
+    useTrashUpdateCustomerMutation,
 } = userApi;

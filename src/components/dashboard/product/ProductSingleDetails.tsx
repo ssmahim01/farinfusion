@@ -1,127 +1,30 @@
-// "use client"
-// import React from 'react';
-// import {useParams} from "next/navigation";
-// import {useGetSingleProductQuery} from "@/redux/features/product/product.api";
-//
-// const DashboardProductDetails = () => {
-//     const params = useParams();
-//     const slug = params?.slug as string;
-//
-//     const { data, isLoading, isError } = useGetSingleProductQuery(slug, {
-//         skip: !slug,
-//     });
-//
-//     return (
-//         <div>
-//
-//         </div>
-//     );
-// };
-//
-// export default DashboardProductDetails;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
-// "use client";
-// import React from "react";
-// import { useParams } from "next/navigation";
-// import { useGetSingleProductQuery } from "@/redux/features/product/product.api";
-//
-// const DashboardProductDetails = () => {
-//     const params = useParams();
-//     const slug = params?.slug as string;
-//
-//     const { data, isLoading, isError } = useGetSingleProductQuery(slug, {
-//         skip: !slug,
-//     });
-//
-//     if (isLoading) {
-//         return <p className="text-center mt-10">Loading...</p>;
-//     }
-//
-//     if (isError) {
-//         return <p className="text-center mt-10 text-red-500">Something went wrong!</p>;
-//     }
-//
-//     const product = data?.data;
-//
-//     return (
-//         <div className="max-w-5xl mx-auto p-6">
-//             <div className="bg-white shadow-lg rounded-2xl p-6 grid md:grid-cols-2 gap-6">
-//
-//                 {/* Image Section */}
-//                 <div>
-//                     {product?.images?.length > 0 ? (
-//                         <img
-//                             src={product.images[0]}
-//                             alt={product.title}
-//                             className="w-full h-80 object-cover rounded-xl"
-//                         />
-//                     ) : (
-//                         <div className="w-full h-80 bg-gray-200 flex items-center justify-center rounded-xl">
-//                             No Image
-//                         </div>
-//                     )}
-//                 </div>
-//
-//                 {/* Details Section */}
-//                 <div className="space-y-3">
-//                     <h2 className="text-2xl font-bold">{product?.title}</h2>
-//
-//                     <p className="text-gray-600">{product?.description}</p>
-//
-//                     <div className="flex gap-4 items-center">
-//             <span className="text-lg font-semibold text-green-600">
-//               ৳{product?.price}
-//             </span>
-//                         <span className="line-through text-gray-400">
-//               ৳{product?.discountPrice}
-//             </span>
-//                     </div>
-//
-//                     <p><strong>Buying Price:</strong> ৳{product?.buyingPrice}</p>
-//                     <p><strong>Size:</strong> {product?.size}</p>
-//                     <p><strong>Stock:</strong> {product?.availableStock}</p>
-//                     <p><strong>Total Sold:</strong> {product?.totalSold}</p>
-//
-//                     <p>
-//                         <strong>Status:</strong>{" "}
-//                         <span className="text-blue-600">{product?.status}</span>
-//                     </p>
-//
-//                     <p>
-//                         <strong>Ratings:</strong> ⭐ {product?.ratings}
-//                     </p>
-//
-//                     <p>
-//                         <strong>Category ID:</strong> {product?.category}
-//                     </p>
-//
-//                     <p>
-//                         <strong>Brand ID:</strong> {product?.brand}
-//                     </p>
-//
-//                     <p className="text-sm text-gray-400">
-//                         Created: {new Date(product?.createdAt).toLocaleString()}
-//                     </p>
-//
-//                     <p className="text-sm text-gray-400">
-//                         Updated: {new Date(product?.updatedAt).toLocaleString()}
-//                     </p>
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-//
-// export default DashboardProductDetails;
-// components/ProductDetails.tsx
-"use client"
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star } from "lucide-react";
-import {useParams} from "next/navigation";
-import {useGetSingleProductQuery} from "@/redux/features/product/product.api";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { useParams } from "next/navigation";
+import { useGetSingleProductQuery } from "@/redux/features/product/product.api";
+import { AlertCircle, CheckIcon } from "lucide-react";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import Link from "next/link";
+import ProductGallery from "@/components/shared/ProductGallery";
 
 export default function ProductSingleDetails() {
     const params = useParams();
@@ -136,77 +39,180 @@ export default function ProductSingleDetails() {
     }
 
     if (isError) {
-        return <p className="text-center mt-10 text-red-500">Something went wrong!</p>;
+        return (
+            <p className="text-center mt-10 text-red-500">
+                Something went wrong!
+            </p>
+        );
     }
 
-    const product = data?.data;
-    console.log("product image", product);
+    const product: any = data?.data;
+
+    // console.log(product);
+
+
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
-            {/* Product Image Section */}
-            <div className="space-y-4">
-                <div className="border rounded-lg p-4 bg-gray-50">
-                    <img src="/cetaphil.jpg" alt="Cetaphil" className="w-full h-auto rounded" />
-                </div>
-                <div className="flex gap-2">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="w-20 h-20 border rounded-md" />
-                    ))}
-                </div>
-            </div>
+        <div className="p-6 space-y-6">
+            {/* Breadcrumb */}
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link href="/staff/dashboard/admin/product-management">
+                                Product Management
+                            </Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Product Details</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
 
-            {/* Product Info Section */}
-            <div className="space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold">Cetaphil Gentle Skin Cleanse3</h1>
-                    <p className="text-sm text-gray-500">Brand ID: 69b6b4c2... | Category ID: 69b6b93d...</p>
-                    <div className="flex items-center gap-2 mt-2">
-                        <div className="flex text-yellow-400"><Star /><Star /><Star /><Star /></div>
-                        <span className="text-sm">0 ratings | 0 reviews</span>
-                    </div>
-                </div>
+            {/* MAIN GRID */}
+            <div className="grid grid-cols-1 lg:grid-cols-[30%_70%] gap-8">
 
-                <div className="flex items-center gap-4">
-                    <div>
-                        <p className="text-sm text-gray-500">Discount Price</p>
-                        <p className="text-3xl font-bold text-blue-600">$1,650 <span className="text-lg line-through text-gray-400">$1,850</span></p>
-                    </div>
-                    <div>
-                        <p className="text-sm text-gray-500">Buying Price (Internal)</p>
-                        <p className="text-2xl">$1,200</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <Badge variant="destructive">Out of Stock</Badge>
-                    <Select defaultValue="250ml">
-                        <SelectTrigger className="w-45">
-                            <SelectValue placeholder="Size" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="250ml">250ml</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <p className="text-gray-600">Cetaphil Gentle Skin Cleanser is a mild, non-irritating formulation...</p>
-
-                <Card className="p-4">
-                    <table className="w-full text-sm">
-                        <tbody>
-                        <tr><td className="py-2 font-semibold">Status</td><td>ACTIVE</td></tr>
-                        <tr><td className="py-2 font-semibold">Total Sold</td><td>0</td></tr>
-                        <tr><td className="py-2 font-semibold">Created At</td><td>2026-03-30T...</td></tr>
-                        </tbody>
-                    </table>
+                {/* LEFT: IMAGE SECTION */}
+                <Card className="p-4 space-y-4">
+                    {/* Thumbnails */}
+                    {product && <ProductGallery product={product} />}
                 </Card>
 
-                <div className="flex gap-4">
-                    <Button variant="outline">Edit Product</Button>
-                    <Button variant="outline">View Analytics</Button>
-                    <Button disabled>Purchase</Button>
-                </div>
+                {/* RIGHT: INFO SECTION */}
+                <Card>
+                    <CardContent className="p-6 space-y-6">
+
+                        {/* Title */}
+                        <div>
+                            <h2 className="text-2xl font-bold">
+                                {product?.title}
+                            </h2>
+                            <p className="text-sm text-muted-foreground">
+                                Brand : {typeof product?.brand === "string" ? "" : product?.brand?.title}
+                                | Category : {typeof product?.category === "string" ? "" : product?.category?.title}
+                            </p>
+                        </div>
+
+                        {/* Description */}
+                        <p
+                            className="text-muted-foreground prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: product?.description || "" }}
+                        />
+
+                        <Separator />
+
+                        {/* Price */}
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                            <div>
+                                <p className="text-sm text-muted-foreground">
+                                    Discount Price
+                                </p>
+                                <p className="text-2xl font-semibold text-green-600">
+                                    ৳ {product?.discountPrice || 0}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p className="text-sm text-muted-foreground">
+                                    Regular Price
+                                </p>
+                                <p className="text-xl line-through text-gray-400">
+                                    ৳ {product?.price || 0}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p className="text-sm text-muted-foreground">
+                                    Buying Price
+                                </p>
+                                <p className="text-xl font-medium">
+                                    ৳ {product?.buyingPrice || 0}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Status */}
+                        <div>
+                            {product?.availableStock && product.availableStock > 0  ? (
+                                <Badge className="flex items-center gap-2 text-green-500 border-green-500 bg-transparent">
+                                    <CheckIcon className="w-4 h-4 bg-green-500 text-white rounded-full" />
+                                    In Stock
+                                </Badge>
+                            ) : (
+                                <Badge className="bg-red-500 text-white  flex items-center gap-2 border-red-300 ">
+                                    <AlertCircle className="w-4 h-4" />
+                                    Out of Stock
+                                </Badge>
+                            )}
+                        </div>
+
+                        <Separator />
+
+                        {/* Table */}
+                        <Card className="py-0">
+                            <Table>
+                                <TableHeader className="bg-slate-50">
+                                    <TableRow>
+                                        <TableHead colSpan={2} className="font-bold">
+                                            Key Information
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
+                                            Status
+                                        </TableCell>
+                                        <TableCell>{product?.status}</TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
+                                            Size
+                                        </TableCell>
+                                        <TableCell>{product?.size}</TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
+                                            Total Added Stock
+                                        </TableCell>
+                                        <TableCell>{product?.totalAddedStock}</TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
+                                            Available Stock
+                                        </TableCell>
+                                        <TableCell>{product?.availableStock}</TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
+                                            Total Sold
+                                        </TableCell>
+                                        <TableCell>{product?.totalSold}</TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="font-semibold">
+                                            Created Date
+                                        </TableCell>
+                                        <TableCell>
+                                            {product?.createdAt
+                                                ? new Date(product.createdAt).toLocaleString()
+                                                : "N/A"}
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Card>
+
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );

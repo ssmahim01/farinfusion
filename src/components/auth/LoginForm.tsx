@@ -22,8 +22,8 @@ import Image from 'next/image'
 import logo from "../../../public/assets/FRN-Logo-scaled.webp"
 import { toast } from 'sonner'
 import { loginUser } from '@/utils/loginUser'
-import { useRouter } from 'next/navigation'
 import { useUser } from '@/context/UserContext'
+import {useRouter} from "next/navigation";
 
 
 const loginSchema = z.object({
@@ -49,7 +49,7 @@ export function LoginForm({
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const { login } = useUser();
-  const router = useRouter()
+  const router = useRouter();
 
   const {
     register,
@@ -62,17 +62,19 @@ export function LoginForm({
   const onSubmit = async (data: LoginFormValues) => {
      setIsLoading(true)
         const res = await loginUser(data);
-        console.log("login res ", res)
+
         if (res.success) {
-            toast.success("Login successful!");
             login(res.user.user);
-            // if (res.user.user.role === "USER") {
-            //     router.push("/customer/dashboard/my-orders");
-            // } else if ((res.user.user.role === "SELLER") || (res.user.user.role === "OWNER")) {
-            //     router.push("/staff/dashboard");
-            // } else {
-            //     router.push("/");
-            // }
+            if (res.user.user.role === "CUSTOMER") {
+                router.push("/customer/dashboard/my-orders");
+            } else if ((res.user.user.role === "MANAGER") || (res.user.user.role === "MODERATOR"
+             || (res.user.user.role === "ADMIN")
+            )) {
+                router.push("/staff/dashboard");
+            } else {
+                router.push("/");
+            }
+            toast.success("Login successful!");
             setIsLoading(false)
             onClose();
         } else {

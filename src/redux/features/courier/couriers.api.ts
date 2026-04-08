@@ -25,9 +25,11 @@ export const couriersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createCourier: builder.mutation<CourierResponse, CreateCourierRequest>({
       query: (data) => ({
-        url: '/couriers',
+        url: '/couriers/create',
         method: 'POST',
-        body: data,
+        data: {
+          orderId: data.orderId,
+        },
       }),
       invalidatesTags: ['COURIERS', 'ORDERS'],
     }),
@@ -50,11 +52,11 @@ export const couriersApi = baseApi.injectEndpoints({
     }),
 
     getCourierByOrderId: builder.query<CourierResponse, string>({
-      query: (orderID) => ({
-        url: `/couriers/order/${orderID}`,
+      query: (orderId) => ({
+        url: `/couriers/order/${orderId}`,
         method: 'GET',
       }),
-      providesTags: (_result, _error, orderID) => [{ type: 'COURIER', id: orderID }],
+      providesTags: (_result, _error, orderId) => [{ type: 'COURIER', id: orderId }],
     }),
 
     updateCourierStatus: builder.mutation<

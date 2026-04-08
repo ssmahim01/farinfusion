@@ -1,5 +1,10 @@
 // export type UserRole = "ADMIN" | "EDITOR";
-export type UserRole = "USER" | "SELLER" | "OWNER";
+export type UserRole =
+  | "ADMIN"
+  | "MANAGER"
+  | "MODERATOR"
+  | "TELLICELSS"
+  | "CUSTOMER";
 
 export type RouteConfig = {
   exact: string[];
@@ -7,14 +12,24 @@ export type RouteConfig = {
 };
 
 
-export const userRoutes: RouteConfig = {
+export const customerRoutes: RouteConfig = {
   exact: ["/customer/dashboard"],
   patterns: [/^\/customer\/dashboard/],
 };
 
 export const staffRoutes: RouteConfig = {
   exact: ["/staff/dashboard"],
-  patterns: [/^\/staff\/dashboard(?!\/owner)/],
+  patterns: [/^\/staff\/dashboard/],
+};
+
+export const adminRoutes: RouteConfig = {
+  exact: ["/staff/dashboard/admin"],
+  patterns: [/^\/staff\/dashboard\/admin/],
+};
+
+export const userRoutes: RouteConfig = {
+  exact: ["/customer/dashboard"],
+  patterns: [/^\/customer\/dashboard/],
 };
 
 export const ownerRoutes: RouteConfig = {
@@ -36,15 +51,15 @@ export const getRouteOwner = (
 ): UserRole | "STAFF" | null => {
 
   if (isRouteMatches(pathname, ownerRoutes)) {
-    return "OWNER";
+    return "ADMIN";
   }
 
   if (isRouteMatches(pathname, staffRoutes)) {
-    return "STAFF"; // SELLER + OWNER
+    return "STAFF"; 
   }
 
   if (isRouteMatches(pathname, userRoutes)) {
-    return "USER";
+    return "CUSTOMER";
   }
 
   return null;
@@ -54,32 +69,43 @@ export const isValidRouteForRole = (
   pathname: string,
   role: UserRole
 ): boolean => {
-  const routeOwner = getRouteOwner(pathname);
-
-  // Public route
-  if (routeOwner === null) return true;
-
-  if (routeOwner === "USER") {
-    return role === "USER";
+  // Public
+  if (!pathname.startsWith("/staff") && !pathname.startsWith("/customer")) {
+    return true;
   }
 
-  if (routeOwner === "STAFF") {
-    return role === "SELLER" || role === "OWNER";
+  // Customer
+  if (pathname.startsWith("/customer")) {
+    return role === "CUSTOMER";
   }
 
-  if (routeOwner === "OWNER") {
-    return role === "OWNER";
+  // Admin only
+  if (pathname.startsWith("/staff/dashboard/admin")) {
+    return role === "ADMIN";
+  }
+
+  // Staff access
+  if (pathname.startsWith("/staff/dashboard")) {
+    return ["ADMIN", "MANAGER", "MODERATOR", "TELLICELSS"].includes(role);
   }
 
   return false;
 };
 
 
-export const getDefaultDashboardRoute = (
-  role: UserRole
-): string => {
-  if (role === "USER") return "/customer/dashboard/my-orders";
-  if (role === "SELLER") return "/staff/dashboard";
-  if (role === "OWNER") return "/staff/dashboard";
-  return "/";
+export const getDefaultDashboardRoute = (role: UserRole): string => {
+  switch (role) {
+    case "CUSTOMER":
+      return "/customer/dashboard/my-orders";
+    case "TELLICELSS":
+      return "/staff/dashboard/my-orders";
+    case "MODERATOR":
+      return "/staff/dashboard";
+    case "MANAGER":
+      return "/staff/dashboard";
+    case "ADMIN":
+      return "/staff/dashboard";
+    default:
+      return "/";
+  }
 };

@@ -7,139 +7,141 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
+  DialogClose,
 } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import {
-  Mail,
-  Shield,
-  Calendar,
-} from "lucide-react";
-import { IUser } from "@/types";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-
+import { Mail, Phone, User, CheckCircle, XCircle, MapPin, Calendar } from "lucide-react";
+import React from "react";
 
 interface UserDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user?: IUser & {
+  user?: {
     name?: string;
     email?: string;
+    phone?: string;
     role?: string;
     isActive?: boolean | string;
-    picture?: string;
-    joinedAt?: string;
+    isDeleted?: boolean;
+    isVerified?: boolean;
+    createdAt?: string;
     location?: string;
   };
 }
 
-export default function UserDetailsModal({
-  open,
-  onOpenChange,
-  user,
-}: UserDetailsModalProps) {
+const UserDetailsModal = ({ open, onOpenChange, user }: UserDetailsModalProps) => {
   if (!user) return null;
 
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 rounded-2xl border-0 shadow-2xl">
-        {/* Hidden title required for accessibility */}
-        <VisuallyHidden>
-          <DialogHeader>
-            <DialogTitle>User Details</DialogTitle>
-            <DialogDescription>
-              Detailed information about the selected user.
-            </DialogDescription>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md overflow-hidden">
+          <DialogHeader className="text-center py-5">
+            <DialogTitle className={"text-xl font-semibold"}>User Details</DialogTitle>
+            <DialogDescription>View selected user information.</DialogDescription>
           </DialogHeader>
-        </VisuallyHidden>
 
-        <DialogHeader className="px-6 pt-2 pb-4 relative ">
-          <div className="flex flex-col items-center text-center">
-            <Avatar className="h-28 w-28 ring-8 ring-white shadow-2xl border-4 border-white">
-              <AvatarImage className="object-cover" src={user?.picture} alt={user.name} />
-              <AvatarFallback className="text-3xl font-bold  bg-pink-400 text-white">
-                {user.name?.[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+          <div className="pb-6 space-y-4">
+            <Card className="border-0 shadow-sm bg-gray-50/70">
+              <div className="p-5 space-y-4">
 
-            <div className="mt-4">
-              <p className="text-muted-foreground mt-1">@{user.name?.toLowerCase().replace(/\s/g, "") || "user"}</p>
-            </div>
-          </div>
-        </DialogHeader>
-
-        {/* Info Cards */}
-        <div className="px-6 pb-6 space-y-4">
-          <Card className="border-0 shadow-sm bg-gray-50/70">
-            <div className="p-5 space-y-4">
-              {/* Email */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Mail className="h-5 w-5 text-blue-600" />
+                {/* Name */}
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-3">
+                    <User className="w-4 h-4 text-gray-600" />
+                    <span>Name</span>
                   </div>
-                  <span className="font-medium text-[#65758B]">Email</span>
+                  <span>{user.name}</span>
                 </div>
-                <span className="text-right max-w-45 break-all font-medium text-[#002047]">
-                  {user.email || "Not provided"}
-                </span>
-              </div>
-              <Separator />
 
-              {/* Role */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Shield className="h-5 w-5 text-purple-600" />
+                {/* Email */}
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-4 h-4 text-blue-600" />
+                    <span>Email</span>
                   </div>
-                  <span className="font-medium text-[#65758B]">Role</span>
+                  <span>{user.email}</span>
                 </div>
-                <Badge
-                  variant={user.role === "ADMIN" ? "destructive" : "secondary"}
-                  className={user.role === "MODERATOR" ? "bg-red-500" : "bg-emerald-100 text-emerald-700"}
-                >
-                  {user.role || "CUSTOMER"}
-                </Badge>
-              </div>
-              <Separator />
 
-              {user.createdAt && (
-                <>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-muted-foreground">
-                      <div className="p-2 bg-orange-100 rounded-lg">
-                        <Calendar className="h-5 w-5 text-orange-600" />
+                {/* Phone */}
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-3">
+                    <Phone className="w-4 h-4 text-green-600" />
+                    <span>Phone</span>
+                  </div>
+                  <span>{user.phone}</span>
+                </div>
+
+                {/* Role */}
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-3">
+                    <User className="w-4 h-4 text-purple-600" />
+                    <span>Role</span>
+                  </div>
+                  <span>{user.role || "CUSTOMER"}</span>
+                </div>
+
+                {/* Status / isActive */}
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>Status</span>
+                  </div>
+                  <span>{user.isActive || "INACTIVE"}</span>
+                </div>
+
+                {/* Deleted */}
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-3">
+                    <XCircle className="w-4 h-4 text-red-600" />
+                    <span>Deleted</span>
+                  </div>
+                  <span>{user.isDeleted ? "Yes" : "No"}</span>
+                </div>
+
+                {/* Verified */}
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-4 h-4 text-blue-600" />
+                    <span>Verified</span>
+                  </div>
+                  <span>{user.isVerified ? "Yes" : "No"}</span>
+                </div>
+
+                {/* Location */}
+                {user.location && (
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-3">
+                        <MapPin className="w-4 h-4 text-orange-600" />
+                        <span>Location</span>
                       </div>
-                      <span className="font-medium text-[#65758B]">Joined at</span>
+                      <span>{user.location}</span>
                     </div>
-                    <span className="font-medium text-[#002047]">
-                      {new Date(user.createdAt).toLocaleDateString("en-US", {
-                        month: "long",
-                        year: "numeric"
-                      })}
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-          </Card>
-        </div>
+                )}
 
-        {/* Footer */}
-        <DialogFooter className="border-t bg-gray-50/80 px-6 py-4">
-          <Button
-            variant="outline"
-            className="w-full sm:w-auto font-medium"
-            onClick={() => onOpenChange(false)}
-          >
-            Close
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+                {/* Created Date */}
+                {user.createdAt && (
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="w-4 h-4 text-yellow-600" />
+                        <span>Joined</span>
+                      </div>
+                      <span>{new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
+                )}
+
+              </div>
+            </Card>
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button className={"cursor-pointer"} variant="outline">Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
   );
 }
+
+export default UserDetailsModal;
