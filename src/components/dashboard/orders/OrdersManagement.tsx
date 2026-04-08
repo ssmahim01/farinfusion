@@ -16,18 +16,11 @@ import { ConfirmOrderModal } from './ConfirmOrderModal';
 import { CompleteOrderModal } from './CompleteOrderModal';
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { AssignCourierModal } from './AssignCourierModal';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
 import type { Order, OrderStatus } from '@/types/orders';
 import { toast } from 'sonner';
+import { ModernPagination } from './ModernPagination';
 
-const LIMIT = 10;
+// const LIMIT = 10;
 
 export default function OrdersManagement() {
   const [search, setSearch] = useState('');
@@ -36,7 +29,8 @@ export default function OrdersManagement() {
     from: undefined,
     to: undefined,
   });
-  const [page, setPage] = useState(1);
+   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [confirmingOrder, setConfirmingOrder] = useState<Order | null>(null);
@@ -48,7 +42,7 @@ export default function OrdersManagement() {
 
   const queryArgs = {
     page,
-    limit: LIMIT,
+    limit,
     ...(search.trim() && { search: search.trim() }),
     ...(status && { orderStatus: status }),
     ...(dateFilter.from && {
@@ -162,15 +156,22 @@ export default function OrdersManagement() {
     }
   };
 
-  const handlePageChange = (newPage: number) => {
+ const handlePageChange = (newPage: number) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const orders = ordersData?.data || [];
-  const totalCount = ordersData?.totalCount || 0;
-  const totalPages = Math.ceil(totalCount / LIMIT);
-  const allOrders = allOrdersData?.data || [];
+  const handleItemsPerPageChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1); 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const orders = (ordersData?.data as Order[]) || [];
+  const meta: any = ordersData?.meta;
+  const totalCount = meta?.total ?? 0;
+  const totalPages = meta?.totalPage ?? Math.ceil(totalCount / limit);
+  const allOrders = (allOrdersData?.data as Order[]) || [];
 
   return (
     <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
@@ -209,47 +210,16 @@ export default function OrdersManagement() {
         onCompleteOrder={handleCompleteClick}
       />
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => page > 1 && handlePageChange(page - 1)}
-                  className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                />
-              </PaginationItem>
-
-              {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                let pageNum: number;
-                if (totalPages <= 5) pageNum = i + 1;
-                else if (page <= 3) pageNum = i + 1;
-                else if (page >= totalPages - 2) pageNum = totalPages - 4 + i;
-                else pageNum = page - 2 + i;
-
-                return (
-                  <PaginationItem key={pageNum}>
-                    <PaginationLink
-                      onClick={() => handlePageChange(pageNum)}
-                      isActive={page === pageNum}
-                      className="cursor-pointer"
-                    >
-                      {pageNum}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => page < totalPages && handlePageChange(page + 1)}
-                  className={page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+      {/* Modern Pagination */}
+      {totalCount > 0 && (
+        <ModernPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={totalCount}
+          itemsPerPage={limit}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
       )}
 
       {/* Modals */}

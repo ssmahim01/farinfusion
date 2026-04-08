@@ -114,12 +114,13 @@ export interface UpdateOrderRequest {
     email: string;
     phone: string;
     address: string;
-  }
-  paymentMethod?: string
-  shippingCost?: number
-  note?: string
+  };
+  paymentMethod?: string;
+  shippingCost?: number;
+  note?: string;
   courierName?: CourierProvider;
   trackingNumber?: string;
+  products: any[];
 }
 
 export interface OrdersResponse {
