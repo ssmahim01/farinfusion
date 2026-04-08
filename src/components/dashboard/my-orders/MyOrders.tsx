@@ -1,8 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
+import {
+  format,
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  isSameDay,
+} from "date-fns";
 import { toast } from "sonner";
 import {
   Search,
@@ -13,10 +22,19 @@ import {
   Clock,
   SlidersHorizontal,
   RotateCcw,
+  CalendarDays,
+  CalendarRange,
+  ChevronDown,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -32,6 +50,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import type { DateRange } from "react-day-picker";
 import { useGetMyOrdersQuery } from "@/redux/features/orders/myOrdersApi";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
 import { useCreateCourierMutation } from "@/lib/hooks";
@@ -43,6 +62,43 @@ import type { Order, OrderStatus } from "@/types/orders";
 import { cn } from "@/lib/utils";
 
 const LIMIT = 10;
+
+const PRESETS = [
+  {
+    label: "Today",
+    get: () => ({ from: startOfDay(new Date()), to: endOfDay(new Date()) }),
+  },
+  {
+    label: "Yesterday",
+    get: () => {
+      const y = new Date();
+      y.setDate(y.getDate() - 1);
+      return { from: startOfDay(y), to: endOfDay(y) };
+    },
+  },
+  {
+    label: "This week",
+    get: () => ({
+      from: startOfWeek(new Date(), { weekStartsOn: 1 }),
+      to: endOfWeek(new Date(), { weekStartsOn: 1 }),
+    }),
+  },
+  {
+    label: "This month",
+    get: () => ({
+      from: startOfMonth(new Date()),
+      to: endOfMonth(new Date()),
+    }),
+  },
+  {
+    label: "Last 30 days",
+    get: () => {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      return { from: startOfDay(d), to: endOfDay(new Date()) };
+    },
+  },
+];
 
 const STATUS_OPTIONS: {
   value: OrderStatus | "";
@@ -63,7 +119,6 @@ const STATUS_OPTIONS: {
     dot: "bg-emerald-500",
     chip: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800",
   },
-
   {
     value: "COMPLETED",
     label: "Completed",
@@ -77,6 +132,24 @@ const STATUS_OPTIONS: {
     chip: "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
   },
 ];
+
+function formatDateLabel(from: Date | undefined, to: Date | undefined): string {
+  if (!from) return "Filter by date";
+  if (!to || isSameDay(from, to)) return format(from, "MMM d, yyyy");
+  return `${format(from, "MMM d")} – ${format(to, "MMM d, yyyy")}`;
+}
+
+function getPresetLabel(
+  from: Date | undefined,
+  to: Date | undefined,
+): string | null {
+  if (!from || !to) return null;
+  for (const p of PRESETS) {
+    const r = p.get();
+    if (isSameDay(r.from, from) && isSameDay(r.to, to)) return p.label;
+  }
+  return null;
+}
 
 function StatCard({
   label,
@@ -117,28 +190,26 @@ function StatCard({
 }
 
 export default function MyOrders() {
+  const [localSearch, setLocalSearch] = useState("");
   const [search, setSearch] = useState("");
   const [orderStatus, setOrderStatus] = useState<OrderStatus | "">("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [calRange, setCalRange] = useState<DateRange | undefined>(undefined);
+  const [calOpen, setCalOpen] = useState(false);
   const [page, setPage] = useState(1);
 
   const [viewOrder, setViewOrder] = useState<Order | null>(null);
-  const [editOrderId, setEditOrderId] = useState<string | null>(null);
+  const [editOrder, setEditOrder] = useState<Order | null>(null);
   const [courierOrder, setCourierOrder] = useState<Order | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [courierOpen, setCourierOpen] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [localSearch, setLocalSearch] = useState("");
 
   const { data: me } = useGetMeQuery(undefined);
   const userRole = (me?.data?.role?.toUpperCase() ?? "CUSTOMER") as UserRole;
-  const [editOrder, setEditOrder] = useState<Order | null>(null);
-
-  const handleEdit = (order: Order) => {
-    setEditOrder(order);
-    setEditOpen(true);
-  };
 
   const {
     data: ordersData,
@@ -150,6 +221,12 @@ export default function MyOrders() {
     limit: LIMIT,
     ...(search.trim() && { search: search.trim() }),
     ...(orderStatus && { orderStatus }),
+    ...(dateFrom && {
+      "createdAt[gte]": new Date(dateFrom).toISOString(),
+    }),
+    ...(dateTo && {
+      "createdAt[lte]": new Date(dateTo).toISOString(),
+    }),
   });
 
   const [createCourier] = useCreateCourierMutation();
@@ -158,16 +235,12 @@ export default function MyOrders() {
   const meta = ordersData?.meta;
   const totalCount = meta?.total ?? 0;
   const totalPages = meta?.totalPage ?? Math.ceil(totalCount / LIMIT);
- 
 
-  const allOrders = orders;
-  const pendingCount = allOrders.filter(
-    (o) => o.orderStatus === "PENDING",
-  ).length;
-  const confirmedCount = allOrders.filter(
+  const pendingCount = orders.filter((o) => o.orderStatus === "PENDING").length;
+  const confirmedCount = orders.filter(
     (o) => o.orderStatus === "CONFIRMED",
   ).length;
-  const completedCount = allOrders.filter(
+  const completedCount = orders.filter(
     (o) => o.orderStatus === "COMPLETED",
   ).length;
 
@@ -193,11 +266,47 @@ export default function MyOrders() {
     setPage(1);
   };
 
+  const applyPreset = (preset: (typeof PRESETS)[number]) => {
+    const { from, to } = preset.get();
+    setCalRange({ from, to });
+    setDateFrom(from);
+    setDateTo(to);
+    setPage(1);
+    setCalOpen(false);
+  };
+
+  const handleCalSelect = (range: DateRange | undefined) => {
+    setCalRange(range);
+    if (range?.from && range?.to) {
+      setDateFrom(startOfDay(range.from));
+      setDateTo(endOfDay(range.to));
+      setPage(1);
+    } else if (range?.from && !range?.to) {
+      // single day
+      setDateFrom(startOfDay(range.from));
+      setDateTo(endOfDay(range.from));
+      setPage(1);
+    } else {
+      setDateFrom(undefined);
+      setDateTo(undefined);
+    }
+  };
+
+  const clearDate = () => {
+    setCalRange(undefined);
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    setPage(1);
+  };
+
   const handleReset = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setLocalSearch("");
     setSearch("");
     setOrderStatus("");
+    setCalRange(undefined);
+    setDateFrom(undefined);
+    setDateTo(undefined);
     setPage(1);
   };
 
@@ -205,7 +314,10 @@ export default function MyOrders() {
     setViewOrder(order);
     setDetailOpen(true);
   };
-
+  const handleEdit = (order: Order) => {
+    setEditOrder(order);
+    setEditOpen(true);
+  };
   const handleAssignCourier = (order: Order) => {
     setCourierOrder(order);
     setCourierOpen(true);
@@ -224,8 +336,13 @@ export default function MyOrders() {
     }
   };
 
-  const hasFilters = !!search || !!orderStatus;
+  // ── Derived ────────────────────────────────────────────────────────────────
+  const hasFilters = !!search || !!orderStatus || !!dateFrom;
   const activeStatus = STATUS_OPTIONS.find((s) => s.value === orderStatus);
+  const activeDateLabel = getPresetLabel(dateFrom, dateTo);
+  const dateChipLabel = dateFrom
+    ? (activeDateLabel ?? formatDateLabel(dateFrom, dateTo))
+    : null;
 
   return (
     <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
@@ -239,7 +356,6 @@ export default function MyOrders() {
             Orders assigned to you — view, edit billing, and manage delivery
           </p>
         </div>
-        {/* Amber accent dot */}
         <div className="hidden sm:flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/20">
           <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
         </div>
@@ -276,9 +392,9 @@ export default function MyOrders() {
 
       {/* ── Filters ── */}
       <div className="rounded-xl border border-gray-200/80 bg-white p-4 dark:border-gray-700/60 dark:bg-gray-900 space-y-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
           {/* Search */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 min-w-50">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
               placeholder="Search by order ID, customer name or email…"
@@ -297,7 +413,7 @@ export default function MyOrders() {
             )}
           </div>
 
-          {/* Status select */}
+          {/* Status */}
           <div className="flex shrink-0 items-center gap-2">
             <SlidersHorizontal className="h-4 w-4 shrink-0 text-gray-400" />
             <Select
@@ -327,6 +443,123 @@ export default function MyOrders() {
             </Select>
           </div>
 
+          {/* ── Date picker ── */}
+          <Popover open={calOpen} onOpenChange={setCalOpen}>
+            <PopoverTrigger asChild>
+              <button
+                className={cn(
+                  "group inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition-all duration-200",
+                  dateFrom
+                    ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
+                    : "border-gray-200 bg-gray-50/60 text-gray-600 hover:border-amber-200 hover:bg-amber-50/40 hover:text-amber-700 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-400 dark:hover:border-amber-800 dark:hover:text-amber-400",
+                )}
+              >
+                {dateFrom ? (
+                  <CalendarRange className="h-4 w-4 shrink-0" />
+                ) : (
+                  <CalendarDays className="h-4 w-4 shrink-0" />
+                )}
+                <span className="truncate max-w-35">
+                  {dateFrom
+                    ? formatDateLabel(dateFrom, dateTo)
+                    : "Filter by date"}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
+                    calOpen && "rotate-180",
+                  )}
+                />
+              </button>
+            </PopoverTrigger>
+
+            <PopoverContent
+              align="start"
+              side="bottom"
+              className="w-auto p-0 rounded-2xl border-amber-200/60 dark:border-amber-900/40 shadow-xl overflow-hidden"
+            >
+              <div className="flex flex-col sm:flex-row">
+                {/* Presets */}
+                <div className="border-b border-amber-100 dark:border-amber-900/30 sm:border-b-0 sm:border-r sm:w-36 p-3 space-y-0.5">
+                  <p className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-600/60 dark:text-amber-500/60">
+                    Quick select
+                  </p>
+                  {PRESETS.map((preset) => {
+                    const r = preset.get();
+                    const isActive =
+                      dateFrom &&
+                      dateTo &&
+                      isSameDay(r.from, dateFrom) &&
+                      isSameDay(r.to, dateTo);
+
+                    return (
+                      <button
+                        key={preset.label}
+                        onClick={() => applyPreset(preset)}
+                        className={cn(
+                          "w-full rounded-lg px-2.5 py-1.5 text-left text-xs font-medium transition-colors duration-150",
+                          isActive
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                            : "text-gray-600 hover:bg-amber-50 hover:text-amber-700 dark:text-gray-400 dark:hover:bg-amber-900/10 dark:hover:text-amber-400",
+                        )}
+                      >
+                        {preset.label}
+                      </button>
+                    );
+                  })}
+
+                  {dateFrom && (
+                    <>
+                      <div className="my-1.5 border-t border-amber-100 dark:border-amber-900/30" />
+                      <button
+                        onClick={() => {
+                          clearDate();
+                          setCalOpen(false);
+                        }}
+                        className="w-full rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
+                      >
+                        Clear date
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Calendar */}
+                <div className="p-3">
+                  <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-600/60 dark:text-amber-500/60">
+                    Custom range
+                  </p>
+                  <Calendar
+                    mode="range"
+                    selected={calRange}
+                    onSelect={handleCalSelect}
+                    numberOfMonths={1}
+                    disabled={{ after: new Date() }}
+                    initialFocus
+                    className="rounded-xl"
+                    classNames={{
+                      day_selected:
+                        "bg-amber-500 text-white hover:bg-amber-500 focus:bg-amber-500 dark:bg-amber-600",
+                      day_range_middle:
+                        "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+                      day_range_start:
+                        "bg-amber-500 text-white rounded-l-full dark:bg-amber-600",
+                      day_range_end:
+                        "bg-amber-500 text-white rounded-r-full dark:bg-amber-600",
+                      day_today:
+                        "border border-amber-400 text-amber-700 font-bold dark:border-amber-600 dark:text-amber-400",
+                    }}
+                  />
+                  {calRange?.from && !calRange?.to && (
+                    <p className="mt-2 px-1 text-[11px] text-gray-400 dark:text-gray-500">
+                      Click another date to complete the range.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
           {/* Reset */}
           {hasFilters && (
             <Button
@@ -336,17 +569,19 @@ export default function MyOrders() {
               className="h-10 shrink-0 gap-1.5 rounded-lg border-gray-200 text-gray-600 hover:border-amber-300 hover:text-amber-700 dark:border-gray-700 dark:text-gray-400 dark:hover:border-amber-700 dark:hover:text-amber-400 transition-colors"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              Reset
+              Reset all
             </Button>
           )}
         </div>
 
-        {/* Active chips */}
+        {/* Active filter chips */}
         {hasFilters && (
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs text-gray-400 dark:text-gray-500">
               {totalCount} result{totalCount !== 1 ? "s" : ""} matching filters
             </span>
+
+            {/* Search chip */}
             {search && (
               <Badge
                 variant="outline"
@@ -362,7 +597,9 @@ export default function MyOrders() {
                 </button>
               </Badge>
             )}
-            {activeStatus && activeStatus.value && (
+
+            {/* Status chip */}
+            {activeStatus?.value && (
               <Badge
                 variant="outline"
                 className={cn(
@@ -377,6 +614,23 @@ export default function MyOrders() {
                 <button
                   onClick={() => handleStatusChange("all")}
                   className="ml-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+
+            {/* Date chip */}
+            {dateChipLabel && (
+              <Badge
+                variant="outline"
+                className="flex items-center gap-1.5 rounded-full border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400"
+              >
+                <CalendarDays className="h-3 w-3" />
+                {dateChipLabel}
+                <button
+                  onClick={clearDate}
+                  className="ml-0.5 hover:text-amber-900 dark:hover:text-amber-200"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -419,7 +673,6 @@ export default function MyOrders() {
                 else if (page <= 3) pageNum = i + 1;
                 else if (page >= totalPages - 2) pageNum = totalPages - 4 + i;
                 else pageNum = page - 2 + i;
-
                 return (
                   <PaginationItem key={pageNum}>
                     <PaginationLink
@@ -454,7 +707,7 @@ export default function MyOrders() {
       {/* ── Modals ── */}
       <MyOrderDetailModal
         open={detailOpen}
-        order={(viewOrder as Order) ?? null}
+        order={viewOrder}
         userRole={userRole}
         onOpenChange={(open) => {
           setDetailOpen(open);
@@ -462,7 +715,7 @@ export default function MyOrders() {
         }}
         onEdit={() => {
           if (viewOrder) {
-            setEditOrderId(viewOrder._id as string);
+            setEditOrder(viewOrder);
             setEditOpen(true);
           }
         }}

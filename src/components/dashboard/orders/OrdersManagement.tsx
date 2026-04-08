@@ -2,16 +2,15 @@
 'use client';
 
 import { useState } from 'react';
+import { format } from 'date-fns';
 import {
   useGetAllOrdersQuery,
   useConfirmOrderMutation,
   useCompleteOrderMutation,
 } from '@/redux/features/orders/ordersApi';
-import {
-  useCreateCourierMutation,
-} from '@/lib/hooks';
+import { useCreateCourierMutation } from '@/lib/hooks';
 import { OrderStats } from './OrderStats';
-import { OrderFilters } from './OrderFilters';
+import { OrderFilters, type DateFilter } from './OrderFilters';
 import { OrderTable } from './OrderTable';
 import { ConfirmOrderModal } from './ConfirmOrderModal';
 import { CompleteOrderModal } from './CompleteOrderModal';
@@ -33,6 +32,10 @@ const LIMIT = 10;
 export default function OrdersManagement() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<OrderStatus | ''>('');
+  const [dateFilter, setDateFilter] = useState<DateFilter>({
+    from: undefined,
+    to: undefined,
+  });
   const [page, setPage] = useState(1);
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -43,22 +46,27 @@ export default function OrdersManagement() {
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [courierModalOpen, setCourierModalOpen] = useState(false);
 
+  const queryArgs = {
+    page,
+    limit: LIMIT,
+    ...(search.trim() && { search: search.trim() }),
+    ...(status && { orderStatus: status }),
+    ...(dateFilter.from && {
+      'createdAt[gte]': format(dateFilter.from, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+    }),
+    ...(dateFilter.to && {
+      'createdAt[lte]': format(dateFilter.to, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+    }),
+  };
+
   const {
     data: ordersData,
     isLoading,
     error,
     refetch,
-  } = useGetAllOrdersQuery(
-    {
-      page,
-     limit: LIMIT,
-  ...(search && { search }),
-  ...(status && { orderStatus: status }),
-    },
-    { pollingInterval: 10000 },
-  );
+  } = useGetAllOrdersQuery(queryArgs, { pollingInterval: 10000 });
 
-  // Stats — separate unfiltered query
+  // Stats — unfiltered
   const { data: allOrdersData } = useGetAllOrdersQuery({ page: 1, limit: 1000 });
 
   const [confirmOrder, { isLoading: isConfirming, error: confirmError }] =
@@ -77,9 +85,15 @@ export default function OrdersManagement() {
     setPage(1);
   };
 
+  const handleDateChange = (date: DateFilter) => {
+    setDateFilter(date);
+    setPage(1);
+  };
+
   const handleReset = () => {
     setSearch('');
     setStatus('');
+    setDateFilter({ from: undefined, to: undefined });
     setPage(1);
   };
 
@@ -171,12 +185,14 @@ export default function OrdersManagement() {
       {/* Stats */}
       <OrderStats orders={allOrders} />
 
-      {/* Filters */}
+      {/* Filters — now includes date picker */}
       <OrderFilters
         statusFilter={status}
         searchFilter={search}
+        dateFilter={dateFilter}
         onStatusChange={handleStatusChange}
         onSearchChange={handleSearchChange}
+        onDateChange={handleDateChange}
         onReset={handleReset}
         totalResults={totalCount}
       />
@@ -207,15 +223,10 @@ export default function OrdersManagement() {
 
               {[...Array(Math.min(5, totalPages))].map((_, i) => {
                 let pageNum: number;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (page <= 3) {
-                  pageNum = i + 1;
-                } else if (page >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = page - 2 + i;
-                }
+                if (totalPages <= 5) pageNum = i + 1;
+                else if (page <= 3) pageNum = i + 1;
+                else if (page >= totalPages - 2) pageNum = totalPages - 4 + i;
+                else pageNum = page - 2 + i;
 
                 return (
                   <PaginationItem key={pageNum}>
@@ -233,9 +244,7 @@ export default function OrdersManagement() {
               <PaginationItem>
                 <PaginationNext
                   onClick={() => page < totalPages && handlePageChange(page + 1)}
-                  className={
-                    page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
-                  }
+                  className={page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                 />
               </PaginationItem>
             </PaginationContent>
