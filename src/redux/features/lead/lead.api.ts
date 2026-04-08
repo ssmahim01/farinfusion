@@ -10,7 +10,7 @@ interface GetAllLeadResponse {
 
 export const leadApi = baseApi.injectEndpoints({
 
-  // CREATE USER
+  // CREATE USER For Admin
   endpoints: (builder) => ({
     createLead: builder.mutation<IResponse<ILeadResponse>, LeadInput>({
       query: (formData) => ({
@@ -18,6 +18,7 @@ export const leadApi = baseApi.injectEndpoints({
         method: "POST",
         data: formData,
       }),
+      invalidatesTags: ["LEADS"],
     }),
 
     // UPDATE USER
@@ -30,6 +31,7 @@ export const leadApi = baseApi.injectEndpoints({
         method: "PATCH",
         data: data,
       }),
+      invalidatesTags: (result, error, { id }) => ["LEADS", { type: "LEAD", id }],
     }),
 
     // DELETE USER
@@ -37,7 +39,8 @@ export const leadApi = baseApi.injectEndpoints({
       query: (id) => ({
         url: `/lead/${id}`,
         method: "DELETE",
-      })
+      }),
+      invalidatesTags: (result, error, id) => ["LEADS", { type: "LEAD", id }],
     }),
 
     // GET SINGLE USER
@@ -46,6 +49,7 @@ export const leadApi = baseApi.injectEndpoints({
         url: `/lead/${id}`,
         method: "GET",
       }),
+       providesTags: (result, error, slug) => [{ type: "LEAD", id: slug }],
     }),
 
     getAllLead: builder.query<GetAllLeadResponse, GetQueryParams>({
@@ -53,7 +57,28 @@ export const leadApi = baseApi.injectEndpoints({
         url: "/lead/all-leads",
         method: "GET",
         params: params
-      })
+      }),
+      providesTags: ["LEADS"],
+    }),
+
+
+    // ⭐ GET ALL TRASH
+    getAllTrashLeads: builder.query<GetAllLeadResponse, GetQueryParams>({
+      query: (params) => ({
+        url: "/lead/all-trash-leads",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["LEADS"],
+    }),
+
+    // ⭐ TRASH UPDATE  and Restore both work
+    trashUpdateLead: builder.mutation<IResponse<ILead>, { _id: string;}>({
+      query: ({ _id }) => ({
+        url: `/lead/lead-trash/${_id}`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, { _id }) => ["LEADS", { type: "LEAD", _id }],
     }),
 
 
@@ -67,4 +92,6 @@ export const {
   useDeleteLeadMutation,
   useGetSingleLeadQuery,
   useGetAllLeadQuery,
+    useGetAllTrashLeadsQuery,
+    useTrashUpdateLeadMutation,
 } = leadApi;

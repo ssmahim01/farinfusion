@@ -1,5 +1,4 @@
 import React from "react";
-import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -8,9 +7,7 @@ export default function RootLayout({
 }>) {
   return (
         <main >
-          
           {children}
-          <Toaster richColors position="top-center"/>
         </main>
 
   );
