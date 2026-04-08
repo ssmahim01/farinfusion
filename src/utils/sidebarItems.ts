@@ -67,7 +67,7 @@ export const customerSidebar = [
   {
     title: "Dashboard",
     items: [
-      { title: "My Orders", url: "/customer/dashboard/my-orders", icon: ToolCase },
+      { title: "My Orders", url: "/staff/dashboard/customer/my-orders", icon: ToolCase },
     ],
   },
 ];
