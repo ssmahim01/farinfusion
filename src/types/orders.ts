@@ -120,7 +120,7 @@ export interface UpdateOrderRequest {
   note?: string;
   courierName?: CourierProvider;
   trackingNumber?: string;
-  products: any[];
+  products?: any[];
 }
 
 export interface OrdersResponse {
