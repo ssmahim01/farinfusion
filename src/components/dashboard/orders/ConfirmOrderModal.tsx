@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import {
   Dialog,
@@ -95,7 +96,7 @@ export function ConfirmOrderModal({
             {"Cancel"}
           </Button>
           <Button
-            onClick={() => onConfirm(order?._id as CourierProvider)
+            onClick={() => onConfirm(order?._id as any)
             }
             disabled={loading}
             className="min-w-30 hover:cursor-pointer hover:scale-105 bg-amber-600 hover:bg-amber-700 transition-transform ease-in-out duration-500"

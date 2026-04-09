@@ -66,7 +66,7 @@ export const ordersApi = baseApi.injectEndpoints({
       { _id: string; orderStatus: string }
     >({
       query: ({ _id }) => ({
-        url: `/order/${_id}`,
+        url: `/order/${_id}/confirm-status`,
         method: "PATCH",
         data: {
           orderStatus: "CONFIRMED",

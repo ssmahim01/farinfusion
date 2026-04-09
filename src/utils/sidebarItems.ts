@@ -33,7 +33,7 @@ export const adminSidebar = [
   {
     title: "Operations",
     items: [
-      { title: "Orders", url: "/staff/dashboard/admin/orders-management", icon: ListOrdered },
+      { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
       { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
@@ -45,7 +45,9 @@ export const telecallerSidebar = [
   {
     title: "Work",
     items: [
-      { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
+       { title: "Dashboard", url: "/staff/dashboard", icon: LayoutDashboardIcon },
+        { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
+        { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
     ],
   },
@@ -56,7 +58,7 @@ export const managerSidebar = [
     title: "Dashboard",
     items: [
       { title: "Dashboard", url: "/staff/dashboard", icon: LayoutDashboardIcon },
-      { title: "Orders", url: "/staff/dashboard/admin/orders-management", icon: ListOrdered },
+      { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
       { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
