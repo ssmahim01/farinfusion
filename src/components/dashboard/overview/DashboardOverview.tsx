@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   format,
   startOfDay, endOfDay,
@@ -138,6 +138,7 @@ export default function DashboardOverview() {
   const [calOpen, setCalOpen] = useState(false);
   const [orderStatus, setOrderStatus] = useState("");
 
+
   const queryParams: Record<string, string> = {};
   if (dateFrom) queryParams["createdAt[gte]"] = dateFrom.toISOString();
   if (dateTo) queryParams["createdAt[lte]"] = dateTo.toISOString();
@@ -185,16 +186,18 @@ export default function DashboardOverview() {
       ]
     : [];
 
-  const staffBarData = isAdmin && data?.staffEarnings
-    ? data.staffEarnings
-        .sort((a, b) => b.totalEarnings - a.totalEarnings)
-        .slice(0, 8)
-        .map((s) => ({
-          name: s.sellerName?.split(" ")[0] ?? "Staff",
-          Revenue: s.totalEarnings,
-          Orders: s.totalOrders,
-        }))
-    : [];
+  const staffBarData = useMemo(() => {
+  if (!isAdmin || !data?.staffEarnings?.length) return [];
+
+  return [...data.staffEarnings]
+    .sort((a, b) => (b.totalEarnings ?? 0) - (a.totalEarnings ?? 0))
+    .slice(0, 8)
+    .map((s) => ({
+      name: s.sellerName?.split(" ")[0] ?? "Staff",
+      Revenue: s.totalEarnings ?? 0,
+      Orders: s.totalOrders ?? 0,
+    }));
+}, [data, isAdmin]);
 
   const roleLabel = isAdmin
     ? "Admin Overview"
