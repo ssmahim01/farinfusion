@@ -19,6 +19,7 @@ interface POSCartSidebarProps {
     orderType: OrderType,
     totalAmount: number,
     discountAmount: number,
+    deliveryCharge: number,
   ) => void;
   isProcessing?: boolean;
 }
@@ -47,6 +48,7 @@ export function POSCartSidebar({
   const [isPrefilled, setIsPrefilled] = useState(false);
   const [discountInput, setDiscountInput] = useState("");
   const [discountError, setDiscountError] = useState("");
+  const [deliveryCharge, setDeliveryCharge] = useState("");
 
   const [customerData, setCustomerData] = useState<CustomerData>({
     name: "",
@@ -83,7 +85,9 @@ export function POSCartSidebar({
       sum + (item.product.discountPrice || item.product.price) * item.quantity,
     0,
   );
-  const deliveryFee = orderType === "DELIVERY" ? 100 : 0;
+  const parsedDelivery = parseFloat(deliveryCharge || "0");
+  const deliveryFee =
+    orderType === "DELIVERY" && !isNaN(parsedDelivery) ? parsedDelivery : 0;
 
   const rawDiscount = parseFloat(discountInput || "0");
   const discountAmount =
@@ -117,7 +121,13 @@ export function POSCartSidebar({
 
   const handleCheckout = () => {
     if (isFormValid && items.length > 0 && !discountError) {
-      onCheckout(customerData, orderType, totalAmount, discountCapped);
+      onCheckout(
+        customerData,
+        orderType,
+        totalAmount,
+        discountCapped,
+        deliveryFee,
+      );
     }
   };
 
@@ -126,7 +136,6 @@ export function POSCartSidebar({
 
   return (
     <div className="flex h-full w-full flex-col bg-white dark:bg-gray-900 overflow-hidden">
-
       {/* ── PINNED: Header ── */}
       <div className="shrink-0 border-b border-gray-200 dark:border-gray-700 px-4 py-3.5">
         <div className="flex items-center justify-between">
@@ -154,7 +163,6 @@ export function POSCartSidebar({
 
       {/* ── SCROLLABLE middle ── */}
       <div className="flex-1 overflow-y-auto">
-
         {/* Cart items */}
         <div className="p-4 space-y-2.5">
           {items.length === 0 ? (
@@ -186,14 +194,20 @@ export function POSCartSidebar({
               ৳{subtotal.toFixed(2)}
             </span>
           </div>
-          {orderType === "DELIVERY" && (
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-              <span>Delivery</span>
-              <span className="font-semibold text-gray-800 dark:text-gray-200 tabular-nums">
-                ৳{deliveryFee.toFixed(2)}
-              </span>
-            </div>
-          )}
+          <div className="mt-3">
+            <p className="mb-1 text-xs font-semibold text-gray-500">
+              Delivery Charge
+            </p>
+            <Input
+              type="number"
+              min="0"
+              step="1"
+              placeholder="Enter delivery charge"
+              value={deliveryCharge}
+              onChange={(e) => setDeliveryCharge(e.target.value)}
+              className="text-sm"
+            />
+          </div>
           {discountCapped > 0 && (
             <div className="flex justify-between text-xs text-emerald-600 dark:text-emerald-400">
               <span className="flex items-center gap-1">
@@ -376,7 +390,10 @@ export function POSCartSidebar({
         <Button
           onClick={handleCheckout}
           disabled={
-            items.length === 0 || !isFormValid || isProcessing || !!discountError
+            items.length === 0 ||
+            !isFormValid ||
+            isProcessing ||
+            !!discountError
           }
           className={cn(
             "hover:cursor-pointer w-full rounded-xl py-5 text-sm font-bold transition-all duration-200",

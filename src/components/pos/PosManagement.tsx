@@ -104,20 +104,26 @@ export default function POSManagement() {
   const handleCheckout = async (
     customerData: CustomerData,
     orderType: OrderType,
-    totalAmount: number,   
-    discountAmount: number, 
+    totalAmount: number,
+    discountAmount: number,
+    deliveryCharge: number,
   ) => {
     try {
       if (!user?.data) {
         toast.error("User not loaded");
         return;
       }
- 
+
       if (String(user.data.role) !== "ADMIN") {
         toast.error("Only seller can create POS order");
         return;
       }
- 
+
+      if (orderType === "DELIVERY" && deliveryCharge <= 0) {
+        toast.error("Delivery charge required");
+        return;
+      }
+
       await createOrder({
         orderType: "POS",
         paymentMethod: "COD",
@@ -126,9 +132,9 @@ export default function POSManagement() {
           title: item?.product?.title || "Unknown Product",
           quantity: item.quantity,
         })),
-        total: totalAmount,              
-        discount: discountAmount ?? 0, 
-        shippingCost: orderType === "DELIVERY" ? 100 : 0,
+        total: totalAmount,
+        discount: discountAmount ?? 0,
+        shippingCost: orderType === "DELIVERY" ? deliveryCharge : 0,
         billingDetails: {
           fullName: customerData.name,
           email: customerData.email,
@@ -138,7 +144,7 @@ export default function POSManagement() {
         note: customerData.notes ?? "",
         seller: user?.data?._id,
       }).unwrap();
- 
+
       toast.success("Order created successfully!");
       setCartItems([]);
       setMobileCartOpen(false);
