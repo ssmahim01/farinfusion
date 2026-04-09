@@ -21,16 +21,6 @@ import {
 interface CategoryDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // category?: {
-  //   title: string;
-  //   slug?: string;
-  //   description?: string;
-  //   productCount: number;
-  //   showOrder: number;
-  //   status?: "ACTIVE" | "INACTIVE";
-  //   image?: string;
-  //   createdAt?: string;
-  // };
   category?: any
 }
 
