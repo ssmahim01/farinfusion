@@ -34,6 +34,7 @@ export const adminSidebar = [
     title: "Operations",
     items: [
       { title: "Orders", url: "/staff/dashboard/admin/orders-management", icon: ListOrdered },
+      { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
     ],

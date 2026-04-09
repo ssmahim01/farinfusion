@@ -114,10 +114,10 @@ export default function POSManagement() {
         return;
       }
 
-      if (String(user.data.role) !== "ADMIN") {
-        toast.error("Only seller can create POS order");
-        return;
-      }
+      // if (String(user.data.role) !== "ADMIN") {
+      //   toast.error("Only seller can create POS order");
+      //   return;
+      // }
 
       if (orderType === "DELIVERY" && deliveryCharge <= 0) {
         toast.error("Delivery charge required");
