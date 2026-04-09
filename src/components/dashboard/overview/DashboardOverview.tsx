@@ -25,7 +25,8 @@ import {
   ShoppingBag, TrendingUp, Users, Package,
   CheckCircle2, Clock, XCircle, AlertCircle,
   CalendarDays, CalendarRange, ChevronDown, RotateCcw, X,
-  ArrowUpRight, Truck, Star,
+  ArrowUpRight, Truck,
+  User,
 } from "lucide-react";
 import { useGetDashboardOverviewQuery } from "@/redux/features/dashboard/dashboard.api";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
@@ -230,7 +231,7 @@ export default function DashboardOverview() {
 
         {/* Greeting badge */}
         <div className="hidden sm:flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1.5 dark:border-amber-900/40 dark:bg-amber-900/20">
-          <Star className="h-3.5 w-3.5 text-amber-500" />
+          <User className="h-3.5 w-3.5 text-amber-500" />
           <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
             {me?.data?.name ?? "Welcome"}
           </span>
