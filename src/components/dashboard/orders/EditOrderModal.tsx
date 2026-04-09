@@ -43,6 +43,7 @@ import {
   Minus,
   ShoppingCart,
   Image as ImageIcon,
+  Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types/orders";
@@ -65,6 +66,7 @@ const schema = z.object({
   address: z.string().min(3, "Address is required"),
   paymentMethod: z.enum(["COD", "ONLINE", "CARD"]),
   shippingCost: z.coerce.number().min(0, "Must be 0 or more"),
+  discount: z.coerce.number().min(0).optional(),
   note: z.string().optional(),
 });
 type FormData = z.infer<typeof schema>;
@@ -164,10 +166,10 @@ export function EditOrderModal({
   }, []);
 
   useEffect(() => {
-  return () => {
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-  };
-}, []);
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
+  }, []);
 
   const {
     register,
@@ -185,6 +187,7 @@ export function EditOrderModal({
       address: "",
       paymentMethod: "COD",
       shippingCost: 0,
+      discount: 0,
       note: "",
     },
   });
@@ -199,6 +202,7 @@ export function EditOrderModal({
         paymentMethod:
           ((order as any).paymentMethod as "COD" | "ONLINE" | "CARD") ?? "COD",
         shippingCost: (order as any).shippingCost ?? 0,
+        discount: (order as any).discount ?? 0,
         note: (order as any).note ?? "",
       });
 
@@ -301,6 +305,7 @@ export function EditOrderModal({
           paymentMethod: formData.paymentMethod,
           shippingCost: formData.shippingCost ?? 0,
           note: formData.note ?? "",
+          discount: formData.discount ?? 0,
           products: cartProducts.map((p) => ({
             product: p.productId,
             title: p.title,
@@ -322,6 +327,11 @@ export function EditOrderModal({
     }
   };
 
+  const shipping = watch("shippingCost") || 0;
+  const discount = watch("discount") || 0;
+  const discountWithShipping = shipping - discount;
+
+  const total = Math.max(0, subtotal + discountWithShipping);
   if (!order) return null;
 
   return (
@@ -555,15 +565,7 @@ export function EditOrderModal({
                       </button>
                     </div>
                   ))}
-                  <div className="flex items-center justify-between rounded-xl border border-amber-200/60 bg-amber-50/40 px-4 py-2.5 dark:border-amber-900/30 dark:bg-amber-900/10">
-                    <span className="text-xs font-semibold text-amber-700/70 dark:text-amber-500/70">
-                      {cartProducts.reduce((s, p) => s + p.quantity, 0)} items
-                      subtotal
-                    </span>
-                    <span className="text-base font-bold tabular-nums text-amber-600 dark:text-amber-400">
-                      ৳{subtotal.toFixed(2)}
-                    </span>
-                  </div>
+               
                 </div>
               )}
             </div>
@@ -688,6 +690,23 @@ export function EditOrderModal({
                       />
                     </div>
                   </FormField>
+
+                  <FormField icon={Tag} label="Discount" htmlFor="discount">
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+                        ৳
+                      </span>
+                      <Input
+                        id="discount"
+                        type="number"
+                        min="0"
+                        step="1"
+                        placeholder="0"
+                        className={cn(inputCls, "pl-7")}
+                        {...register("discount")}
+                      />
+                    </div>
+                  </FormField>
                 </div>
                 <FormField
                   icon={StickyNote}
@@ -706,6 +725,16 @@ export function EditOrderModal({
                     {...register("note")}
                   />
                 </FormField>
+              </div>
+
+              <div className="flex items-center justify-between rounded-xl border border-amber-200/60 bg-amber-50/40 px-4 py-2.5 dark:border-amber-900/30 dark:bg-amber-900/10">
+                <span className="text-xs font-semibold text-amber-700/70 dark:text-amber-500/70">
+                  {cartProducts.reduce((s, p) => s + p.quantity, 0)} items
+                  subtotal
+                </span>
+                <span className="text-base font-bold tabular-nums text-amber-600 dark:text-amber-400">
+                  ৳{total}
+                </span>
               </div>
             </div>
 

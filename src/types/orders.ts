@@ -109,6 +109,7 @@ export interface UpdateOrderRequest {
   orderStatus?: OrderStatus;
   deliveryStatus?: DeliveryStatus;
   seller?: any;
+  discount?: number;
   billingDetails?: {
     fullName: string;
     email: string;

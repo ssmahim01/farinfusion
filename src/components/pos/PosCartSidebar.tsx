@@ -86,8 +86,7 @@ export function POSCartSidebar({
     0,
   );
   const parsedDelivery = parseFloat(deliveryCharge || "0");
-  const deliveryFee =
-    orderType === "DELIVERY" && !isNaN(parsedDelivery) ? parsedDelivery : 0;
+  const deliveryFee = !isNaN(parsedDelivery) ? parsedDelivery : 0;
 
   const rawDiscount = parseFloat(discountInput || "0");
   const discountAmount =
