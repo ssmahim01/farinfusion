@@ -200,6 +200,7 @@ const TrashCategoryPage = () => {
                 onConfirm={
                     actionType === "delete" ? handleHardDelete : handleRestore
                 }
+                actionType={actionType}
             />
         </div>
     );

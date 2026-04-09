@@ -588,6 +588,7 @@ const LeadsTable: React.FC = () => {
             : "Are you sure?"
         }
         onConfirm={handleConfirmDelete}
+        actionType={"delete"}
       />
     </div>
   );
