@@ -201,11 +201,11 @@ export default function RegisterModal() {
             <DialogTrigger asChild>
                 <Button className={"cursor-pointer"}>
                     <Plus className="h-4 w-4" />
-                    Add User
+                    Add Staff
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-h-[90vh] overflow-y-auto p-6">
+            <DialogContent className="max-w-sm sm:max-w-[500] max-h-[90vh]  overflow-y-auto p-6">
                 <div className="absolute left-0 right-0 top-0 h-0.5" />
                 <DialogHeader className="flex flex-col items-center gap-2 pb-2 text-center">
                     <DialogTitle className=" uppercase">Create Account</DialogTitle>

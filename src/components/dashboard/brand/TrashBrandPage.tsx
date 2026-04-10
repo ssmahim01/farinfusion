@@ -53,6 +53,7 @@ const TrashBrandPage = () => {
 
     // Open alert
     const openAlert = (id: string, type: "restore" | "delete") => {
+        console.log("clicked type:", type);
         setSelectedBrandId(id);
         setAlertType(type);
         setAlertOpen(true);
@@ -183,6 +184,7 @@ const TrashBrandPage = () => {
                         : "Are you sure you want to restore this brand?"
                 }
                 onConfirm={alertType === "delete" ? handleHardDelete : handleRestore}
+                actionType = {alertType}
             />
         </div>
     );

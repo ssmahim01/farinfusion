@@ -150,6 +150,7 @@ const CategoryManagementPage = () => {
             setOpenDeleteAlert(false);
             setCategoryToDelete(null);
           }}
+          actionType={"delete"}
         />
       )}
     </div>

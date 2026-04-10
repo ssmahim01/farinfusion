@@ -211,6 +211,7 @@ const TrashProductsPage = () => {
                 onConfirm={
                     actionType === "delete" ? handleHardDelete : handleRestore
                 }
+                actionType={actionType}
             />
         </div>
     );
