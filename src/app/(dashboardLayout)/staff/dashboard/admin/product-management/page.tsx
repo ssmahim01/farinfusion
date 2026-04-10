@@ -124,6 +124,7 @@ const ProductManagementPage = () => {
                   setOpenDeleteAlert(false);
                   setProductToDelete(null);
                 }}
+                actionType={"delete"}
             />
         )}
       </div>

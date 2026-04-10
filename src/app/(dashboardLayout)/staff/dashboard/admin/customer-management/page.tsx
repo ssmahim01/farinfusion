@@ -73,13 +73,13 @@ const CustomerManagementPage = () => {
         setOpenViewModal(true);
       },
     },
-    {
-      label: "Edit",
-      onClick: (user: IUser) => {
-        setSelectedUser(user);
-        setOpenViewModal(true);
-      },
-    },
+    // {
+    //   label: "Edit",
+    //   onClick: (user: IUser) => {
+    //     setSelectedUser(user);
+    //     setOpenViewModal(true);
+    //   },
+    // },
     {
       label: "Delete",
       onClick: (user: IUser) => {
@@ -130,6 +130,7 @@ const CustomerManagementPage = () => {
             setOpenDeleteAlert(false);
             setUserToDelete(null);
           }}
+          actionType={"delete"}
         />
       )}
     </div>

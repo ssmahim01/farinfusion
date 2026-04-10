@@ -190,6 +190,7 @@ const TrashUserPage = () => {
                         : "Are you sure you want to restore this user?"
                 }
                 onConfirm={actionType === "delete" ? handleHardDelete : handleRestore}
+                actionType={actionType}
             />
         </div>
     );

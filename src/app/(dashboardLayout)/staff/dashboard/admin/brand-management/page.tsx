@@ -149,6 +149,7 @@ const BrandManagementPage = () => {
             setOpenDeleteAlert(false);
             setBrandToDelete(null);
           }}
+          actionType={"delete"}
         />
       )}
     </div>

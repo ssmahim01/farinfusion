@@ -214,6 +214,7 @@ const TrashLeadPage = () => {
                 onConfirm={
                     actionType === "delete" ? handleDelete : handleRestore
                 }
+                actionType={actionType}
             />
         </div>
     );

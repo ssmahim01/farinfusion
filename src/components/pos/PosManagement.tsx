@@ -15,6 +15,7 @@ import { useCreateOrderMutation } from "@/lib/hooks";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
 import { useGetAllCategoriesQuery } from "@/redux/features/category/category.api";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export default function POSManagement() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -23,9 +24,13 @@ export default function POSManagement() {
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
 
   const { data: user } = useGetMeQuery(undefined);
+  const router = useRouter();
 
-  const { data: productsData, isLoading: isLoadingProducts } =
-    useGetAllProductsQuery({});
+  const {
+    data: productsData,
+    isLoading: isLoadingProducts,
+    refetch,
+  } = useGetAllProductsQuery({});
   const { data: categoriesData } = useGetAllCategoriesQuery({});
 
   const [createOrder, { isLoading: isCreatingOrder }] =
@@ -119,17 +124,17 @@ export default function POSManagement() {
       //   return;
       // }
 
-      if (orderType === "DELIVERY" && deliveryCharge <= 0) {
-        toast.error("Delivery charge required");
-        return;
-      }
+      // if (orderType === "DELIVERY" && deliveryCharge <= 0) {
+      //   toast.error("Delivery charge required");
+      //   return;
+      // }
 
-      await createOrder({
+      const res = await createOrder({
         orderType: "POS",
         paymentMethod: "COD",
         products: cartItems.map((item) => ({
-          product: item?.product?._id ?? "",
-          title: item?.product?.title || "Unknown Product",
+          product: item.product._id ?? "",
+          title: item.product?.title || "Unknown Product",
           quantity: item.quantity,
         })),
         total: totalAmount,
@@ -145,9 +150,13 @@ export default function POSManagement() {
         seller: user?.data?._id,
       }).unwrap();
 
-      toast.success("Order created successfully!");
-      setCartItems([]);
-      setMobileCartOpen(false);
+      if (res?._id) {
+        toast.success("Order created successfully!");
+        setCartItems([]);
+        refetch();
+        setMobileCartOpen(false);
+        router.push("/staff/dashboard/orders-management")
+      }
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create order");
     }

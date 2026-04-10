@@ -138,6 +138,7 @@ const UserManagementPage = () => {
             setOpenDeleteAlert(false);
             setUserToDelete(null);
           }}
+          actionType={"delete"}
         />
       )}
     </div>

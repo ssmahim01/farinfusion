@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use client";
 
 import React from "react";
@@ -149,6 +148,7 @@ const CategoryManagement = () => {
             setOpenDeleteAlert(false);
             setCategoryToDelete(null);
           }}
+          actionType={"delete"}
         />
       )}
     </div>

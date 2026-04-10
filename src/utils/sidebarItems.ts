@@ -26,7 +26,7 @@ export const adminSidebar = [
       { title: "Products", url: "/staff/dashboard/admin/product-management", icon: ToolCase },
       { title: "Categories", url: "/staff/dashboard/admin/category-management", icon: ToolCase },
       { title: "Brands", url: "/staff/dashboard/admin/brand-management", icon: ToolCase },
-      { title: "Users", url: "/staff/dashboard/admin/user-management", icon: Users },
+      { title: "Staff", url: "/staff/dashboard/admin/user-management", icon: Users },
       { title: "Customers", url: "/staff/dashboard/admin/customer-management", icon: Users },
     ],
   },
@@ -34,7 +34,7 @@ export const adminSidebar = [
     title: "Operations",
     items: [
       { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
-      { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
+      // { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
     ],
@@ -70,6 +70,7 @@ export const customerSidebar = [
   {
     title: "Dashboard",
     items: [
+      { title: "Overview", url: "/staff/dashboard", icon: ToolCase },
       { title: "My Orders", url: "/staff/dashboard/customer/my-orders", icon: ToolCase },
     ],
   },
