@@ -128,7 +128,7 @@ export default function POSManagement() {
         orderType: "POS",
         paymentMethod: "COD",
         products: cartItems.map((item) => ({
-          product: item.product._id!,
+          product: item?.product?._id ?? "",
           title: item?.product?.title || "Unknown Product",
           quantity: item.quantity,
         })),
