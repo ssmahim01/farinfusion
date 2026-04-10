@@ -150,7 +150,7 @@ export default function POSManagement() {
         seller: user?.data?._id,
       }).unwrap();
 
-      if (res?._id) {
+      if (res) {
         toast.success("Order created successfully!");
         setCartItems([]);
         refetch();

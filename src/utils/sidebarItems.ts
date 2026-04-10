@@ -7,7 +7,7 @@ export const moderatorSidebar = [
       { title: "Dashboard", url: "/staff/dashboard", icon: LayoutDashboardIcon },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
-      { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
+      { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
     ],
   },
 ];
@@ -61,7 +61,7 @@ export const managerSidebar = [
       { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
-      { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
+      // { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
     ],
   },
 ];

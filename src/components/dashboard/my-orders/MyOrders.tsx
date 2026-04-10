@@ -336,7 +336,6 @@ export default function MyOrders() {
     }
   };
 
-  // ── Derived ────────────────────────────────────────────────────────────────
   const hasFilters = !!search || !!orderStatus || !!dateFrom;
   const activeStatus = STATUS_OPTIONS.find((s) => s.value === orderStatus);
   const activeDateLabel = getPresetLabel(dateFrom, dateTo);

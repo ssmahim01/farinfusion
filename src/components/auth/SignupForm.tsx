@@ -131,11 +131,11 @@ export function RegisterForm({ isOpen, onClose, onSwitchToLogin }: RegisterFormP
         reset();
         const loggedInUser = await loginUser({ email: data.email, password: data.password })
         login(loggedInUser.user.user)
-        if (loggedInUser.user.user.role === 'USER') {
-          router.push('/customer/dashboard/my-orders')
+        if (loggedInUser.user.user.role === 'CUSTOMER') {
+          router.push('/staff/dashboard')
         } else if (
-          loggedInUser.user.user.role === 'SELLER' ||
-          loggedInUser.user.user.role === 'OWNER'
+          loggedInUser.user.user.role === 'MODERATOR' ||
+          loggedInUser.user.user.role === 'ADMIN'
         ) {
           router.push('/staff/dashboard')
         } else {

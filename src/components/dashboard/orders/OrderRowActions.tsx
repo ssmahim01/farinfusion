@@ -72,8 +72,12 @@ export function OrderRowActions({
   const { data } = useGetMeQuery(undefined);
   const userRole = data?.data?.role;
   const canEdit =
-    userRole && ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) &&
+    userRole &&
+    ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) &&
     !order?.courierName;
+
+  const hasAccess =
+    userRole && ["ADMIN", "MANAGER", "TELLICELSS"].includes(userRole);
 
   const [editOpen, setEditOpen] = useState(false);
 
@@ -88,7 +92,7 @@ export function OrderRowActions({
 
   const sellerOptions =
     users?.data?.filter((u) =>
-      ["ADMIN", "STAFF", "SELLER"].includes(u.role?.toUpperCase?.() ?? ""),
+      ["ADMIN", "MANAGER", "MODERATOR"].includes(u.role?.toUpperCase?.() ?? ""),
     ) ?? [];
 
   const currentSellerName =
@@ -152,21 +156,25 @@ export function OrderRowActions({
           )}
 
           {/* Assign Seller */}
-          <DropdownMenuItem
-            className="gap-2 text-sm cursor-pointer"
-            onClick={() => setSellerDialogOpen(true)}
-          >
-            <UserCog className="h-3.5 w-3.5 text-gray-500" />
-            <span className="flex-1">Assign Seller</span>
-            {currentSellerName && (
-              <span className="truncate max-w-20 text-[10px] text-gray-400 dark:text-gray-500">
-                {currentSellerName}
-              </span>
-            )}
-          </DropdownMenuItem>
+          {hasAccess && (
+            <>
+              <DropdownMenuItem
+                className="gap-2 text-sm cursor-pointer"
+                onClick={() => setSellerDialogOpen(true)}
+              >
+                <UserCog className="h-3.5 w-3.5 text-gray-500" />
+                <span className="flex-1">Assign Seller</span>
+                {currentSellerName && (
+                  <span className="truncate max-w-20 text-[10px] text-gray-400 dark:text-gray-500">
+                    {currentSellerName}
+                  </span>
+                )}
+              </DropdownMenuItem>
+            </>
+          )}
 
           {/* Confirm */}
-          {isPending && onConfirm && (
+          {hasAccess && isPending && onConfirm && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -180,7 +188,7 @@ export function OrderRowActions({
           )}
 
           {/* Assign Courier */}
-          {isConfirmed && !courier && onAssignCourier && (
+          {hasAccess && isConfirmed && !courier && onAssignCourier && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -194,7 +202,7 @@ export function OrderRowActions({
           )}
 
           {/* Mark as Completed */}
-          {canComplete && onComplete && (
+          {hasAccess && canComplete && onComplete && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
