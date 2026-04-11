@@ -6,15 +6,18 @@ import {Button} from "@/components/ui/button";
 import {Trash2} from "lucide-react";
 import {useRouter} from "next/navigation";
 import CreateBrandModal from "./CreateBrandModal";
+import DateFilter from "@/components/shared/Datefilter";
 
 type CategoryToolbarProps = {
   onSearchChange?: (value: string) => void;
   onSortChange?: (value: string) => void;
+    onDateChange?: (value: { startDate?: string; endDate?: string }) => void;
 };
 
 export default function CategoryToolbar({
   onSearchChange,
-  onSortChange,
+  onSortChange,onDateChange
+
 }: CategoryToolbarProps) {
     const router = useRouter();
   return (
@@ -25,6 +28,8 @@ export default function CategoryToolbar({
 
         {/* Sort */}
         <Sort onChange={onSortChange} />
+
+          <DateFilter onChange={onDateChange} />
       </div>
 
       {/* Create Category Modal */}

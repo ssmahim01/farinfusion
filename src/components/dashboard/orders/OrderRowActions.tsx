@@ -76,6 +76,17 @@ export function OrderRowActions({
     ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) &&
     !order?.courierName;
 
+  // const isRoleAllowed =
+  //     ["ADMIN", "MANAGER", "TELLICELSS"].includes(userRole) ||
+  //     (userRole === "MODERATOR" && !isConfirmed);
+  //
+  // const canEdit =
+  //     userRole &&
+  //     isRoleAllowed &&
+  //     !order?.courierName &&
+  //     !isCompleted &&
+  //     !isDelivered;
+
   const hasAccess =
     userRole && ["ADMIN", "MANAGER", "TELLICELSS"].includes(userRole);
 

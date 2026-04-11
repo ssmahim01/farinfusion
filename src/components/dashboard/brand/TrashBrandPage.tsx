@@ -53,7 +53,6 @@ const TrashBrandPage = () => {
 
     // Open alert
     const openAlert = (id: string, type: "restore" | "delete") => {
-        console.log("clicked type:", type);
         setSelectedBrandId(id);
         setAlertType(type);
         setAlertOpen(true);

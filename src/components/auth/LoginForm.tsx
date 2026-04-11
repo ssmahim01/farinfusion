@@ -68,7 +68,7 @@ export function LoginForm({
             if (res.user.user.role === "CUSTOMER") {
                 router.push("/staff/dashboard");
             } else if ((res.user.user.role === "MANAGER") || (res.user.user.role === "MODERATOR"
-             || (res.user.user.role === "ADMIN")
+             || (res.user.user.role === "ADMIN") || (res.user.user.role === "TELLICELSS")
             )) {
                 router.push("/staff/dashboard");
             } else {

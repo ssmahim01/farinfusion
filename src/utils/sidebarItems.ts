@@ -42,10 +42,11 @@ export const adminSidebar = [
 ];
 
 export const telecallerSidebar = [
-  {
+    {
     title: "Work",
     items: [
        { title: "Dashboard", url: "/staff/dashboard", icon: LayoutDashboardIcon },
+        { title: "Customers", url: "/staff/dashboard/admin/customer-management", icon: Users },
         { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
         { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
