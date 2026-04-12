@@ -11,10 +11,9 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import Link from "next/link"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { LogOut, User2 } from "lucide-react"
+import { LogOut, User, User2 } from "lucide-react"
 import { logoutUser } from "@/utils/logoutUser"
 import { useGetMeQuery } from "@/redux/features/user/user.api"
 import { ProfileAvatar } from "./ProfileAvatar"
@@ -46,7 +45,7 @@ export function ProfileDropdown() {
           variant="outline"
           className="p-0 rounded-full h-10 w-10 flex items-center justify-center"
         >
-          <ProfileAvatar />
+         <ProfileAvatar />
         </Button>
       </DropdownMenuTrigger>
 
@@ -83,6 +82,11 @@ export function ProfileDropdown() {
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
+
+        <DropdownMenuItem disabled>
+          <User />
+         {data?.data?.role}
+        </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut />

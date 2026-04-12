@@ -41,9 +41,9 @@ import {
   useGetAllUsersQuery,
   useGetMeQuery,
 } from "@/redux/features/user/user.api";
-import { useUpdateOrderMutation } from "@/lib/hooks";
 import { toast } from "sonner";
 import { EditOrderModal } from "./EditOrderModal";
+import { useUpdateSellerMutation } from "@/redux/features/orders/ordersApi";
 
 interface OrderRowActionsProps {
   order: Order;
@@ -99,11 +99,13 @@ export function OrderRowActions({
   const [isSaving, setIsSaving] = useState(false);
 
   const { data: users } = useGetAllUsersQuery({});
-  const [updateOrder] = useUpdateOrderMutation();
+  const [updateSeller] = useUpdateSellerMutation();
 
   const sellerOptions =
     users?.data?.filter((u) =>
-      ["ADMIN", "MANAGER", "MODERATOR"].includes(u.role?.toUpperCase?.() ?? ""),
+      ["ADMIN", "MANAGER", "TELLICELSS"].includes(
+        u.role?.toUpperCase?.() ?? "",
+      ),
     ) ?? [];
 
   const currentSellerName =
@@ -115,9 +117,9 @@ export function OrderRowActions({
     if (!selectedSellerId) return;
     setIsSaving(true);
     try {
-      await updateOrder({
+      await updateSeller({
         _id: order._id,
-        data: { seller: selectedSellerId },
+        data: {seller: selectedSellerId},
       }).unwrap();
       toast.success("Seller assigned successfully");
       refetch();

@@ -191,7 +191,8 @@ export function MyOrdersTable({
             const StatusIcon = status.icon;
             const isConfirmed = order.orderStatus === "CONFIRMED";
             const canAssignCourier = canEdit && !order?.courierName;
-            const canEditOrder= canEdit && !order?.courierName;
+            const moderatorEdit = ["MODERATOR"].includes(userRole) && !isConfirmed;
+            const canEditOrder= moderatorEdit && canEdit && !order?.courierName ;
 
             return (
               <TableRow

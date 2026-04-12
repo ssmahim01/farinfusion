@@ -126,10 +126,8 @@ export function OrderTable({
                 </TableCell>
                 <TableCell>
                   <span className="text-xs font-medium">
-                    {order?.transactionId ? (
-                      <span className="text-green-600">PAID</span>
-                    ) : (
-                      <span className="text-red-600">COD</span>
+                    {order?.transactionId && (
+                      <span className="text-green-600">COD</span>
                     )}
                   </span>
                 </TableCell>

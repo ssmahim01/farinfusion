@@ -6,8 +6,9 @@ export const moderatorSidebar = [
     items: [
       { title: "Dashboard", url: "/staff/dashboard", icon: LayoutDashboardIcon },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
+      { title: "My Customers", url: "/staff/dashboard/my-customers", icon: Users },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
-      { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
+      { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
     ],
   },
 ];
@@ -28,6 +29,7 @@ export const adminSidebar = [
       { title: "Brands", url: "/staff/dashboard/admin/brand-management", icon: ToolCase },
       { title: "Staffs", url: "/staff/dashboard/admin/user-management", icon: Users },
       { title: "Customers", url: "/staff/dashboard/admin/customer-management", icon: Users },
+      { title: "My Customers", url: "/staff/dashboard/my-customers", icon: Users },
     ],
   },
   {
@@ -36,6 +38,7 @@ export const adminSidebar = [
       { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
       // { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
+       { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
     ],
   },
@@ -48,6 +51,8 @@ export const telecallerSidebar = [
        { title: "Dashboard", url: "/staff/dashboard", icon: LayoutDashboardIcon },
         { title: "Customers", url: "/staff/dashboard/admin/customer-management", icon: Users },
         { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
+         { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
+          { title: "My Customers", url: "/staff/dashboard/my-customers", icon: Users },
         { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
     ],
@@ -59,7 +64,9 @@ export const managerSidebar = [
     title: "Dashboard",
     items: [
       { title: "Dashboard", url: "/staff/dashboard", icon: LayoutDashboardIcon },
+       { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },
       { title: "Orders", url: "/staff/dashboard/orders-management", icon: ListOrdered },
+      { title: "My Customers", url: "/staff/dashboard/my-customers", icon: Users },
       { title: "Leads", url: "/staff/dashboard/leads", icon: ListOrdered },
       { title: "POS", url: "/staff/dashboard/pos", icon: StoreIcon },
       // { title: "My Orders", url: "/staff/dashboard/my-orders", icon: ListOrdered },

@@ -61,6 +61,21 @@ export const ordersApi = baseApi.injectEndpoints({
       ],
     }),
 
+    updateSeller: builder.mutation<
+      OrderResponse,
+      { _id: string; data: UpdateOrderRequest }
+    >({
+      query: ({ _id, data }) => ({
+        url: `/order/${_id}/assign-seller`,
+        method: "PATCH",
+        data,
+      }),
+      invalidatesTags: (_result, _error, { _id }) => [
+        { type: "ORDER", id: _id },
+        "ORDERS",
+      ],
+    }),
+
     confirmOrder: builder.mutation<
       OrderResponse,
       { _id: string; orderStatus: string }
@@ -124,5 +139,6 @@ export const {
   useUpdateOrderMutation,
   useConfirmOrderMutation,
   useUpdateDeliveryStatusMutation,
+  useUpdateSellerMutation,
   useCompleteOrderMutation
 } = ordersApi;
