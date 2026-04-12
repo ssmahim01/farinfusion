@@ -30,9 +30,17 @@ const BrandManagementPage = () => {
   const [page, setPage] = React.useState(1);
   const limit = 10;
 
+  const [dateRange, setDateRange] = React.useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
   const { data, isLoading, isError } = useGetAllBrandsQuery({
     ...(searchTerm && { searchTerm }),
     ...(sort && { sort }),
+    ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+    ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
+
     page,
     limit,
   });
@@ -105,6 +113,7 @@ const BrandManagementPage = () => {
       <BrandToolbar
         onSearchChange={setSearchTerm}
         onSortChange={setSort}
+        onDateChange={setDateRange}
       />
 
       <DynamicDataTable

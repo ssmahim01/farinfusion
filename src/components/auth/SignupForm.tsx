@@ -135,7 +135,9 @@ export function RegisterForm({ isOpen, onClose, onSwitchToLogin }: RegisterFormP
           router.push('/staff/dashboard')
         } else if (
           loggedInUser.user.user.role === 'MODERATOR' ||
-          loggedInUser.user.user.role === 'ADMIN'
+          loggedInUser.user.user.role === 'TELLICELSS' ||
+            loggedInUser.user.user.role === 'MANAGER' ||
+            loggedInUser.user.user.role === 'ADMIN'
         ) {
           router.push('/staff/dashboard')
         } else {
