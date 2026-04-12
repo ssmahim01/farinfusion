@@ -40,6 +40,7 @@ import DeleteAlert from "@/components/dashboard/DeleteAlert";
 import {SearchForm} from "@/components/shared/search-form";
 import Sort from "@/components/shared/Sort";
 import TablePagination from "@/components/shared/TablePagination";
+import DateFilter from "@/components/shared/DateFilter";
 
 const TrashLeadPage = () => {
     // Search + sort + pagination
@@ -48,14 +49,21 @@ const TrashLeadPage = () => {
     const [page, setPage] = React.useState(1);
     const limit = 10;
 
+    const [dateRange, setDateRange] = React.useState<{
+        startDate?: string;
+        endDate?: string;
+    }>({});
+
+
+
     const { data, isLoading } = useGetAllTrashLeadsQuery({
         ...(searchTerm && { searchTerm }),
         ...(sort && { sort }),
+        ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+        ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
         page,
         limit,
     });
-
-    console.log("Lead Data :", data)
 
     const leads: ILead[] = data?.data || [];
 
@@ -115,9 +123,10 @@ const TrashLeadPage = () => {
             />
 
             {/* Filters */}
-            <div className="flex items-center gap-5">
+            <div className="flex flex-wrap items-center gap-5">
                 <SearchForm onSearchChange={setSearchTerm} />
                 <Sort onChange={setSort} />
+                <DateFilter onChange={setDateRange} />
             </div>
 
             {/* Table */}

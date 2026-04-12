@@ -52,6 +52,7 @@ import Sort from "@/components/shared/Sort";
 import TablePagination from "@/components/shared/TablePagination";
 import LeadAddedModal from "@/components/dashboard/leads/LeadAddedModal";
 import { cn } from "@/lib/utils";
+import DateFilter from "@/components/shared/DateFilter";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   NEW: {
@@ -161,9 +162,19 @@ const LeadsTable: React.FC = () => {
   const [page, setPage] = React.useState(1);
   const limit = 10;
 
+  const [dateRange, setDateRange] = React.useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
+
+
+
   const { data, isLoading, isError } = useGetAllLeadQuery({
     ...(searchTerm && { searchTerm }),
     ...(sort && { sort }),
+    ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+    ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
     page,
     limit,
   });
@@ -260,16 +271,20 @@ const LeadsTable: React.FC = () => {
             />
           </div>
 
+
           {/* Toolbar */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
-              <SearchForm onSearchChange={setSearchTerm} />
+              <div className={"w-full sm:w-auto"}>
+                <SearchForm onSearchChange={setSearchTerm} />
+              </div>
               <Sort onChange={setSort} />
               {selectedIds.length > 0 && (
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
                   {selectedIds.length} selected
                 </span>
               )}
+              <DateFilter onChange={setDateRange} />
             </div>
             <div className="flex items-center gap-2">
               <Button

@@ -18,15 +18,10 @@ export default function CustomerToolbar({ onSearchChange, onSortChange, onDateCh
 
     return (
         <div className="flex items-center justify-between gap-2 w-full my-4">
-            <div className="sm:flex items-center space-y-2 sm:space-y-0 gap-4">
-                {/* Search */}
+            <div className="flex flex-wrap items-center gap-4">
                 <SearchForm onSearchChange={onSearchChange} />
-
-                {/* Sort */}
-                <div className={"grid grid-cols-2 gap-4 items-center"}>
-                    <Sort onChange={onSortChange} />
-                    <DateFilter onChange={onDateChange} />
-                </div>
+                <Sort onChange={onSortChange} />
+                <DateFilter onChange={onDateChange} />
             </div>
 
             <div className="flex items-center gap-4">
