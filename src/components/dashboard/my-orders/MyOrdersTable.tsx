@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -190,9 +191,9 @@ export function MyOrdersTable({
               ORDER_STATUS.PENDING;
             const StatusIcon = status.icon;
             const isConfirmed = order.orderStatus === "CONFIRMED";
-            const canAssignCourier = canEdit && !order?.courierName;
             const moderatorEdit = ["MODERATOR"].includes(userRole) && !isConfirmed;
             const canEditOrder= moderatorEdit && canEdit && !order?.courierName ;
+            // const canAssignCourier = canEdit && !order?.courierName;
 
             return (
               <TableRow
@@ -317,7 +318,7 @@ export function MyOrdersTable({
                       )}
 
                       {/* Assign Courier */}
-                      {canAssignCourier &&
+                      {/* {canAssignCourier &&
                         isConfirmed &&
                         !(order as any).courierName &&
                         onAssignCourier && (
@@ -331,7 +332,7 @@ export function MyOrdersTable({
                               Assign Courier
                             </DropdownMenuItem>
                           </>
-                        )}
+                        )} */}
 
                       {/* Products count hint */}
                       <DropdownMenuSeparator />
