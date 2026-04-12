@@ -8,7 +8,7 @@ export function SearchForm({ onSearchChange, ...props }: React.ComponentProps<"f
 }) {
   return (
     <form {...props}>
-      <SidebarGroup className="p-0 w-auto xl:min-w-100">
+      <SidebarGroup className="p-0 w-full">
         <SidebarGroupContent className="relative">
           <Label htmlFor="search" className="sr-only">
             Search

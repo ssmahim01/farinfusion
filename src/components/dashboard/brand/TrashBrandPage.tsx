@@ -26,6 +26,7 @@ import DeleteAlert from "@/components/dashboard/DeleteAlert";
 import TablePagination from "@/components/shared/TablePagination";
 import {SearchForm} from "@/components/shared/search-form";
 import Sort from "@/components/shared/Sort";
+import DateFilter from "@/components/shared/DateFilter";
 
 const TrashBrandPage = () => {
     // Search + sort + pagination
@@ -34,9 +35,18 @@ const TrashBrandPage = () => {
     const [page, setPage] = React.useState(1);
     const limit = 10;
 
+    const [dateRange, setDateRange] = React.useState<{
+        startDate?: string;
+        endDate?: string;
+    }>({});
+
+
     const {data, isLoading} = useGetAllTrashBrandsQuery({
         ...(searchTerm && {searchTerm}),
         ...(sort && {sort}),
+        ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+        ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
+
         page,
         limit,
     });
@@ -94,9 +104,12 @@ const TrashBrandPage = () => {
             />
 
             {/* 🔍 Filters */}
-            <div className="flex items-center gap-5">
+            <div className="space-y-2 sm:flex sm:space-y-0 items-center gap-5">
                 <SearchForm onSearchChange={setSearchTerm} />
-                <Sort onChange={setSort} />
+                <div className={"grid grid-cols-2 gap-4 items-center"}>
+                    <Sort onChange={setSort} />
+                    <DateFilter onChange={setDateRange} />
+                </div>
             </div>
 
             {/* 📊 Table */}

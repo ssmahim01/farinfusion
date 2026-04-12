@@ -28,7 +28,8 @@ import { ICategory } from "@/types";
 import DeleteAlert from "@/components/dashboard/DeleteAlert";
 import {SearchForm} from "@/components/shared/search-form";
 import Sort from "@/components/shared/Sort";
-import TablePagination from "@/components/shared/TablePagination"; // ✅ correct type
+import TablePagination from "@/components/shared/TablePagination";
+import DateFilter from "@/components/shared/DateFilter"; // ✅ correct type
 
 const TrashCategoryPage = () => {
     // Search + sort + pagination
@@ -37,9 +38,17 @@ const TrashCategoryPage = () => {
     const [page, setPage] = React.useState(1);
     const limit = 10;
 
+    const [dateRange, setDateRange] = React.useState<{
+        startDate?: string;
+        endDate?: string;
+    }>({});
+
+
     const { data, isLoading } = useGetAllTrashCategoriesQuery({
         ...(searchTerm && { searchTerm }),
         ...(sort && { sort }),
+        ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+        ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
         page,
         limit,
     });
@@ -102,9 +111,12 @@ const TrashCategoryPage = () => {
             />
 
             {/* Filters */}
-            <div className="flex items-center gap-5">
+            <div className="sm:flex items-center space-y-2 sm:space-y-0 gap-4">
                 <SearchForm onSearchChange={setSearchTerm} />
-                <Sort onChange={setSort} />
+                <div className={"grid grid-cols-2 gap-4 items-center"}>
+                    <Sort onChange={setSort} />
+                    <DateFilter onChange={setDateRange} />
+                </div>
             </div>
 
             {/* Table */}

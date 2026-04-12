@@ -38,8 +38,8 @@ const BrandManagementPage = () => {
   const { data, isLoading, isError } = useGetAllBrandsQuery({
     ...(searchTerm && { searchTerm }),
     ...(sort && { sort }),
-    ...(dateRange.startDate && { startDate: dateRange.startDate }),
-    ...(dateRange.endDate && { endDate: dateRange.endDate }),
+    ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+    ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
 
     page,
     limit,
