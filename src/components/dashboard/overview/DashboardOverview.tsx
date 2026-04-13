@@ -57,6 +57,9 @@ import {
   ArrowUpRight,
   Truck,
   User,
+  Wallet,
+  Banknote,
+  BadgeCheck,
 } from "lucide-react";
 import { useGetDashboardOverviewQuery } from "@/redux/features/dashboard/dashboard.api";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
@@ -137,7 +140,6 @@ function StatCard({
 }) {
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-gray-200/70 bg-white px-5 py-4 transition-all duration-200 hover:border-amber-200 hover:shadow-md dark:border-gray-700/60 dark:bg-gray-900 dark:hover:border-amber-900/40">
-      {/* Subtle bg glow on hover */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl bg-amber-50/0 transition-all duration-300 group-hover:bg-amber-50/30 dark:group-hover:bg-amber-900/5" />
       <div className="relative flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -182,6 +184,7 @@ const STATUS_BADGE: Record<string, string> = {
   CANCELLED:
     "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
 };
+
 const STATUS_ICON: Record<string, React.ElementType> = {
   PENDING: Clock,
   CONFIRMED: CheckCircle2,
@@ -223,13 +226,75 @@ function ChartTooltip({ active, payload, label }: any) {
   );
 }
 
-// const PIE_COLORS = ["#f59e0b", "#10b981", "#8b5cf6", "#ef4444"];
+function StaffSalaryView({
+  name,
+  totalSalary,
+}: {
+  name: string;
+  totalSalary?: number;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8 py-12">
+      {/* Avatar */}
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-900/20">
+          <BadgeCheck className="h-8 w-8 text-amber-500 dark:text-amber-400" />
+        </div>
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-50">
+            Welcome, {name}
+          </h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Your personal salary overview
+          </p>
+        </div>
+      </div>
+
+      <div className="w-full max-w-sm">
+        <div className="group relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-linear-to-br from-amber-50 to-orange-50 px-8 py-8 text-center transition-all duration-300 hover:border-amber-300 hover:shadow-lg dark:border-amber-800/60 dark:from-amber-900/20 dark:to-orange-900/10">
+          {/* Decorative glow */}
+          <div className="pointer-events-none absolute inset-0 rounded-2xl bg-amber-100/0 transition-all duration-300 group-hover:bg-amber-100/20 dark:group-hover:bg-amber-900/10" />
+
+          <div className="relative space-y-4">
+            <div className="flex items-center justify-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30">
+                <Wallet className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <p className="text-sm font-bold uppercase tracking-widest text-amber-600/70 dark:text-amber-500/70">
+                Total Salary
+              </p>
+            </div>
+
+            <p className="text-5xl font-bold tabular-nums text-amber-600 dark:text-amber-400">
+              ৳{(totalSalary ?? 0).toLocaleString()}
+            </p>
+
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Total salary paid to date
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Info note */}
+      <div className="flex items-center gap-2.5 rounded-xl border border-amber-200/60 bg-amber-50/40 px-4 py-3 dark:border-amber-900/30 dark:bg-amber-900/10">
+        <Banknote className="h-4 w-4 shrink-0 text-amber-500" />
+        <p className="text-xs text-amber-700 dark:text-amber-400">
+          Contact your administrator for salary details or payroll queries.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardOverview() {
   const { data: me } = useGetMeQuery(undefined);
   const userRole = me?.data?.role?.toUpperCase() ?? "CUSTOMER";
+
   const isAdmin = userRole === "ADMIN";
-  const isStaff = ["MANAGER", "MODERATOR"].includes(userRole);
+  const isStaff = ["MANAGER", "MODERATOR", "TELLICELSS"].includes(userRole);
+
+  const isGeneralStaff = userRole === "GENERALSTAFF";
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
@@ -318,7 +383,6 @@ export default function DashboardOverview() {
 
   const staffBarData = useMemo(() => {
     if (!isAdmin || !data?.staffEarnings?.length) return [];
-
     return [...data.staffEarnings]
       .sort((a, b) => (b.totalEarnings ?? 0) - (a.totalEarnings ?? 0))
       .slice(0, 8)
@@ -333,7 +397,48 @@ export default function DashboardOverview() {
     ? "Admin Overview"
     : isStaff
       ? "Staff Dashboard"
-      : "My Orders";
+      : isGeneralStaff
+        ? "My Salary"
+        : "My Overview";
+
+  if (isGeneralStaff) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8">
+        {/* Header */}
+        <div className="mb-8 flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/20">
+            <Wallet className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50 md:text-3xl">
+              My Salary
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Your salary summary
+            </p>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="flex justify-center">
+            <Skeleton className="h-64 w-full max-w-sm" />
+          </div>
+        ) : isError ? (
+          <div className="flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900/40 dark:bg-red-900/10">
+            <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
+            <p className="text-sm font-medium text-red-700 dark:text-red-400">
+              Failed to load salary data. Please try again.
+            </p>
+          </div>
+        ) : (
+          <StaffSalaryView
+            name={me?.data?.name ?? "Staff"}
+            totalSalary={(data as any)?.mySalary}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
@@ -342,7 +447,7 @@ export default function DashboardOverview() {
         <div>
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/20">
-              <TrendingUp className="h-4.5 w-4.5 text-amber-600 dark:text-amber-400" />
+              <TrendingUp className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50 md:text-3xl">
               {roleLabel}
@@ -424,6 +529,7 @@ export default function DashboardOverview() {
                 />
               </button>
             </PopoverTrigger>
+
             <PopoverContent
               align="start"
               className="w-auto p-0 rounded-2xl border-amber-200/60 dark:border-amber-900/40 shadow-xl overflow-hidden"
@@ -468,6 +574,7 @@ export default function DashboardOverview() {
                     </>
                   )}
                 </div>
+
                 {/* Calendar */}
                 <div className="p-3">
                   <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-600/60 dark:text-amber-500/60">
@@ -530,7 +637,7 @@ export default function DashboardOverview() {
                 </button>
               </Badge>
             )}
-            {activeStatus?.value && (
+            {activeStatus?.value && activeStatus.value !== "ALL" && (
               <Badge
                 variant="outline"
                 className={cn(
@@ -558,7 +665,7 @@ export default function DashboardOverview() {
 
       {/* ── KPI Cards ── */}
       {isLoading ? (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[...Array(isAdmin ? 4 : 2)].map((_, i) => (
             <Skeleton key={i} className="h-28" />
           ))}
@@ -605,30 +712,28 @@ export default function DashboardOverview() {
               <>
                 <StatCard
                   label="Product Cost"
-                  value={`৳${data.totalCost}`}
+                  value={`৳${(data as any).totalCost ?? 0}`}
                   icon={Package}
                   accent="bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
                   sub="Total buying cost"
                 />
-
                 <StatCard
                   label="Staff Salary"
-                  value={`৳${data.totalSalary}`}
+                  value={`৳${(data as any).totalSalary ?? 0}`}
                   icon={Users}
                   accent="bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
                   sub="Total salary paid"
                 />
-
                 <StatCard
                   label="Net Profit"
-                  value={`৳${data.netProfit}`}
+                  value={`৳${(data as any).netProfit ?? 0}`}
                   icon={TrendingUp}
                   accent={
-                    data.netProfit >= 0
+                    ((data as any).netProfit ?? 0) >= 0
                       ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"
                       : "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
                   }
-                  sub={data.netProfit >= 0 ? "Profit" : "Loss"}
+                  sub={((data as any).netProfit ?? 0) >= 0 ? "Profit" : "Loss"}
                 />
               </>
             )}
@@ -699,7 +804,7 @@ export default function DashboardOverview() {
             ))}
           </div>
 
-          {/* ── Charts Row ── */}
+          {/* ── Charts ── */}
           <div
             className={cn(
               "grid gap-6",
@@ -708,7 +813,7 @@ export default function DashboardOverview() {
                 : "grid-cols-1 lg:grid-cols-2",
             )}
           >
-            {/* Pie chart — Order status distribution */}
+            {/* Pie */}
             <div
               className={cn(
                 "rounded-2xl border border-gray-200/80 bg-white p-5 dark:border-gray-700/60 dark:bg-gray-900",
@@ -758,7 +863,6 @@ export default function DashboardOverview() {
               )}
             </div>
 
-            {/* Bar chart — Staff performance (ADMIN only) / Order status bars (staff/customer) */}
             {isAdmin && staffBarData.length > 0 ? (
               <div className="rounded-2xl border border-gray-200/80 bg-white p-5 dark:border-gray-700/60 dark:bg-gray-900 xl:col-span-3">
                 <p className="mb-1 text-sm font-bold text-gray-900 dark:text-gray-50">
@@ -928,13 +1032,11 @@ export default function DashboardOverview() {
                       key={order._id ?? idx}
                       className="flex flex-col gap-2 px-5 py-3.5 transition-colors hover:bg-amber-50/20 dark:hover:bg-amber-900/5 sm:flex-row sm:items-center sm:gap-4"
                     >
-                      {/* Order ID */}
                       <p className="shrink-0 font-mono text-xs font-semibold text-gray-700 dark:text-gray-300">
                         {order.customOrderId
                           ? `#${order.customOrderId}`
                           : order._id?.slice(0, 10) + "…"}
                       </p>
-                      {/* Customer */}
                       <div className="flex-1 min-w-0">
                         <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
                           {order.billingDetails?.fullName ??
@@ -947,7 +1049,6 @@ export default function DashboardOverview() {
                             ""}
                         </p>
                       </div>
-                      {/* Status badge */}
                       <Badge
                         variant="outline"
                         className={cn(
@@ -958,11 +1059,9 @@ export default function DashboardOverview() {
                         <StatusIcon className="h-3 w-3" />
                         {order.orderStatus}
                       </Badge>
-                      {/* Total */}
                       <p className="shrink-0 font-bold tabular-nums text-amber-600 dark:text-amber-400">
                         ৳{order.total ?? "0"}
                       </p>
-                      {/* Date */}
                       <p className="shrink-0 text-xs text-gray-400 dark:text-gray-500">
                         {order.createdAt
                           ? new Date(order.createdAt).toLocaleDateString(

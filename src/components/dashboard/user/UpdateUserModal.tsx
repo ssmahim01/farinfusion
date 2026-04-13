@@ -37,6 +37,7 @@ enum Role {
   MANAGER = "MANAGER",
   MODERATOR = "MODERATOR",
   TELLICELSS = "TELLICELSS",
+  GENERALSTAFF = "GENERALSTAFF",
 }
 
 // ─── Schema ───────────────────────────────────────────────────────────────

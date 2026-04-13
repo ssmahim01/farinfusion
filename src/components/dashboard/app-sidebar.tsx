@@ -53,7 +53,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     | "ADMIN"
     | "MANAGER"
     | "MODERATOR"
-    | "CUSTOMER";
+    | "CUSTOMER"
+    | "TELLICELSS"
+    | "GENERALSTAFF"
   const sidebarData = getSidebarData(role);
 
   return (

@@ -84,3 +84,13 @@ export const customerSidebar = [
   },
 ];
 
+export const generalStaffSidebar = [
+  {
+    title: "Dashboard",
+    items: [
+      { title: "Overview", url: "/staff/dashboard", icon: ToolCase },
+     
+    ],
+  },
+];
+

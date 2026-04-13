@@ -18,7 +18,7 @@ export const registerUser = async (formData: FormData) => {
 
     const result = await res.json();
 
-    console.log("REsult ", result)
+    // console.log("REsult ", result)
 
     // 🔥 important fix
     if (!res.ok) {

@@ -155,7 +155,11 @@ export default function POSManagement() {
         setCartItems([]);
         refetch();
         setMobileCartOpen(false);
-        router.push("/staff/dashboard/orders-management")
+        if (user?.data?.role === "MODERATOR") {
+          router.push("/staff/dashboard/my-orders");
+        } else {
+          router.push("/staff/dashboard/orders-management");
+        }
       }
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create order");
