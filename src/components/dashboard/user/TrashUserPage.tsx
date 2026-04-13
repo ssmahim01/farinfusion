@@ -27,6 +27,7 @@ import { IUser } from "@/types";
 import {SearchForm} from "@/components/shared/search-form";
 import Sort from "@/components/shared/Sort";
 import TablePagination from "@/components/shared/TablePagination";
+import DateFilter from "@/components/shared/DateFilter";
 
 const TrashUserPage = () => {
     // Search + sort + pagination
@@ -35,10 +36,16 @@ const TrashUserPage = () => {
     const [page, setPage] = React.useState(1);
     const limit = 10;
 
+    const [dateRange, setDateRange] = React.useState<{
+        startDate?: string;
+        endDate?: string;
+    }>({});
 
     const { data, isLoading } = useGetAllTrashUsersQuery({
         ...(searchTerm && { searchTerm }),
         ...(sort && { sort }),
+        ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+        ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
         page,
         limit,
     });
@@ -99,9 +106,10 @@ const TrashUserPage = () => {
             />
 
             {/* Filters */}
-            <div className="flex items-center gap-5">
+            <div className="flex flex-wrap items-center gap-5">
                 <SearchForm onSearchChange={setSearchTerm} />
                 <Sort onChange={setSort} />
+                <DateFilter onChange={setDateRange} />
             </div>
 
             {/* Table */}

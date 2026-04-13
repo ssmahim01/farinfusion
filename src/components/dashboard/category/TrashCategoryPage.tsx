@@ -111,12 +111,10 @@ const TrashCategoryPage = () => {
             />
 
             {/* Filters */}
-            <div className="sm:flex items-center space-y-2 sm:space-y-0 gap-4">
+            <div className="flex flex-wrap items-center gap-4">
                 <SearchForm onSearchChange={setSearchTerm} />
-                <div className={"grid grid-cols-2 gap-4 items-center"}>
-                    <Sort onChange={setSort} />
-                    <DateFilter onChange={setDateRange} />
-                </div>
+                <Sort onChange={setSort} />
+                <DateFilter onChange={setDateRange} />
             </div>
 
             {/* Table */}

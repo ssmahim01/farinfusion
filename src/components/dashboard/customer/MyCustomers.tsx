@@ -28,9 +28,19 @@ const MyCustomers = () => {
   const [page, setPage] = React.useState(1);
   const limit = 10;
 
+
+  const [dateRange, setDateRange] = React.useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
+
+
   const { data, isLoading, isError } = useGetMyCustomersQuery({
     ...(searchTerm && { searchTerm }),
     ...(sort && { sort }),
+    ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+    ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
     page,
     limit,
   });
@@ -97,7 +107,7 @@ const MyCustomers = () => {
   return (
     <div>
       <DashboardPageHeader title="My Customers" />
-      <CustomerToolbar onSearchChange={setSearchTerm} onSortChange={setSort} />
+      <CustomerToolbar onSearchChange={setSearchTerm} onSortChange={setSort} onDateChange={setDateRange} />
       <DynamicDataTable
         columns={columns}
         data={data?.data ?? []}

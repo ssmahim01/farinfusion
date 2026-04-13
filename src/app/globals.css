@@ -128,3 +128,28 @@
     @apply font-sans;
   }
 }
+
+
+/*product text editor*/
+.ProseMirror p {
+  line-height: 1.4;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.ProseMirror li {
+  line-height: 1.4;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.ProseMirror li p {
+  margin-top: 0;
+  margin-bottom: 0;
+}

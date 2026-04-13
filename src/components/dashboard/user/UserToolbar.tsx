@@ -6,23 +6,26 @@ import Sort from "@/components/shared/Sort";
 import RegisterModal from "./RegisterModal";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import DateFilter from "@/components/shared/DateFilter";
 
 type UserToolbarProps = {
     onSearchChange?: (value: string) => void;
     onSortChange?: (value: string) => void;
+    onDateChange?: (value: { startDate?: string; endDate?: string }) => void;
 };
 
-export default function UserToolbar({ onSearchChange, onSortChange }: UserToolbarProps) {
+export default function UserToolbar({ onSearchChange, onSortChange, onDateChange }: UserToolbarProps) {
     const router = useRouter();
 
     return (
         <div className="sm:flex items-center justify-between gap-2 space-y-2 sm:space-y-0 w-full my-4">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
                 {/* Search */}
                 <SearchForm onSearchChange={onSearchChange} />
 
                 {/* Sort */}
                 <Sort onChange={onSortChange} />
+                <DateFilter onChange={onDateChange} />
             </div>
 
             <div className="grid grid-cols-2 items-center gap-4">

@@ -30,9 +30,17 @@ const CustomerManagementPage = () => {
   const [page, setPage] = React.useState(1);
   const limit = 10;
 
+  const [dateRange, setDateRange] = React.useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
+
   const { data, isLoading, isError } = useGetAllCustomersQuery({
     ...(searchTerm && { searchTerm }),
     ...(sort && { sort }),
+    ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+    ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
     page,
     limit,
   });
@@ -101,6 +109,7 @@ const CustomerManagementPage = () => {
       <CustomerToolbar
         onSearchChange={setSearchTerm}
         onSortChange={setSort}
+        onDateChange={setDateRange}
       />
       <DynamicDataTable columns={columns} data={data?.data ?? []} actions={actions} />
       {/* Pagination */}
