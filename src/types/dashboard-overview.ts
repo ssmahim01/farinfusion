@@ -19,6 +19,9 @@ export interface IDashboardOverview {
   totalRevenue: number;
   totalUsers?: number;
   totalProducts?: number;
+  totalCost: number;
+  totalSalary: number;
+  netProfit: number;
   staffEarnings?: IStaffEarning[];
   orderStats: IOrderStats;
   recentOrders: any[];

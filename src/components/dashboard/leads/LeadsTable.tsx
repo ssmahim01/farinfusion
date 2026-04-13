@@ -167,9 +167,6 @@ const LeadsTable: React.FC = () => {
     endDate?: string;
   }>({});
 
-
-
-
   const { data, isLoading, isError } = useGetAllLeadQuery({
     ...(searchTerm && { searchTerm }),
     ...(sort && { sort }),
@@ -208,6 +205,11 @@ const LeadsTable: React.FC = () => {
     leadData.length > 0 && selectedIds.length === leadData.length;
 
   const handleSell = (lead: ILead) => {
+    if (lead.hasOrderedToday) {
+      toast.error("This customer already placed an order today");
+      return;
+    }
+
     const params = new URLSearchParams({
       prefill: "1",
       name: lead.name ?? "",
@@ -270,7 +272,6 @@ const LeadsTable: React.FC = () => {
               iconCls="bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
             />
           </div>
-
 
           {/* Toolbar */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -406,6 +407,11 @@ const LeadsTable: React.FC = () => {
                               <p className="truncate text-[11px] text-gray-400 dark:text-gray-500 md:hidden">
                                 {item.phone}
                               </p>
+                              {item.hasOrderedToday && (
+                                <span className="ml-2 inline-flex items-center gap-1 text-[10px] text-red-500">
+                                  ⚠ Maximum 1 order per day
+                                </span>
+                              )}
                               {/* Status pill on mobile */}
                               <span
                                 className={cn(
@@ -500,7 +506,10 @@ const LeadsTable: React.FC = () => {
                           <div className="flex items-center justify-end gap-1.5">
                             {/* Sell button */}
                             <button
-                              onClick={() => handleSell(item)}
+                              // disabled={item.hasOrderedToday}
+                              onClick={() => {
+                                handleSell(item);
+                              }}
                               className={cn(
                                 "hover:cursor-pointer group relative overflow-hidden",
                                 "inline-flex items-center gap-1.5 rounded-lg",

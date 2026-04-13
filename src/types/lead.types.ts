@@ -4,6 +4,7 @@ export interface ILead {
   email: string;
   phone: string;
   address: string;
+  hasOrderedToday?: boolean;
   assignedBy: {
     name: string;
     role: string;
