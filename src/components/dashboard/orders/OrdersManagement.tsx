@@ -1,35 +1,37 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { format } from 'date-fns';
+import { useState } from "react";
+import { format } from "date-fns";
 import {
   useGetAllOrdersQuery,
   useConfirmOrderMutation,
   useCompleteOrderMutation,
-} from '@/redux/features/orders/ordersApi';
-import { useCreateCourierMutation } from '@/lib/hooks';
-import { OrderStats } from './OrderStats';
-import { OrderFilters, type DateFilter } from './OrderFilters';
-import { OrderTable } from './OrderTable';
-import { ConfirmOrderModal } from './ConfirmOrderModal';
-import { CompleteOrderModal } from './CompleteOrderModal';
-import { OrderDetailsModal } from './OrderDetailsModal';
-import { AssignCourierModal } from './AssignCourierModal';
-import type { Order, OrderStatus } from '@/types/orders';
-import { toast } from 'sonner';
-import { ModernPagination } from './ModernPagination';
+  useGetAllScheduledOrdersQuery,
+} from "@/redux/features/orders/ordersApi";
+import { useCreateCourierMutation } from "@/lib/hooks";
+import { OrderStats } from "./OrderStats";
+import { OrderFilters, type DateFilter } from "./OrderFilters";
+import { OrderTable } from "./OrderTable";
+import { ConfirmOrderModal } from "./ConfirmOrderModal";
+import { CompleteOrderModal } from "./CompleteOrderModal";
+import { OrderDetailsModal } from "./OrderDetailsModal";
+import { AssignCourierModal } from "./AssignCourierModal";
+import type { Order, OrderStatus } from "@/types/orders";
+import { toast } from "sonner";
+import { ModernPagination } from "./ModernPagination";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 // const LIMIT = 10;
 
 export default function OrdersManagement() {
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<OrderStatus | ''>('');
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<OrderStatus | "">("");
   const [dateFilter, setDateFilter] = useState<DateFilter>({
     from: undefined,
     to: undefined,
   });
-   const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -39,6 +41,9 @@ export default function OrdersManagement() {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [courierModalOpen, setCourierModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"instant" | "scheduled">(
+    "instant",
+  );
 
   const queryArgs = {
     page,
@@ -46,10 +51,10 @@ export default function OrdersManagement() {
     ...(search.trim() && { search: search.trim() }),
     ...(status && { orderStatus: status }),
     ...(dateFilter.from && {
-      'createdAt[gte]': format(dateFilter.from, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+      "createdAt[gte]": format(dateFilter.from, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
     }),
     ...(dateFilter.to && {
-      'createdAt[lte]': format(dateFilter.to, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+      "createdAt[lte]": format(dateFilter.to, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
     }),
   };
 
@@ -59,9 +64,16 @@ export default function OrdersManagement() {
     error,
     refetch,
   } = useGetAllOrdersQuery(queryArgs, { pollingInterval: 10000 });
+  const { data: scheduledOrdersData, isLoading: isScheduledLoading } =
+    useGetAllScheduledOrdersQuery(queryArgs, {
+      skip: activeTab !== "scheduled",
+    });
 
   // Stats — unfiltered
-  const { data: allOrdersData } = useGetAllOrdersQuery({ page: 1, limit: 1000 });
+  // const { data: allOrdersData } = useGetAllOrdersQuery({
+  //   page: 1,
+  //   limit: 1000,
+  // });
 
   const [confirmOrder, { isLoading: isConfirming, error: confirmError }] =
     useConfirmOrderMutation();
@@ -69,7 +81,7 @@ export default function OrdersManagement() {
     useCompleteOrderMutation();
   const [createCourier] = useCreateCourierMutation();
 
-  const handleStatusChange = (val: OrderStatus | '') => {
+  const handleStatusChange = (val: OrderStatus | "") => {
     setStatus(val);
     setPage(1);
   };
@@ -85,8 +97,8 @@ export default function OrdersManagement() {
   };
 
   const handleReset = () => {
-    setSearch('');
-    setStatus('');
+    setSearch("");
+    setStatus("");
     setDateFilter({ from: undefined, to: undefined });
     setPage(1);
   };
@@ -115,63 +127,70 @@ export default function OrdersManagement() {
     if (!selectedOrder) return;
     try {
       await createCourier({ orderId: selectedOrder._id }).unwrap();
-      toast.success('Courier assigned successfully');
+      toast.success("Courier assigned successfully");
       setCourierModalOpen(false);
       setSelectedOrder(null);
       refetch();
     } catch (err: any) {
-      toast.error(err?.data?.message || 'Failed to assign courier');
+      toast.error(err?.data?.message || "Failed to assign courier");
     }
   };
 
   const handleConfirmOrder = async (orderId: string) => {
     if (!confirmingOrder) return;
     try {
-      await confirmOrder({ _id: orderId, orderStatus: 'CONFIRMED' }).unwrap();
+      await confirmOrder({ _id: orderId, orderStatus: "CONFIRMED" }).unwrap();
       await refetch();
-      toast.success('Order confirmed', {
+      toast.success("Order confirmed", {
         description: `Order ${confirmingOrder.customOrderId || confirmingOrder._id} has been confirmed.`,
       });
       setConfirmModalOpen(false);
       setConfirmingOrder(null);
     } catch (err: any) {
-      toast.error(err?.data?.message || 'Failed to confirm order');
+      toast.error(err?.data?.message || "Failed to confirm order");
     }
   };
 
   const handleCompleteOrder = async (orderId: string) => {
     if (!completingOrder) return;
     try {
-      await completeOrder({ _id: orderId, orderStatus: 'COMPLETED' }).unwrap();
+      await completeOrder({ _id: orderId, orderStatus: "COMPLETED" }).unwrap();
       await refetch();
-      toast.success('Order completed', {
+      toast.success("Order completed", {
         description: `Order ${completingOrder.customOrderId || completingOrder._id?.slice(0, 10)} marked as completed.`,
       });
       setCompleteModalOpen(false);
       setCompletingOrder(null);
     } catch (err: any) {
-      toast.error('Failed to complete order', {
-        description: err?.data?.message || 'Please try again.',
+      toast.error("Failed to complete order", {
+        description: err?.data?.message || "Please try again.",
       });
     }
   };
 
- const handlePageChange = (newPage: number) => {
+  const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleItemsPerPageChange = (newLimit: number) => {
     setLimit(newLimit);
-    setPage(1); 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setPage(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const orders = (ordersData?.data as Order[]) || [];
-  const meta: any = ordersData?.meta;
+  const orders =
+    activeTab === "instant"
+      ? (ordersData?.data as Order[]) || []
+      : (scheduledOrdersData?.data as Order[]) || [];
+
+  const isLoadingFinal =
+    activeTab === "instant" ? isLoading : isScheduledLoading;
+  const meta: any =
+    activeTab === "instant" ? ordersData?.meta : scheduledOrdersData?.meta;
   const totalCount = meta?.total ?? 0;
   const totalPages = meta?.totalPage ?? Math.ceil(totalCount / limit);
-  const allOrders = (allOrdersData?.data as Order[]) || [];
+  // const allOrders = (allOrdersData?.data as Order[]) || [];
 
   return (
     <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
@@ -184,9 +203,8 @@ export default function OrdersManagement() {
       </div>
 
       {/* Stats */}
-      <OrderStats orders={allOrders} />
+      <OrderStats orders={orders} />
 
-      {/* Filters — now includes date picker */}
       <OrderFilters
         statusFilter={status}
         searchFilter={search}
@@ -198,17 +216,41 @@ export default function OrdersManagement() {
         totalResults={totalCount}
       />
 
-      {/* Table */}
-      <OrderTable
-        orders={orders}
-        loading={isLoading}
-        error={error ? 'Failed to load orders' : null}
-        onConfirmOrder={handleConfirmClick}
-        refetch={refetch}
-        onViewOrder={handleViewClick}
-        onAssignCourier={handleOpenCourierModal}
-        onCompleteOrder={handleCompleteClick}
-      />
+      <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)}>
+        {/* Tabs Header */}
+        <TabsList className="grid w-full grid-cols-2 max-w-xs">
+          <TabsTrigger value="instant">Instant Orders</TabsTrigger>
+          <TabsTrigger value="scheduled">Scheduled Orders</TabsTrigger>
+        </TabsList>
+
+        {/* Instant Orders */}
+        <TabsContent value="instant">
+          <OrderTable
+            orders={(ordersData?.data as Order[]) || []}
+            loading={isLoadingFinal}
+            error={error ? "Failed to load orders" : null}
+            onConfirmOrder={handleConfirmClick}
+            refetch={refetch}
+            onViewOrder={handleViewClick}
+            onAssignCourier={handleOpenCourierModal}
+            onCompleteOrder={handleCompleteClick}
+          />
+        </TabsContent>
+
+        {/* Scheduled Orders */}
+        <TabsContent value="scheduled">
+          <OrderTable
+            orders={(scheduledOrdersData?.data as Order[]) || []}
+            loading={isScheduledLoading}
+            error={null}
+            onConfirmOrder={handleConfirmClick}
+            refetch={refetch}
+            onViewOrder={handleViewClick}
+            onAssignCourier={handleOpenCourierModal}
+            onCompleteOrder={handleCompleteClick}
+          />
+        </TabsContent>
+      </Tabs>
 
       {/* Modern Pagination */}
       {totalCount > 0 && (
@@ -233,7 +275,9 @@ export default function OrdersManagement() {
         open={confirmModalOpen}
         order={confirmingOrder}
         loading={isConfirming}
-        error={confirmError ? 'Failed to confirm order. Please try again.' : null}
+        error={
+          confirmError ? "Failed to confirm order. Please try again." : null
+        }
         onConfirm={handleConfirmOrder}
         onOpenChange={(open) => {
           setConfirmModalOpen(open);
@@ -245,7 +289,9 @@ export default function OrdersManagement() {
         open={completeModalOpen}
         order={completingOrder}
         loading={isCompleting}
-        error={completeError ? 'Failed to complete order. Please try again.' : null}
+        error={
+          completeError ? "Failed to complete order. Please try again." : null
+        }
         onComplete={handleCompleteOrder}
         onOpenChange={(open) => {
           setCompleteModalOpen(open);

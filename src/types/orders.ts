@@ -72,6 +72,7 @@ export interface Order {
   subTotal?: number;
   discount?: number;
   customerEmail: string;
+  isPublished?: boolean;
   billingDetails?: {
     fullName: string;
     email: string;

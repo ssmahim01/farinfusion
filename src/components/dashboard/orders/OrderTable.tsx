@@ -12,7 +12,7 @@ import {
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { OrderRowActions } from "./OrderRowActions";
 import type { Order } from "@/types/orders";
-import { AlertCircle, TrendingUp, Truck } from "lucide-react";
+import { AlertCircle, Badge, TrendingUp, Truck } from "lucide-react";
 import { useGetAllCouriersQuery } from "@/lib/hooks";
 
 interface OrderTableProps {
@@ -44,7 +44,6 @@ export function OrderTable({
   courierRes?.data?.forEach((c: any) => {
     courierMap.set(c.order, c);
   });
-
 
   if (error) {
     return (
@@ -97,6 +96,7 @@ export function OrderTable({
 
             <TableHead>Customer</TableHead>
             <TableHead className="text-right">Total</TableHead>
+            <TableHead className="text-center">Publish Time</TableHead>
             <TableHead className="w-32.5">Order Status</TableHead>
             <TableHead className="w-32.5">Delivery Status</TableHead>
             <TableHead className="w-25">Courier</TableHead>
@@ -139,10 +139,24 @@ export function OrderTable({
                     <span className="text-xs text-muted-foreground">
                       {order.billingDetails?.email}
                     </span>
+
+                   
                   </div>
                 </TableCell>
                 <TableCell className="text-right font-medium">
                   ৳{order.total}
+                </TableCell>
+                <TableCell className="text-right font-medium">
+                   {!order.isPublished &&
+                      order.scheduleType === "SCHEDULED" && (
+                        <Badge className="bg-blue-50 text-blue-600 border-blue-200">
+                          Scheduled
+                        </Badge>
+                      )}
+
+                    {order.scheduledAt
+                      ? new Date(order.scheduledAt).toLocaleString()
+                      : new Date(order.createdAt).toLocaleString()}
                 </TableCell>
                 <TableCell>
                   <OrderStatusBadge status={order.orderStatus} type="order" />

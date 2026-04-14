@@ -42,7 +42,7 @@ export function OrderStats({ orders }: OrderStatsProps) {
       bgColor: 'bg-green-100 dark:bg-green-900/30',
     },
     {
-      title: 'Revenue',
+      title: 'Order Amount',
       value: `${totalRevenue.toFixed(2)}`,
       icon: TrendingUp,
       color: 'text-emerald-600 dark:text-emerald-400',
