@@ -22,6 +22,12 @@ export default function POSManagement() {
   const [category, setCategory] = React.useState("");
   const [cartItems, setCartItems] = useState<POSCartItem[]>([]);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  const [schedule, setSchedule] = useState<{
+    type: "INSTANT" | "SCHEDULED";
+    scheduledAt?: string;
+  }>({
+    type: "INSTANT",
+  });
 
   const { data: user } = useGetMeQuery(undefined);
   const router = useRouter();
@@ -129,6 +135,11 @@ export default function POSManagement() {
       //   return;
       // }
 
+      if (schedule.type === "SCHEDULED" && !schedule.scheduledAt) {
+        toast.error("Please select schedule date & time");
+        return;
+      }
+
       const res = await createOrder({
         orderType: "POS",
         paymentMethod: "COD",
@@ -137,6 +148,11 @@ export default function POSManagement() {
           title: item.product?.title || "Unknown Product",
           quantity: item.quantity,
         })),
+        scheduleType: schedule.type,
+        scheduledAt:
+          schedule.type === "SCHEDULED"
+            ? new Date(schedule.scheduledAt ?? "")
+            : undefined,
         total: totalAmount,
         discount: discountAmount ?? 0,
         shippingCost: orderType === "DELIVERY" ? deliveryCharge : 0,
@@ -151,14 +167,23 @@ export default function POSManagement() {
       }).unwrap();
 
       if (res) {
-        toast.success("Order created successfully!");
         setCartItems([]);
         refetch();
         setMobileCartOpen(false);
-        if (user?.data?.role === "MODERATOR") {
-          router.push("/staff/dashboard/my-orders");
+        if (schedule.type === "SCHEDULED") {
+          toast.success(
+            `Order scheduled for ${new Date(
+              schedule.scheduledAt ?? "",
+            ).toLocaleString()}`,
+          );
         } else {
-          router.push("/staff/dashboard/orders-management");
+          if (user?.data?.role === "MODERATOR") {
+            toast.success("Order created successfully!");
+            router.push("/staff/dashboard/my-orders");
+          } else {
+            toast.success("Order created successfully!");
+            router.push("/staff/dashboard/orders-management");
+          }
         }
       }
     } catch (error: any) {
@@ -315,6 +340,8 @@ export default function POSManagement() {
           onItemQuantityChange={handleUpdateQuantity}
           onItemRemove={handleRemoveFromCart}
           onCheckout={handleCheckout}
+          schedule={schedule}
+          setSchedule={setSchedule}
           isProcessing={isCreatingOrder}
         />
       </div>
@@ -354,6 +381,8 @@ export default function POSManagement() {
             items={cartItems}
             onItemQuantityChange={handleUpdateQuantity}
             onItemRemove={handleRemoveFromCart}
+            schedule={schedule}
+            setSchedule={setSchedule}
             onCheckout={handleCheckout}
             isProcessing={isCreatingOrder}
           />

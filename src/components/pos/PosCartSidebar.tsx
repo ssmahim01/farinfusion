@@ -9,11 +9,20 @@ import type { POSCartItem, OrderType } from "@/types/pos";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ScheduleOrder } from "../shared/ScheduleOrder";
 
 interface POSCartSidebarProps {
   items: POSCartItem[];
   onItemQuantityChange: (productId: string, quantity: number) => void;
   onItemRemove: (productId: string) => void;
+  schedule: {
+    type: "INSTANT" | "SCHEDULED";
+    scheduledAt?: string;
+  };
+  setSchedule: (val: {
+    type: "INSTANT" | "SCHEDULED";
+    scheduledAt?: string;
+  }) => void;
   onCheckout: (
     customerData: CustomerData,
     orderType: OrderType,
@@ -41,6 +50,8 @@ export function POSCartSidebar({
   onItemQuantityChange,
   onItemRemove,
   onCheckout,
+  schedule,
+  setSchedule,
   isProcessing = false,
 }: POSCartSidebarProps) {
   const searchParams = useSearchParams();
@@ -383,6 +394,8 @@ export function POSCartSidebar({
           <div className="h-2" />
         </div>
       </div>
+
+      <ScheduleOrder value={schedule} onChange={setSchedule} />
 
       {/* ── PINNED: Checkout button ── */}
       <div className="shrink-0 border-t border-gray-200 dark:border-gray-700 p-4">
