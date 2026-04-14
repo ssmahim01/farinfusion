@@ -187,7 +187,7 @@ export function OrderRowActions({
           )}
 
           {/* Confirm */}
-          {hasAccess && isPending && onConfirm && (
+          {order.scheduleType !== "SCHEDULED" && hasAccess && isPending && onConfirm && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -201,7 +201,7 @@ export function OrderRowActions({
           )}
 
           {/* Assign Courier */}
-          {hasAccess && isConfirmed && !courier && onAssignCourier && (
+          {order.scheduleType !== "SCHEDULED" && hasAccess && isConfirmed && !courier && onAssignCourier && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -215,7 +215,7 @@ export function OrderRowActions({
           )}
 
           {/* Mark as Completed */}
-          {hasAccess && canComplete && onComplete && (
+          {order.scheduleType !== "SCHEDULED" && hasAccess && canComplete && onComplete && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
