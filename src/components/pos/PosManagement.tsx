@@ -167,9 +167,6 @@ export default function POSManagement() {
       }).unwrap();
 
       if (res) {
-        setCartItems([]);
-        refetch();
-        setMobileCartOpen(false);
         if (schedule.type === "SCHEDULED") {
           toast.success(
             `Order scheduled for ${new Date(
@@ -185,6 +182,10 @@ export default function POSManagement() {
             router.push("/staff/dashboard/orders-management");
           }
         }
+
+        setCartItems([]);
+        refetch();
+        setMobileCartOpen(false);
       }
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create order");
