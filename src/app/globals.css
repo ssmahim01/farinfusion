@@ -153,3 +153,39 @@
   margin-top: 0;
   margin-bottom: 0;
 }
+
+
+.fusion-offer {
+  position: relative;
+  overflow: hidden;
+}
+
+.fusion-offer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+          120deg,
+          transparent,
+          rgba(236, 198, 73, 0.8),
+          transparent
+  );
+  animation: moveBg 2.5s linear infinite;
+  z-index: 0;
+}
+
+@keyframes moveBg {
+  0% {
+    left: -100%;
+  }
+
+  50% {
+    left: 0%;
+  }
+  100% {
+    left: -100%;
+  }
+}

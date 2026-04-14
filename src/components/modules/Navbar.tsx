@@ -129,9 +129,6 @@ export default function Navbar() {
 
           {/* Right actions */}
           <div className="flex items-center gap-3">
-
-       
-
             {/* Wishlist */}
             <button
               aria-label="Wishlist"
