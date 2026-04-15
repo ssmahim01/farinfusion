@@ -51,7 +51,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import type { DateRange } from "react-day-picker";
-import { useGetMyOrdersQuery } from "@/redux/features/orders/myOrdersApi";
+import { useGetMyOrdersQuery, useGetMyScheduledOrdersQuery } from "@/redux/features/orders/myOrdersApi";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
 import { useCreateCourierMutation } from "@/lib/hooks";
 import { AssignCourierModal } from "@/components/dashboard/orders/AssignCourierModal";
@@ -205,6 +205,9 @@ export default function MyOrders() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [courierOpen, setCourierOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"instant" | "scheduled">(
+    "instant",
+  );
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -212,10 +215,10 @@ export default function MyOrders() {
   const userRole = (me?.data?.role?.toUpperCase() ?? "CUSTOMER") as UserRole;
 
   const {
-    data: ordersData,
-    isLoading,
-    error,
-    refetch,
+    data: instantOrdersData,
+    isLoading: instantLoading,
+    error: instantError,
+    refetch: refetchInstant,
   } = useGetMyOrdersQuery({
     page,
     limit: LIMIT,
@@ -229,10 +232,33 @@ export default function MyOrders() {
     }),
   });
 
+  const {
+    data: scheduledOrdersData,
+    isLoading: scheduledLoading,
+    error: scheduledError,
+    refetch: refetchScheduled,
+  } = useGetMyScheduledOrdersQuery({
+    page,
+    limit: LIMIT,
+  });
+
   const [createCourier] = useCreateCourierMutation();
 
-  const orders: Order[] = (ordersData?.data as Order[]) || [];
-  const meta = ordersData?.meta;
+  const orders: Order[] =
+    activeTab === "instant"
+      ? (instantOrdersData?.data as Order[]) || []
+      : (scheduledOrdersData?.data as Order[]) || [];
+
+  const meta =
+    activeTab === "instant"
+      ? instantOrdersData?.meta
+      : scheduledOrdersData?.meta;
+
+  const isLoading = activeTab === "instant" ? instantLoading : scheduledLoading;
+
+  const error = activeTab === "instant" ? instantError : scheduledError;
+
+  const refetch = activeTab === "instant" ? refetchInstant : refetchScheduled;
   const totalCount = meta?.total ?? 0;
   const totalPages = meta?.totalPage ?? Math.ceil(totalCount / LIMIT);
 
@@ -637,6 +663,38 @@ export default function MyOrders() {
             )}
           </div>
         )}
+      </div>
+
+      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700 pb-2">
+        <button
+          onClick={() => {
+            setActiveTab("instant");
+            setPage(1);
+          }}
+          className={cn(
+            "px-4 py-2 text-sm font-semibold rounded-md transition",
+            activeTab === "instant"
+              ? "bg-amber-500 text-white"
+              : "text-gray-500 hover:text-gray-900 dark:hover:text-white",
+          )}
+        >
+          Instant Orders
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab("scheduled");
+            setPage(1);
+          }}
+          className={cn(
+            "px-4 py-2 text-sm font-semibold rounded-md transition",
+            activeTab === "scheduled"
+              ? "bg-blue-500 text-white"
+              : "text-gray-500 hover:text-gray-900 dark:hover:text-white",
+          )}
+        >
+          Scheduled Orders
+        </button>
       </div>
 
       {/* ── Table ── */}

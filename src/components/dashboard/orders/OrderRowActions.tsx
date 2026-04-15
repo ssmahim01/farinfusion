@@ -169,7 +169,7 @@ export function OrderRowActions({
           )}
 
           {/* Assign Seller */}
-          {hasAccess && (
+          {order.isPublished && hasAccess && (
             <>
               <DropdownMenuItem
                 className="gap-2 text-sm cursor-pointer"
@@ -187,7 +187,7 @@ export function OrderRowActions({
           )}
 
           {/* Confirm */}
-          {order.scheduleType !== "SCHEDULED" && hasAccess && isPending && onConfirm && (
+          {order.isPublished && hasAccess && isPending && onConfirm && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -201,7 +201,7 @@ export function OrderRowActions({
           )}
 
           {/* Assign Courier */}
-          {order.scheduleType !== "SCHEDULED" && hasAccess && isConfirmed && !courier && onAssignCourier && (
+          {order.isPublished && hasAccess && isConfirmed && !courier && onAssignCourier && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -215,7 +215,7 @@ export function OrderRowActions({
           )}
 
           {/* Mark as Completed */}
-          {order.scheduleType !== "SCHEDULED" && hasAccess && canComplete && onComplete && (
+          {order.isPublished && hasAccess && canComplete && onComplete && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
