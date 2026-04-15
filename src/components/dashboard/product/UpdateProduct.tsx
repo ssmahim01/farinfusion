@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useForm, Controller } from "react-hook-form";
@@ -11,385 +12,507 @@ import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-import { Upload, X } from "lucide-react";
+import { Upload, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { uploadMultipleToCloudinary } from "@/utils/cloudinary";
 
 import {
-    useUpdateProductMutation,
-    useGetSingleProductQuery,
+  useUpdateProductMutation,
+  useGetSingleProductQuery,
 } from "@/redux/features/product/product.api";
 import { useGetAllCategoriesQuery } from "@/redux/features/category/category.api";
 import { useGetAllBrandsQuery } from "@/redux/features/brand/brand.api";
 
-import {IBrand, ICategory, IProduct} from "@/types";
+import { IBrand, ICategory } from "@/types";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
-import {Separator} from "@/components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 
 // Editor
 const ProductEditor = dynamic(
-    () => import("@/components/dashboard/product/ProductEditor"),
-    { ssr: false }
+  () => import("@/components/dashboard/product/ProductEditor"),
+  { ssr: false },
 );
 
 // ENUM
 enum ProductStatus {
-    ACTIVE = "ACTIVE",
-    INACTIVE = "INACTIVE",
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
 }
 
 // VALIDATION
 const schema = z.object({
-    title: z.string().min(2),
-    brand: z.string(),
-    category: z.string(),
-    buyingPrice: z.preprocess((v) => Number(v), z.number()),
-    price: z.preprocess((v) => Number(v), z.number()),
-    totalAddedStock: z.preprocess((v) => Number(v), z.number()),
-    discountPrice: z.preprocess(
-        (v) => (v === "" ? undefined : Number(v)),
-        z.number().optional()
-    ),
-    status: z.nativeEnum(ProductStatus),
-    description: z.string(),
-    images: z.any().optional(), // Changed to any for easier local state handling
+  title: z.string().min(2),
+  brand: z.string(),
+  category: z.string(),
+  buyingPrice: z.preprocess((v) => Number(v), z.number()),
+  price: z.preprocess((v) => Number(v), z.number()),
+  totalAddedStock: z.preprocess((v) => Number(v), z.number()),
+  discountPrice: z.preprocess(
+    (v) => (v === "" ? undefined : Number(v)),
+    z.number().optional(),
+  ),
+  status: z.nativeEnum(ProductStatus),
+  description: z.string(),
+  images: z.any().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
 
-const  UpdateProduct = () => {
-    const router = useRouter();
-    const { slug } = useParams();
+const UpdateProduct = () => {
+  const router = useRouter();
+  const { slug } = useParams();
 
-    const [updateProduct, { isLoading }] = useUpdateProductMutation();
+  const [updateProduct, { isLoading }] = useUpdateProductMutation();
 
-    const { data: productData } = useGetSingleProductQuery(slug as string);
+  const { data: productData } = useGetSingleProductQuery(slug as string);
 
-    const { data: categoriesData } = useGetAllCategoriesQuery({ limit: 100 });
-    const { data: brandsData } = useGetAllBrandsQuery({ limit: 100 });
+  const { data: categoriesData } = useGetAllCategoriesQuery({ limit: 100 });
+  const { data: brandsData } = useGetAllBrandsQuery({ limit: 100 });
 
-    const categories = categoriesData?.data || [];
-    const brands = brandsData?.data || [];
+  const categories = categoriesData?.data || [];
+  const brands = brandsData?.data || [];
 
-    const id = productData?.data?._id;
+  const id = productData?.data?._id;
 
-    const {
-        register,
-        control,
-        handleSubmit,
-        setValue,
-        reset,
-        formState: { errors },
-    } = useForm<FormValues>({
-        resolver: zodResolver(schema) as any,
-    });
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema) as any,
+  });
 
-    // Image state
-    const [previews, setPreviews] = useState<string[]>([]);
-    const [oldImages, setOldImages] = useState<string[]>([]);
-    const [newFiles, setNewFiles] = useState<File[]>([]); // Added local state for new files
+  // Image state
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [oldImages, setOldImages] = useState<string[]>([]);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
+  const getId = (val: string | { _id: string; title?: string }) =>
+    typeof val === "string" ? val : val._id;
 
-    const getId = (val: string | { _id: string; title?: string }) =>
-        typeof val === "string" ? val : val._id;
+  useEffect(() => {
+    if (productData?.data) {
+      const p = productData.data;
 
-    useEffect(() => {
-        if (productData?.data) {
-            const p = productData.data;
+      reset({
+        title: p.title,
+        brand: getId(p.brand),
+        category: getId(p.category),
+        buyingPrice: p.buyingPrice,
+        price: p.price,
+        discountPrice: p.discountPrice,
+        totalAddedStock: p.totalAddedStock,
+        status: p.status,
+        description: p.description,
+      });
 
-            reset({
-                title: p.title,
-                brand: getId(p.brand),
-                category: getId(p.category),
-                buyingPrice: p.buyingPrice,
-                price: p.price,
-                discountPrice: p.discountPrice,
-                totalAddedStock: p.totalAddedStock,
-                status: p.status,
-                description: p.description,
-            });
+      setTimeout(() => {
+        setOldImages(p.images || []);
+      }, 100);
+    }
+  }, [productData, reset]);
 
-            setOldImages(p.images || []);
-        }
-    }, [productData, reset]);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
 
-    // New image upload logic
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
+    // Limit to 10 total images (old + new)
+    const totalImages = oldImages.length + newFiles.length + files.length;
+    if (totalImages > 10) {
+      toast.error(
+        `Maximum 10 images allowed. You have ${oldImages.length + newFiles.length}`,
+      );
+      return;
+    }
 
-        // Append new files to the existing newFiles array
-        const updatedFiles = [...newFiles, ...files];
-        setNewFiles(updatedFiles);
+    const updatedFiles = [...newFiles, ...files];
+    setNewFiles(updatedFiles);
 
-        // Append new previews
-        const urls = files.map((f) => URL.createObjectURL(f));
-        setPreviews((prev) => [...prev, ...urls]);
+    // Append new previews
+    const urls = files.map((f) => URL.createObjectURL(f));
+    setPreviews((prev) => [...prev, ...urls]);
 
-        // Update react-hook-form value
-        setValue("images", updatedFiles);
-    };
+    setValue("images", updatedFiles);
+  };
 
-    // ❌ Remove specific old image
-    const removeOldImage = (index: number) => {
-        const updated = [...oldImages];
-        updated.splice(index, 1);
-        setOldImages(updated);
-    };
+  const removeOldImage = (index: number) => {
+    const updated = [...oldImages];
+    updated.splice(index, 1);
+    setOldImages(updated);
+  };
 
-    // ❌ Remove specific new image
-    const removeNewImage = (index: number) => {
-        // Remove from local files state
-        const updatedFiles = [...newFiles];
-        updatedFiles.splice(index, 1);
-        setNewFiles(updatedFiles);
-        setValue("images", updatedFiles); // Sync with form
+  const removeNewImage = (index: number) => {
+    const updatedFiles = [...newFiles];
+    updatedFiles.splice(index, 1);
+    setNewFiles(updatedFiles);
+    setValue("images", updatedFiles);
 
-        // Remove from previews
-        const updatedPreview = [...previews];
-        updatedPreview.splice(index, 1);
-        setPreviews(updatedPreview);
-    };
+    const updatedPreview = [...previews];
+    updatedPreview.splice(index, 1);
+    setPreviews(updatedPreview);
+  };
 
-    //Submit
-    const onSubmit = async (data: FormValues) => {
-        try {
-            const formData = new FormData();
+  const onSubmit = async (data: FormValues) => {
+    try {
+      setUploadingImages(true);
+      setUploadProgress(0);
 
-            formData.append(
-                "data",
-                JSON.stringify({
-                    ...data,
-                    oldImages, // Sending ONLY the remaining old images
-                })
-            );
+      let newImageUrls: string[] = [];
+      if (newFiles.length > 0) {
+        newImageUrls = await uploadMultipleToCloudinary(newFiles);
+        setUploadProgress(50);
+      }
 
-            // Append all new files from local state
-            newFiles.forEach((file) => {
-                formData.append("images", file);
-            });
+      const allImages = [...oldImages, ...newImageUrls];
 
-            const res = await updateProduct({
-                _id: id as string,
-                formData,
-            }).unwrap();
+      const formData = new FormData();
 
-            if (res?.success) {
-                toast.success("Product updated!");
-                router.push("/staff/dashboard/admin/product-management");
-            }
-        } catch (err: any) {
-            toast.error(err?.data?.message || "Update failed");
-        }
-    };
+      formData.append(
+        "data",
+        JSON.stringify({
+          title: data.title,
+          brand: data.brand,
+          category: data.category,
+          buyingPrice: data.buyingPrice,
+          price: data.price,
+          discountPrice: data.discountPrice,
+          totalAddedStock: data.totalAddedStock,
+          status: data.status,
+          description: data.description,
+          images: allImages
+        }),
+      );
 
-    return (
-        <div className="p-6 max-w-5xl mx-auto">
-            <Card>
-                <CardHeader className={"text-center"}>
-                    <DashboardPageHeader title={"Update Product"} />
-                </CardHeader>
-                <Separator />
+      setUploadProgress(80);
 
-                <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      const res = await updateProduct({
+        _id: id as string,
+        formData,
+      }).unwrap();
 
-                        {/* TITLE */}
-                        <div className={"space-y-2"}>
-                            <Label>Title</Label>
-                            <Input {...register("title")} />
-                            <p className="text-red-500 text-xs">{errors.title?.message}</p>
-                        </div>
+      if (res?.success) {
+        setUploadProgress(100);
+        toast.success("Product updated successfully!");
+        router.push("/staff/dashboard/admin/product-management");
+      }
+    } catch (err: any) {
+      console.error("Update product error:", err);
+      toast.error(err?.data?.message || "Update failed");
+      setUploadingImages(false);
+      setUploadProgress(0);
+    }
+  };
 
-                        {/* BRAND + CATEGORY */}
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <div className={"space-y-2"}>
-                                <Label>Brand</Label>
-                                <Controller
-                                    control={control}
-                                    name="brand"
-                                    render={({ field }) => (
-                                        <Select value={field.value} key={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Brand" />
-                                            </SelectTrigger>
-                                            <SelectContent  position={"popper"}>
-                                                {brands.map((b: IBrand) => (
-                                                    <SelectItem key={b._id} value={b._id}>
-                                                        {b.title}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                            </div>
+  return (
+    <div className="p-6 max-w-5xl mx-auto">
+      <Card>
+        <CardHeader className={"text-center"}>
+          <DashboardPageHeader title={"Update Product"} />
+        </CardHeader>
+        <Separator />
 
-                            <div className={"space-y-2"}>
-                                <Label>Category</Label>
-                                <Controller
-                                    control={control}
-                                    name="category"
-                                    render={({ field }) => (
-                                        <Select value={field.value} key={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Category" />
-                                            </SelectTrigger>
-                                            <SelectContent  position={"popper"}>
-                                                {categories.map((c: ICategory) => (
-                                                    <SelectItem key={c._id} value={c._id}>
-                                                        {c.title}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                            </div>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* TITLE */}
+            <div className={"space-y-2"}>
+              <Label>Title</Label>
+              <Input {...register("title")} />
+              <p className="text-red-500 text-xs">{errors.title?.message}</p>
+            </div>
 
-                            <div className={"space-y-2"}>
-                                <Label>Product Status</Label>
+            {/* BRAND + CATEGORY */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className={"space-y-2"}>
+                <Label>Brand</Label>
+                <Controller
+                  control={control}
+                  name="brand"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      key={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Brand" />
+                      </SelectTrigger>
+                      <SelectContent position={"popper"}>
+                        {brands.map((b: IBrand) => (
+                          <SelectItem key={b._id} value={b._id}>
+                            {b.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
 
-                                <Controller
-                                    control={control}
-                                    name="status"
-                                    render={({ field }) => (
-                                        <Select value={field.value} key={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select status" />
-                                            </SelectTrigger>
+              <div className={"space-y-2"}>
+                <Label>Category</Label>
+                <Controller
+                  control={control}
+                  name="category"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      key={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Category" />
+                      </SelectTrigger>
+                      <SelectContent position={"popper"}>
+                        {categories.map((c: ICategory) => (
+                          <SelectItem key={c._id} value={c._id}>
+                            {c.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
 
-                                            <SelectContent position={"popper"}>
-                                                {Object.values(ProductStatus).map((status) => (
-                                                    <SelectItem key={status} value={status}>
-                                                        {status}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                            </div>
+              <div className={"space-y-2"}>
+                <Label>Product Status</Label>
 
-                        </div>
+                <Controller
+                  control={control}
+                  name="status"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      key={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
 
-                        {/* PRICE */}
-                        <div className="grid md:grid-cols-4 gap-4">
-                            <div className={"space-y-2"}>
-                                <Label>Buying Price</Label>
-                                <Input type="number" placeholder="Buying Price" {...register("buyingPrice")} />
-                            </div>
-                            <div className={"space-y-2"}>
-                                <Label>Price</Label>
-                                <Input type="number" placeholder="Price" {...register("price")} />
-                            </div>
-                            <div className={"space-y-2"}>
-                                <Label>Discount Price</Label>
-                                <Input type="number" placeholder="Discount" {...register("discountPrice")} />
-                            </div>
-                            <div className={"space-y-2"}>
-                                <Label>Total Added Stock</Label>
-                                <Input type="number" placeholder="Stock" {...register("totalAddedStock")} />
-                            </div>
-                        </div>
+                      <SelectContent position={"popper"}>
+                        {Object.values(ProductStatus).map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+            </div>
 
-                        {/* DESCRIPTION */}
-                        <div className={"space-y-2"}>
-                            <Label>Description</Label>
-                            <Controller
-                                name="description"
-                                control={control}
-                                render={({ field }) => (
-                                    <ProductEditor
-                                        content={field.value || ""}
-                                        onChange={field.onChange}
-                                    />
-                                )}
-                            />
+            {/* PRICE */}
+            <div className="grid md:grid-cols-4 gap-4">
+              <div className={"space-y-2"}>
+                <Label>Buying Price</Label>
+                <Input
+                  type="number"
+                  placeholder="Buying Price"
+                  {...register("buyingPrice")}
+                />
+              </div>
+              <div className={"space-y-2"}>
+                <Label>Price</Label>
+                <Input
+                  type="number"
+                  placeholder="Price"
+                  {...register("price")}
+                />
+              </div>
+              <div className={"space-y-2"}>
+                <Label>Discount Price</Label>
+                <Input
+                  type="number"
+                  placeholder="Discount"
+                  {...register("discountPrice")}
+                />
+              </div>
+              <div className={"space-y-2"}>
+                <Label>Total Added Stock</Label>
+                <Input
+                  type="number"
+                  placeholder="Stock"
+                  {...register("totalAddedStock")}
+                />
+              </div>
+            </div>
 
-                        </div>
-                        {/* OLD IMAGES */}
-                        <div>
-                            <Label>Existing Images</Label>
-                            <div className="flex gap-3 flex-wrap">
-                                {oldImages.map((img, i) => (
-                                    <div key={i} className="relative w-24 h-24">
-                                        <Image src={img} alt="old" fill className="object-cover rounded" />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeOldImage(i)}
-                                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+            {/* DESCRIPTION */}
+            <div className={"space-y-2"}>
+              <Label>Description</Label>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <ProductEditor
+                    content={field.value || ""}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+            </div>
+            {/* OLD IMAGES - CRITICAL FIX: Only remove, don't replace */}
+            {oldImages.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Existing Images ({oldImages.length})</Label>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                  {oldImages.map((img, i) => (
+                    <div
+                      key={`old-${i}`}
+                      className="group relative w-full aspect-square rounded-lg overflow-hidden border border-amber-200/30 dark:border-amber-900/30 hover:border-amber-400/60 dark:hover:border-amber-600/60 transition-all duration-200"
+                    >
+                      <Image
+                        src={img}
+                        alt={`existing-${i}`}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
 
-                        {/* NEW IMAGES */}
-                        <div className="space-y-4">
-                            <Label className="text-sm font-medium">Upload New Images</Label>
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 flex items-center justify-center">
+                        <button
+                          type="button"
+                          disabled={uploadingImages}
+                          onClick={() => removeOldImage(i)}
+                          className="opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Remove this image"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
 
-                            <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-6 cursor-pointer hover:border-primary hover:bg-muted transition">
-                                <Upload className="w-6 h-6 mb-2 text-gray-500" />
-                                <p className="text-sm text-gray-600">
-                                    Click images to upload
-                                </p>
+                      <div className="absolute top-1 left-1 bg-black/50 text-white text-xs px-2 py-1 rounded-full font-medium">
+                        E{i + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-                                <input
-                                    type="file"
-                                    multiple
-                                    className="hidden"
-                                    onChange={handleImageChange}
-                                />
-                            </label>
+            {/* NEW IMAGES */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Add New Images</Label>
+                <span className="text-xs text-muted-foreground">
+                  Total: {oldImages.length + newFiles.length}/10
+                </span>
+              </div>
 
-                            {/* Preview Grid */}
-                            {previews.length > 0 && (
-                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                                    {previews.map((src, i) => (
-                                        <div
-                                            key={i}
-                                            className="relative group w-full aspect-square rounded-xl overflow-hidden border"
-                                        >
-                                            <Image
-                                                src={src}
-                                                alt="preview"
-                                                fill
-                                                className="object-cover group-hover:scale-105 transition"
-                                            />
+              <label className="border-2 border-dashed border-amber-200/50 dark:border-amber-900/50 rounded-xl p-8 flex flex-col items-center cursor-pointer hover:border-amber-500/80 dark:hover:border-amber-500/60 hover:bg-amber-50/30 dark:hover:bg-amber-950/20 transition-all duration-300 active:scale-95">
+                <div className="relative mb-3">
+                  <Upload className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+                </div>
+                <span className="text-sm font-medium text-foreground">
+                  Drop new images or click to upload
+                </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  PNG, JPG, WebP up to 10MB each
+                </span>
 
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeNewImage(i)}
-                                                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-md"
-                                                >
-                                                    <X size={16} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                        <Button className={"w-full cursor-pointer"} type="submit" disabled={isLoading}>
-                            {isLoading ? "Updating..." : "Update Product"}
-                        </Button>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  disabled={uploadingImages}
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </label>
 
-                    </form>
-                </CardContent>
-            </Card>
-        </div>
-    );
-}
+              {/* Upload Progress */}
+              {uploadingImages && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+                    <span className="text-sm text-muted-foreground">
+                      Uploading to Cloudinary... {uploadProgress}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 overflow-hidden">
+                    <div
+                      className="bg-linear-to-r from-amber-500 to-amber-600 h-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* New Images Preview Grid */}
+              {previews.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                  {previews.map((src, i) => (
+                    <div
+                      key={`new-${i}`}
+                      className="group relative w-full aspect-square rounded-lg overflow-hidden border border-amber-200/30 dark:border-amber-900/30 hover:border-amber-400/60 dark:hover:border-amber-600/60 transition-all duration-200"
+                    >
+                      <Image
+                        src={src}
+                        alt={`new-preview-${i}`}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 flex items-center justify-center">
+                        <button
+                          type="button"
+                          disabled={uploadingImages}
+                          onClick={() => removeNewImage(i)}
+                          className="opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Remove this image"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+
+                      <div className="absolute top-1 left-1 bg-black/50 text-white text-xs px-2 py-1 rounded-full font-medium">
+                        N{i + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Button
+              className="w-full bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+              type="submit"
+              disabled={isLoading || uploadingImages}
+            >
+              {uploadingImages ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading Images...
+                </>
+              ) : isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating Product...
+                </>
+              ) : (
+                "Update Product"
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 export default UpdateProduct;
