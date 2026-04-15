@@ -6,14 +6,9 @@ import {
     Instagram,
     Youtube,
     Twitter,
-    Truck,
-    RotateCcw,
-    Headphones,
-    CreditCard,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 /* Payment logos as simple SVG/text badges */
-// @ts-expect-error
 import payments from "../../../../public/payments.webp"
 import Image from "next/image";
 import FooterServiceStrip from "@/components/public-view/common/FooterServiceStrip";
@@ -21,12 +16,12 @@ import FooterServiceStrip from "@/components/public-view/common/FooterServiceStr
 /* ─────────────────────────────────────────
    DATA
 ───────────────────────────────────────── */
-const services = [
-    { icon: Truck, label: "Free Shipping" },
-    { icon: RotateCcw, label: "Returns Policy" },
-    { icon: Headphones, label: "Online Support" },
-    { icon: CreditCard, label: "Flexible Payment" },
-];
+// const services = [
+//     { icon: Truck, label: "Free Shipping" },
+//     { icon: RotateCcw, label: "Returns Policy" },
+//     { icon: Headphones, label: "Online Support" },
+//     { icon: CreditCard, label: "Flexible Payment" },
+// ];
 
 const categories = [
     "Baby Cream",
@@ -88,7 +83,7 @@ const FarinFusionFooter= () => {
                                 </span>
                             </div>
 
-                            <p className="text-sm text-white/50 leading-relaxed max-w-[220px]">
+                            <p className="text-sm text-white/50 leading-relaxed max-w-55">
                                 Condimentum adipiscing vel neque dis nam parturient et ac scelerisque.
                             </p>
 
