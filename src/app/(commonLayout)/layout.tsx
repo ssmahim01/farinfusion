@@ -7,6 +7,7 @@ import React from "react";
 import NavbarMenu from "@/components/modules/NavbarMenu";
 import FarinFusionFooter from "@/components/public-view/common/FarinFusionFooter";
 
+
 export default async function CommonLayout({
   children,
 }: {
