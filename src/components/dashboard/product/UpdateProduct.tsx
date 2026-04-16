@@ -35,6 +35,7 @@ import { useGetAllBrandsQuery } from "@/redux/features/brand/brand.api";
 import { IBrand, ICategory } from "@/types";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import { Separator } from "@/components/ui/separator";
+import { useGetMeQuery } from "@/redux/features/user/user.api";
 
 // Editor
 const ProductEditor = dynamic(
@@ -72,6 +73,8 @@ const UpdateProduct = () => {
   const { slug } = useParams();
 
   const [updateProduct, { isLoading }] = useUpdateProductMutation();
+  const { data: user } = useGetMeQuery(undefined);
+  const role = user?.data?.role;
 
   const { data: productData } = useGetSingleProductQuery(slug as string);
 
@@ -180,21 +183,23 @@ const UpdateProduct = () => {
 
       const formData = new FormData();
 
-      formData.append(
-        "data",
-        JSON.stringify({
-          title: data.title,
-          brand: data.brand,
-          category: data.category,
-          buyingPrice: data.buyingPrice,
-          price: data.price,
-          discountPrice: data.discountPrice,
-          totalAddedStock: data.totalAddedStock,
-          status: data.status,
-          description: data.description,
-          images: allImages
-        }),
-      );
+      const payloadData: any = {
+        title: data.title,
+        brand: data.brand,
+        category: data.category,
+        price: data.price,
+        totalAddedStock: data.totalAddedStock,
+        discountPrice: data.discountPrice,
+        status: data.status,
+        description: data.description,
+      };
+
+      if (role !== "MANAGER") {
+        payloadData.buyingPrice = data.buyingPrice;
+        payloadData.images = allImages;
+      }
+
+      formData.append("data", JSON.stringify(payloadData));
 
       setUploadProgress(80);
 
@@ -318,14 +323,15 @@ const UpdateProduct = () => {
 
             {/* PRICE */}
             <div className="grid md:grid-cols-4 gap-4">
-              <div className={"space-y-2"}>
-                <Label>Buying Price</Label>
-                <Input
-                  type="number"
-                  placeholder="Buying Price"
-                  {...register("buyingPrice")}
-                />
-              </div>
+              {role !== "MANAGER" && (
+                <div className="space-y-2">
+                  <Label>Buying Price</Label>
+                  <Input type="number" {...register("buyingPrice")} />
+                  <p className="text-red-500 text-xs">
+                    {errors.buyingPrice?.message}
+                  </p>
+                </div>
+              )}
               <div className={"space-y-2"}>
                 <Label>Price</Label>
                 <Input

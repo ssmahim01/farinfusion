@@ -222,7 +222,7 @@ export default function MyOrders() {
   } = useGetMyOrdersQuery({
     page,
     limit: LIMIT,
-    ...(search.trim() && { search: search.trim() }),
+    ...(search.trim() && { searchTerm: search.trim() }),
     ...(orderStatus && { orderStatus }),
     ...(dateFrom && {
       "createdAt[gte]": new Date(dateFrom).toISOString(),

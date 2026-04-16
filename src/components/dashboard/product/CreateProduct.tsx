@@ -31,6 +31,7 @@ import { useGetAllBrandsQuery } from "@/redux/features/brand/brand.api";
 
 import { IBrand, ICategory } from "@/types";
 import BreadCrumbPage from "@/components/shared/BreadCrumbPage";
+import { useGetMeQuery } from "@/redux/features/user/user.api";
 
 // 🔥 Editor (No SSR)
 const ProductEditor = dynamic(
@@ -69,6 +70,8 @@ export default function CreateProduct() {
 
   const { data: categoriesData } = useGetAllCategoriesQuery({ limit: 100 });
   const { data: brandsData } = useGetAllBrandsQuery({ limit: 100 });
+  const { data: user } = useGetMeQuery(undefined);
+  const role = user?.data?.role;
 
   const categories = categoriesData?.data || [];
   const brands = brandsData?.data || [];
@@ -133,21 +136,23 @@ export default function CreateProduct() {
 
       const formData = new FormData();
 
-      formData.append(
-        "data",
-        JSON.stringify({
-          title: data.title,
-          brand: data.brand,
-          category: data.category,
-          buyingPrice: data.buyingPrice,
-          price: data.price,
-          availableStock: data.availableStock,
-          discountPrice: data.discountPrice,
-          status: data.status,
-          description: data.description,
-          images: imageUrls, // Use Cloudinary URLs instead of file objects
-        }),
-      );
+      const payloadData: any = {
+        title: data.title,
+        brand: data.brand,
+        category: data.category,
+        price: data.price,
+        availableStock: data.availableStock,
+        discountPrice: data.discountPrice,
+        status: data.status,
+        description: data.description,
+      };
+
+      if (role !== "MANAGER") {
+        payloadData.buyingPrice = data.buyingPrice;
+        payloadData.images = imageUrls;
+      }
+
+      formData.append("data", JSON.stringify(payloadData));
 
       setUploadProgress(80);
 
@@ -159,7 +164,7 @@ export default function CreateProduct() {
         router.push("/staff/dashboard/admin/product-management");
       }
     } catch (err: any) {
-      console.error("[v0] Create product error:", err);
+      console.error("Create product error:", err);
       toast.error(err?.data?.message || "Failed to create product");
       setUploadingImages(false);
       setUploadProgress(0);
@@ -246,13 +251,15 @@ export default function CreateProduct() {
 
               {/* PRICE */}
               <div className="grid md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>Buying Price</Label>
-                  <Input type="number" {...register("buyingPrice")} />
-                  <p className="text-red-500 text-xs">
-                    {errors.buyingPrice?.message}
-                  </p>
-                </div>
+                {role !== "MANAGER" && (
+                  <div className="space-y-2">
+                    <Label>Buying Price</Label>
+                    <Input type="number" {...register("buyingPrice")} />
+                    <p className="text-red-500 text-xs">
+                      {errors.buyingPrice?.message}
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label>Sell Price</Label>

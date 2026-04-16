@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import {
   useGetAllOrdersQuery,
@@ -25,7 +25,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 // const LIMIT = 10;
 
 export default function OrdersManagement() {
-  const [search, setSearch] = useState("");
   const [status, setStatus] = useState<OrderStatus | "">("");
   const [dateFilter, setDateFilter] = useState<DateFilter>({
     from: undefined,
@@ -41,6 +40,9 @@ export default function OrdersManagement() {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [courierModalOpen, setCourierModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
   const [activeTab, setActiveTab] = useState<"instant" | "scheduled">(
     "instant",
   );
@@ -48,7 +50,7 @@ export default function OrdersManagement() {
   const queryArgs = {
     page,
     limit,
-    ...(search.trim() && { search: search.trim() }),
+    ...(searchTerm && { searchTerm: debouncedSearch }),
     ...(status && { orderStatus: status }),
     ...(dateFilter.from && {
       "createdAt[gte]": format(dateFilter.from, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
@@ -75,6 +77,14 @@ export default function OrdersManagement() {
   //   limit: 1000,
   // });
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const [confirmOrder, { isLoading: isConfirming, error: confirmError }] =
     useConfirmOrderMutation();
   const [completeOrder, { isLoading: isCompleting, error: completeError }] =
@@ -87,7 +97,7 @@ export default function OrdersManagement() {
   };
 
   const handleSearchChange = (val: string) => {
-    setSearch(val);
+    setSearchTerm(val);
     setPage(1);
   };
 
@@ -97,7 +107,7 @@ export default function OrdersManagement() {
   };
 
   const handleReset = () => {
-    setSearch("");
+    setSearchTerm("");
     setStatus("");
     setDateFilter({ from: undefined, to: undefined });
     setPage(1);
@@ -207,7 +217,7 @@ export default function OrdersManagement() {
 
       <OrderFilters
         statusFilter={status}
-        searchFilter={search}
+        searchFilter={searchTerm}
         dateFilter={dateFilter}
         onStatusChange={handleStatusChange}
         onSearchChange={handleSearchChange}
