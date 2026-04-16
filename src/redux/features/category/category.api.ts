@@ -69,7 +69,7 @@ export const categoryApi = baseApi.injectEndpoints({
       providesTags: ["CATEGORIES"],
     }),
 
-// ⭐ GET ALL TRASH
+    // ⭐ GET ALL TRASH
     getAllTrashCategories: builder.query<GetAllCategoriesResponse, GetQueryParams>({
       query: (params) => ({
         url: "/category/all-trash-categories",
@@ -89,6 +89,16 @@ export const categoryApi = baseApi.injectEndpoints({
     }),
 
 
+    // ⭐ GET category by product
+    getAllCategoryByProduct: builder.query<GetAllCategoriesResponse, string>({
+      query: (slug) => ({
+        url: `/category/category-by-product/${slug}`,
+        method: "GET",
+      }),
+      providesTags: ["CATEGORIES"],
+    }),
+
+
   }),
 
   overrideExisting: true,
@@ -103,4 +113,5 @@ export const {
   useGetAllCategoriesQuery,
     useGetAllTrashCategoriesQuery,
     useTrashUpdateCategoryMutation,
+    useGetAllCategoryByProductQuery
 } = categoryApi;

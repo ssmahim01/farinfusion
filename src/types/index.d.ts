@@ -121,8 +121,15 @@ export interface IProduct {
 
     // Basic Info
     title: string;                  // e.g., "Aveeno Baby Sunscreen"
-    brand: string;           // Reference to Brand collection
-    category: string;        // Reference to Category collection
+    brand: {
+        title: string;
+        slug: string;
+    };           // Reference to Brand collection
+    category: {
+        title: string;
+        slug: string;
+        image: string[];
+    };        // Reference to Category collection
     size?: string;                  // e.g., "88ml"
     slug?: string;                  // URL-friendly slug
 

@@ -35,6 +35,17 @@ export default function Navbar() {
 
         {/* ── Mobile header ─────────────────────────────────────────────────── */}
         <div className="flex md:hidden items-center justify-between h-14 px-4">
+          {/* Middle: Logo */}
+          <Link href="/" aria-label="Farin Fusion home" className="">
+            <Image
+                src={farinLogo}
+                alt="Farin Fusion"
+                width={100}
+                height={36}
+                className="h-7 w-auto object-contain"
+                priority
+            />
+          </Link>
 
           {/* Left: Hamburger */}
           <button
@@ -42,20 +53,9 @@ export default function Navbar() {
             className="flex h-9 w-9 items-center justify-center text-white transition-colors hover:text-[#c9a84c]"
             onClick={() => setMobileMenuOpen((v) => !v)}
           >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
           </button>
 
-          {/* Middle: Logo */}
-          <Link href="/" aria-label="Farin Fusion home" className="absolute left-1/2 -translate-x-1/2">
-            <Image
-              src={farinLogo}
-              alt="Farin Fusion"
-              width={100}
-              height={36}
-              className="h-7 w-auto object-contain"
-              priority
-            />
-          </Link>
 
           {/* Right: Cart + (Wishlist OR Dropdown) */}
           <div className="flex items-center gap-1">
@@ -203,25 +203,6 @@ export default function Navbar() {
                 <Search className="h-4 w-4" />
               </button>
             </div>
-
-            {/* Login/Register buttons — only when not logged in */}
-            {!user && (
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => { openLogin(); setMobileMenuOpen(false); }}
-                  className="flex-1 rounded-full border-[#c9a84c] bg-transparent text-[#c9a84c] hover:bg-[#c9a84c] hover:text-black"
-                >
-                  Login
-                </Button>
-                <Button
-                  onClick={() => { openSignup(); setMobileMenuOpen(false); }}
-                  className="flex-1 rounded-full bg-[#c9a84c] text-black hover:bg-[#d4b86a]"
-                >
-                  Register
-                </Button>
-              </div>
-            )}
           </div>
         )}
       </header>
