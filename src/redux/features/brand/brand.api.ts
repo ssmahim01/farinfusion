@@ -88,6 +88,15 @@ export const brandApi = baseApi.injectEndpoints({
       invalidatesTags: (result, error, { _id }) => ["BRANDS", { type: "BRAND", _id }],
     }),
 
+    // ⭐ GET brand by product
+    getAllBrandByProduct: builder.query<GetAllBrandsResponse, string>({
+      query: (slug) => ({
+        url: `/brand/brand-by-product/${slug}`,
+        method: "GET",
+      }),
+      providesTags: ["BRANDS"],
+    }),
+
 
   }),
 
@@ -103,4 +112,5 @@ export const {
   useGetAllBrandsQuery,
     useTrashUpdateBrandMutation,
     useGetAllTrashBrandsQuery,
+    useGetAllBrandByProductQuery,
 } = brandApi;
