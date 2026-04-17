@@ -65,6 +65,8 @@ import { useGetDashboardOverviewQuery } from "@/redux/features/dashboard/dashboa
 import { useGetMeQuery } from "@/redux/features/user/user.api";
 import { cn } from "@/lib/utils";
 import { IDashboardOverview } from "@/types/dashboard-overview";
+import { StaffEarningsTable } from "./StaffEarningsTable";
+import { TopProductsTable } from "./TopProductsTable";
 
 const PRESETS = [
   {
@@ -235,7 +237,6 @@ function StaffSalaryView({
 }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8 py-12">
-      {/* Avatar */}
       <div className="flex flex-col items-center gap-3">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-900/20">
           <BadgeCheck className="h-8 w-8 text-amber-500 dark:text-amber-400" />
@@ -249,12 +250,9 @@ function StaffSalaryView({
           </p>
         </div>
       </div>
-
       <div className="w-full max-w-sm">
         <div className="group relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-linear-to-br from-amber-50 to-orange-50 px-8 py-8 text-center transition-all duration-300 hover:border-amber-300 hover:shadow-lg dark:border-amber-800/60 dark:from-amber-900/20 dark:to-orange-900/10">
-          {/* Decorative glow */}
           <div className="pointer-events-none absolute inset-0 rounded-2xl bg-amber-100/0 transition-all duration-300 group-hover:bg-amber-100/20 dark:group-hover:bg-amber-900/10" />
-
           <div className="relative space-y-4">
             <div className="flex items-center justify-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30">
@@ -264,19 +262,15 @@ function StaffSalaryView({
                 Total Salary
               </p>
             </div>
-
             <p className="text-5xl font-bold tabular-nums text-amber-600 dark:text-amber-400">
               ৳{(totalSalary ?? 0).toLocaleString()}
             </p>
-
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Total salary paid to date
             </p>
           </div>
         </div>
       </div>
-
-      {/* Info note */}
       <div className="flex items-center gap-2.5 rounded-xl border border-amber-200/60 bg-amber-50/40 px-4 py-3 dark:border-amber-900/30 dark:bg-amber-900/10">
         <Banknote className="h-4 w-4 shrink-0 text-amber-500" />
         <p className="text-xs text-amber-700 dark:text-amber-400">
@@ -290,10 +284,9 @@ function StaffSalaryView({
 export default function DashboardOverview() {
   const { data: me } = useGetMeQuery(undefined);
   const userRole = me?.data?.role?.toUpperCase() ?? "CUSTOMER";
-
   const isAdmin = userRole === "ADMIN";
+  const isManager = userRole === "MANAGER";
   const isStaff = ["MANAGER", "MODERATOR", "TELLICELSS"].includes(userRole);
-
   const isGeneralStaff = userRole === "GENERALSTAFF";
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
@@ -342,7 +335,6 @@ export default function DashboardOverview() {
     setDateTo(undefined);
     setCalOpen(false);
   };
-
   const handleReset = () => {
     setDateFrom(undefined);
     setDateTo(undefined);
@@ -404,7 +396,6 @@ export default function DashboardOverview() {
   if (isGeneralStaff) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8">
-        {/* Header */}
         <div className="mb-8 flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/20">
             <Wallet className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -418,7 +409,6 @@ export default function DashboardOverview() {
             </p>
           </div>
         </div>
-
         {isLoading ? (
           <div className="flex justify-center">
             <Skeleton className="h-64 w-full max-w-sm" />
@@ -427,7 +417,7 @@ export default function DashboardOverview() {
           <div className="flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900/40 dark:bg-red-900/10">
             <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
             <p className="text-sm font-medium text-red-700 dark:text-red-400">
-              Failed to load salary data. Please try again.
+              Failed to load salary data.
             </p>
           </div>
         ) : (
@@ -442,7 +432,7 @@ export default function DashboardOverview() {
 
   return (
     <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
@@ -461,8 +451,6 @@ export default function DashboardOverview() {
                 : "Your order history and spending summary"}
           </p>
         </div>
-
-        {/* Greeting badge */}
         <div className="hidden sm:flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1.5 dark:border-amber-900/40 dark:bg-amber-900/20">
           <User className="h-3.5 w-3.5 text-amber-500" />
           <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
@@ -471,10 +459,9 @@ export default function DashboardOverview() {
         </div>
       </div>
 
-      {/* ── Filters ── */}
+      {/* Filters */}
       <div className="rounded-2xl border border-gray-200/80 bg-white p-4 dark:border-gray-700/60 dark:bg-gray-900 space-y-3">
         <div className="flex flex-wrap gap-3 items-center">
-          {/* Status filter */}
           <Select
             value={orderStatus || "ALL"}
             onValueChange={(v) => setOrderStatus(v === "ALL" ? "" : v)}
@@ -485,8 +472,8 @@ export default function DashboardOverview() {
             <SelectContent className="rounded-xl">
               {ORDER_STATUS_OPTIONS.map((s) => (
                 <SelectItem
-                  key={s.value || "all"}
-                  value={s.value || "all"}
+                  key={s.value}
+                  value={s.value}
                   className="cursor-pointer text-sm"
                 >
                   <div className="flex items-center gap-2">
@@ -500,7 +487,6 @@ export default function DashboardOverview() {
             </SelectContent>
           </Select>
 
-          {/* Date picker */}
           <Popover open={calOpen} onOpenChange={setCalOpen}>
             <PopoverTrigger asChild>
               <button
@@ -529,13 +515,11 @@ export default function DashboardOverview() {
                 />
               </button>
             </PopoverTrigger>
-
             <PopoverContent
               align="start"
               className="w-auto p-0 rounded-2xl border-amber-200/60 dark:border-amber-900/40 shadow-xl overflow-hidden"
             >
               <div className="flex flex-col sm:flex-row">
-                {/* Presets */}
                 <div className="border-b border-amber-100 dark:border-amber-900/30 sm:border-b-0 sm:border-r sm:w-36 p-3 space-y-0.5">
                   <p className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-600/60 dark:text-amber-500/60">
                     Quick select
@@ -574,8 +558,6 @@ export default function DashboardOverview() {
                     </>
                   )}
                 </div>
-
-                {/* Calendar */}
                 <div className="p-3">
                   <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-600/60 dark:text-amber-500/60">
                     Custom range
@@ -605,7 +587,6 @@ export default function DashboardOverview() {
             </PopoverContent>
           </Popover>
 
-          {/* Reset */}
           {hasFilters && (
             <Button
               variant="outline"
@@ -619,7 +600,6 @@ export default function DashboardOverview() {
           )}
         </div>
 
-        {/* Active filter chips */}
         {hasFilters && (
           <div className="flex flex-wrap items-center gap-2">
             {dateChipLabel && (
@@ -663,7 +643,7 @@ export default function DashboardOverview() {
         )}
       </div>
 
-      {/* ── KPI Cards ── */}
+      {/* KPI + order status + charts */}
       {isLoading ? (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[...Array(isAdmin ? 4 : 2)].map((_, i) => (
@@ -674,11 +654,12 @@ export default function DashboardOverview() {
         <div className="flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900/40 dark:bg-red-900/10">
           <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
           <p className="text-sm font-medium text-red-700 dark:text-red-400">
-            Failed to load dashboard data. Please try again.
+            Failed to load dashboard data.
           </p>
         </div>
       ) : data ? (
         <>
+          {/* KPI cards */}
           <div
             className={cn(
               "grid gap-4",
@@ -747,7 +728,7 @@ export default function DashboardOverview() {
             )}
           </div>
 
-          {/* ── Order Status Cards ── */}
+          {/* Order status cards */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
               {
@@ -804,7 +785,7 @@ export default function DashboardOverview() {
             ))}
           </div>
 
-          {/* ── Charts ── */}
+          {/* Charts */}
           <div
             className={cn(
               "grid gap-6",
@@ -813,7 +794,6 @@ export default function DashboardOverview() {
                 : "grid-cols-1 lg:grid-cols-2",
             )}
           >
-            {/* Pie */}
             <div
               className={cn(
                 "rounded-2xl border border-gray-200/80 bg-white p-5 dark:border-gray-700/60 dark:bg-gray-900",
@@ -935,82 +915,23 @@ export default function DashboardOverview() {
             )}
           </div>
 
-          {/* ── Staff Earnings Table (ADMIN only) ── */}
-          {isAdmin && data.staffEarnings && data.staffEarnings.length > 0 && (
-            <div className="rounded-2xl border border-gray-200/80 bg-white dark:border-gray-700/60 dark:bg-gray-900 overflow-hidden">
-              <div className="border-b border-gray-100 px-5 py-4 dark:border-gray-800">
-                <p className="text-sm font-bold text-gray-900 dark:text-gray-50">
-                  Staff Earnings
-                </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                  Revenue breakdown by assigned staff member
-                </p>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-100 bg-amber-50/40 dark:border-gray-800 dark:bg-amber-900/5">
-                      {["Staff Member", "Email", "Total Orders", "Revenue"].map(
-                        (h) => (
-                          <th
-                            key={h}
-                            className="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-amber-700/60 dark:text-amber-500/60"
-                          >
-                            {h}
-                          </th>
-                        ),
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.staffEarnings.map((staff, idx) => (
-                      <tr
-                        key={staff.sellerId}
-                        className={cn(
-                          "border-b border-gray-100/80 transition-colors hover:bg-amber-50/30 dark:border-gray-800/60 dark:hover:bg-amber-900/5",
-                          idx % 2 === 0
-                            ? "bg-white dark:bg-gray-900"
-                            : "bg-gray-50/40 dark:bg-gray-800/20",
-                        )}
-                      >
-                        <td className="px-5 py-3">
-                          <div className="flex items-center gap-2.5">
-                            <div
-                              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
-                              style={{
-                                background: `hsl(${[...staff.sellerName].reduce((a, c) => a + c.charCodeAt(0), 0) % 360},52%,50%)`,
-                              }}
-                            >
-                              {staff.sellerName?.[0]?.toUpperCase() ?? "?"}
-                            </div>
-                            <span className="font-semibold text-gray-900 dark:text-gray-50">
-                              {staff.sellerName}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-3 text-xs text-gray-500 dark:text-gray-400">
-                          {staff.email}
-                        </td>
-                        <td className="px-5 py-3">
-                          <Badge
-                            variant="outline"
-                            className="rounded-full border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400"
-                          >
-                            {staff.totalOrders}
-                          </Badge>
-                        </td>
-                        <td className="px-5 py-3 font-bold tabular-nums text-amber-600 dark:text-amber-400">
-                          ৳{staff.totalEarnings}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          {/* ── Staff Earnings Table — ADMIN date-filtered ── */}
+          {(isAdmin) && data.staffEarnings && (
+            <StaffEarningsTable
+              staffEarnings={(data as any).staffEarnings ?? []}
+              dateLabel={dateChipLabel}
+            />
           )}
 
-          {/* ── Recent Orders ── */}
+          {/* ── Top Products Table — ADMIN + MANAGER, date-filtered ── */}
+          {(isAdmin || isManager) && (
+            <TopProductsTable
+              topProducts={(data as any).topProducts ?? []}
+              dateLabel={dateChipLabel}
+            />
+          )}
+
+          {/* Recent Orders */}
           {data.recentOrders && data.recentOrders.length > 0 && (
             <div className="rounded-2xl border border-gray-200/80 bg-white dark:border-gray-700/60 dark:bg-gray-900 overflow-hidden">
               <div className="border-b border-gray-100 px-5 py-4 dark:border-gray-800 flex items-center justify-between">
