@@ -104,8 +104,8 @@ const UpdateProduct = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const getId = (val: string | { _id: string; title?: string }) =>
-    typeof val === "string" ? val : val._id;
+  const getId = (val: string | { _id?: string; slug?: string; title?: string }) =>
+    typeof val === "string" ? val : (val._id || val.slug || "");
 
   useEffect(() => {
     if (productData?.data) {
@@ -113,7 +113,7 @@ const UpdateProduct = () => {
 
       reset({
         title: p.title,
-        brand: getId(p.brand),
+        brand: getId(p?.brand),
         category: getId(p.category),
         buyingPrice: p.buyingPrice,
         price: p.price,
