@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React, { FC } from 'react';
@@ -7,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Heart, ShoppingCart, LogIn, LogOut, Search } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
-import type { User } from '@/lib/types';
 
 interface MobileNavSheetProps {
   isOpen: boolean;
@@ -142,7 +142,7 @@ const NavSheet: FC<MobileNavSheetProps> = ({
                   onLoginClick();
                   onOpenChange(false);
                 }}
-                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold transition-all duration-300 hover:scale-105 active:scale-95 py-2.5"
+                className="w-full bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold transition-all duration-300 hover:scale-105 active:scale-95 py-2.5"
               >
                 <LogIn className="w-4 h-4 mr-2" />
                 Login

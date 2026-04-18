@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Heart, ShoppingCart, Menu, X } from 'lucide-react';
+import { Search, Heart, ShoppingCart, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUser } from '@/context/UserContext';
@@ -12,7 +12,6 @@ import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/SignupForm';
 
 export default function Navbar () {
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loginOpen, setLoginOpen] = useState(false);
@@ -65,7 +64,7 @@ export default function Navbar () {
         {/* Desktop Header */}
         <div className="hidden md:flex items-center justify-between h-20 px-6 lg:px-10 gap-6 max-w-screen-2xl mx-auto">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0" aria-label="Farin Fusion home">
+          <Link href="/" className="shrink-0" aria-label="Farin Fusion home">
             <Image src={"/assets/FRN-Logo-scaled.webp"} alt="Farin Fusion" width={140} height={48} className="h-12 w-auto object-contain" priority />
           </Link>
 

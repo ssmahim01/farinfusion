@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, MapPin, Phone, MessageSquare, Send, MapPinIcon, Facebook,
+import { Mail, Phone, Send, MapPinIcon, Facebook,
   Twitter,
   Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,8 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import Image from 'next/image';
-import type { FC } from 'react';
 
 // Type definitions
 interface ContactFormData {
@@ -159,7 +158,7 @@ export default function Contacts() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 py-12 md:py-16">
+      <section className="bg-linear-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Contact Us</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -267,7 +266,7 @@ export default function Contacts() {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="py-5 hover:cursor-pointer bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="py-5 hover:cursor-pointer bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <>
@@ -314,7 +313,7 @@ export default function Contacts() {
               </Card>
 
               {/* Subscribe Section */}
-              <Card className="p-4 border-slate-200 dark:border-slate-800 bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/20 dark:to-slate-900">
+              <Card className="p-4 border-slate-200 dark:border-slate-800 bg-linear-to-br from-amber-50 to-white dark:from-amber-950/20 dark:to-slate-900">
                 <h3 className="text-xl font-bold text-foreground mb-4">Subscribe us</h3>
 
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
@@ -337,7 +336,7 @@ export default function Contacts() {
 
           {/* Map Section */}
           <div className="mb-12">
-            <Card className="overflow-hidden border-slate-200 dark:border-slate-800 h-96 md:h-[500px]">
+            <Card className="overflow-hidden border-slate-200 dark:border-slate-800 h-96 md:h-125">
               <iframe
                 width="100%"
                 height="100%"
@@ -376,7 +375,7 @@ export default function Contacts() {
             ].map((store, index) => (
               <Card key={index} className="p-6 border-slate-200 dark:border-slate-800 hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-200">
                 <div className="flex items-start gap-3 mb-4">
-                  <MapPinIcon className="w-6 h-6 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-1" />
+                  <MapPinIcon className="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0 mt-1" />
                   <div>
                     <h3 className="font-bold text-lg text-foreground">{store.title}</h3>
                     <p className="text-sm text-muted-foreground">{store.address}</p>
