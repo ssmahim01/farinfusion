@@ -176,8 +176,6 @@ const NavbarMenu: React.FC = () => {
                     <div className="mt-6 border-t pt-4">
                         {user ? (
                             <div className="flex flex-col gap-2">
-                                <p className="text-sm font-medium">{user?.name}</p>
-
                                 <Button
                                     variant="outline"
                                     onClick={() => {

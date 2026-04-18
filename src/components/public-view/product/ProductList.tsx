@@ -2,8 +2,9 @@
 
 import React from "react";
 import { useGetAllProductsQuery } from "@/redux/features/product/product.api";
-import ProductCard from "@/components/public-view/common/ProductCard";
 import ProductSkeleton from "@/components/public-view/common/ProductSkeleton";
+import ProductCard from "@/components/public-view/common/productCard";
+
 
 const ProductList = () => {
     const { data, isLoading, isError } = useGetAllProductsQuery({});

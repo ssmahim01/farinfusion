@@ -122,10 +122,12 @@ export interface IProduct {
     // Basic Info
     title: string;                  // e.g., "Aveeno Baby Sunscreen"
     brand: {
+        _id: string;
         title: string;
         slug: string;
     };           // Reference to Brand collection
     category: {
+        _id: string;
         title: string;
         slug: string;
         image: string[];

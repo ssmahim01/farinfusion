@@ -7,7 +7,7 @@ import { useGetAllCategoryByProductQuery } from '@/redux/features/category/categ
 import ProductSkeleton from '@/components/public-view/common/ProductSkeleton';
 import { IProduct } from '@/types';
 import { List, Grid3x3, LayoutGrid } from 'lucide-react';
-import ProductCard from '@/components/public-view/common/ProductCard';
+import ProductCard from '@/components/public-view/common/CateogryByProductCard';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ProductFilterToolbar from '@/components/public-view/common/ProductFilterToolbar';
