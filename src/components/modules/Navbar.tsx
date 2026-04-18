@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Heart, ShoppingCart, Menu } from 'lucide-react';
@@ -10,8 +10,10 @@ import { useUser } from '@/context/UserContext';
 import NavSheet from './NavSheet';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/SignupForm';
+import type { FC } from 'react';
+import { NavbarDropdown } from './NavbarDropdown';
 
-export default function Navbar () {
+const Navbar: FC = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loginOpen, setLoginOpen] = useState(false);
@@ -31,13 +33,12 @@ export default function Navbar () {
     <>
       {/* Header Bar */}
       <header className="w-full bg-slate-900 dark:bg-slate-950 border-b border-slate-700 dark:border-slate-800 sticky top-0 z-40 transition-colors duration-300">
-        {/* Mobile Header */}
-        <div className="flex md:hidden items-center justify-between h-16 px-4 gap-2">
-          {/* Left: Menu Button */}
+        <div className="flex lg:hidden items-center justify-between h-16 px-4 gap-2">
+          {/* Left: Menu Button - ALWAYS VISIBLE */}
           <button
             aria-label="Open navigation menu"
             onClick={() => setMobileNavOpen(true)}
-            className="flex h-10 w-10 items-center justify-center text-slate-300 hover:text-amber-500 transition-colors duration-200 hover:bg-slate-800 rounded-lg"
+            className="flex h-10 w-10 items-center justify-center text-slate-300 hover:text-amber-500 transition-all duration-200 hover:bg-slate-800 dark:hover:bg-slate-700 rounded-lg active:scale-90 shrink-0 font-bold"
           >
             <Menu className="h-6 w-6" />
           </button>
@@ -50,21 +51,30 @@ export default function Navbar () {
           {/* Right: Cart */}
           <button
             aria-label="Shopping cart"
-            className="relative flex h-10 w-10 items-center justify-center text-slate-300 hover:text-amber-500 transition-colors duration-200 hover:bg-slate-800 rounded-lg"
+            className="relative flex h-10 w-10 items-center justify-center text-slate-300 hover:text-amber-500 transition-all duration-200 hover:bg-slate-800 dark:hover:bg-slate-700 rounded-lg active:scale-90 shrink-0"
           >
             <ShoppingCart className="h-5 w-5" />
             {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-slate-900 text-xs font-bold">
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-slate-900 text-xs font-bold animate-pulse">
                 {cartCount}
               </span>
             )}
           </button>
         </div>
 
-        {/* Desktop Header */}
-        <div className="hidden md:flex items-center justify-between h-20 px-6 lg:px-10 gap-6 max-w-screen-2xl mx-auto">
+        {/* Desktop Header - Only on large screens */}
+        <div className="hidden lg:flex items-center justify-between h-20 px-6 lg:px-10 gap-6 max-w-screen-2xl mx-auto">
+
+        
           {/* Logo */}
-          <Link href="/" className="shrink-0" aria-label="Farin Fusion home">
+          <Link href="/" className="shrink-0 flex gap-4 items-center" aria-label="Farin Fusion home">
+            <button
+            aria-label="Open navigation menu"
+            onClick={() => setMobileNavOpen(true)}
+            className="flex h-10 w-10 items-center justify-center text-slate-300 hover:text-amber-500 transition-all duration-200 hover:bg-slate-800 dark:hover:bg-slate-700 rounded-lg active:scale-90 shrink-0 font-bold"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
             <Image src={"/assets/FRN-Logo-scaled.webp"} alt="Farin Fusion" width={140} height={48} className="h-12 w-auto object-contain" priority />
           </Link>
 
@@ -120,28 +130,21 @@ export default function Navbar () {
 
             {/* Auth Section */}
             {user ? (
-              <div className="flex items-center gap-3 ml-2 pl-3 border-l border-slate-700">
-                <button
-                  onClick={logout}
-                  className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-amber-500 transition-colors duration-200 hover:bg-slate-800 rounded-lg"
-                >
-                  Logout
-                </button>
-              </div>
+              <NavbarDropdown user={user} onLogout={logout} />
             ) : (
-              <div className="flex items-center gap-2 ml-2 pl-3 border-l border-slate-700">
+              <div className="flex items-center text-sm font-semibold text-white whitespace-nowrap">
                 <Button
-                  onClick={() => setLoginOpen(true)}
                   variant="ghost"
-                  className="px-3 text-sm text-slate-300 hover:text-amber-500 hover:bg-transparent transition-colors duration-200"
+                  onClick={loginOpen ? handleCloseAuth : () => setLoginOpen(true)}
+                  className="px-2 text-white hover:text-[#c9a84c] hover:bg-transparent"
                 >
                   Login
                 </Button>
-                <span className="text-slate-500">/</span>
+                <span className="text-[#96999A] font-normal">/</span>
                 <Button
-                  onClick={() => setSignupOpen(true)}
                   variant="ghost"
-                  className="px-3 text-sm text-slate-300 hover:text-amber-500 hover:bg-transparent transition-colors duration-200"
+                  onClick={signupOpen ? handleCloseAuth : () => setSignupOpen(true)}
+                  className="px-2 text-white hover:text-[#c9a84c] hover:bg-transparent"
                 >
                   Register
                 </Button>
@@ -168,3 +171,5 @@ export default function Navbar () {
     </>
   );
 };
+
+export default Navbar;

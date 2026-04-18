@@ -316,7 +316,7 @@ export default function Contacts() {
               <Card className="p-4 border-slate-200 dark:border-slate-800 bg-linear-to-br from-amber-50 to-white dark:from-amber-950/20 dark:to-slate-900">
                 <h3 className="text-xl font-bold text-foreground mb-4">Subscribe us</h3>
 
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                <div className="grid grid-cols-5 gap-2">
                   {socialLinks.map((social) => (
                   <a
                     key={social.name}
