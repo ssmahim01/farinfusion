@@ -2,23 +2,35 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Star, Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
 import { IProduct } from "@/types";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "@/redux/slices/CartSlice";
+import { addToWish, removeFromWish } from "@/redux/slices/wishSlice";
+import { RootState } from "@/redux/store";
 
 interface ProductCardProps {
   product: IProduct;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  const { slug, title, category, images, price, ratings } = product;
+  const { slug, title, category, images, price, ratings, brand } = product;
+  const wishlistItems = useSelector(
+      (state: RootState) => state.wish.items
+  );
+
+  const wished = wishlistItems.some(
+      (item) => item._id === product._id
+  );
 
   const [cardHovered, setCardHovered] = useState(false);
   const [btnHovered, setBtnHovered] = useState(false);
-  const [wished, setWished] = useState(false);
+
+  const dispatch = useDispatch();
 
   const productHref = slug ? `/product/${slug}` : "#";
   const categoryHref = category?.slug
@@ -26,11 +38,50 @@ const ProductCard = ({ product }: ProductCardProps) => {
       : "#";
 
   const onWishlist = () => {
-    setWished((prev) => !prev);
-    toast.success(wished ? "Removed from wishlist" : "Added to wishlist!");
+    if (wished) {
+      if (product?._id != null) {
+        dispatch(removeFromWish(product._id));
+      }
+      toast.success("Removed from wishlist");
+    } else {
+      dispatch(
+          addToWish({
+            brand: {
+              _id: brand?._id ?? "",
+              slug: brand?.slug ?? "",
+              title: brand?.title ?? "",
+            },
+            category: {
+              _id: category?._id ?? "",
+              image: category?.image ?? [],
+              slug: category?.slug ?? "",
+              title: category?.title ?? "",
+            },
+            description: product?.description ?? "",
+            status: product?.status ?? "",
+            _id: product._id ?? "",
+            slug: product?.slug ?? "",
+            title: product.title ?? "",
+            price: product.price ?? 0,
+            images: product.images ?? [],
+            ratings: product?.ratings ?? 0,
+          })
+      );
+      toast.success("Added to wishlist");
+    }
   };
 
   const onAddToCart = () => {
+    dispatch(
+        addToCart({
+            _id: product._id ?? "",
+            slug: product?.slug ?? "",
+            title: product.title ?? "",
+            price: product.price ?? 0,
+            images: product.images ?? [],
+            availableStock: product.availableStock ?? 0,
+        })
+    );
     toast.success(`${title} added to cart!`);
   };
 

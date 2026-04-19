@@ -193,7 +193,11 @@ const FarinFusionFooter= () => {
 
                         {/* Payment badges */}
                         <div>
-                            <Image src={payments} alt={"payments logo"} />
+                            <Image
+                                src={payments}
+                                alt={"payments logo"}
+                                width={200}
+                            />
                         </div>
                     </div>
                 </div>

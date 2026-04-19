@@ -3,7 +3,7 @@
 import React from "react";
 import { useGetAllProductsQuery } from "@/redux/features/product/product.api";
 import ProductSkeleton from "@/components/public-view/common/ProductSkeleton";
-import ProductCard from "@/components/public-view/common/productCard";
+import ProductCard from "@/components/public-view/common/ProductCard";
 
 
 const ProductList = () => {

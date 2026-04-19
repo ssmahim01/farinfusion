@@ -120,37 +120,37 @@ export interface IProduct {
     _id?: string;
 
     // Basic Info
-    title: string;                  // e.g., "Aveeno Baby Sunscreen"
+    title: string;
     brand: {
         _id: string;
         title: string;
         slug: string;
-    };           // Reference to Brand collection
+    };
     category: {
         _id: string;
         title: string;
         slug: string;
         image: string[];
-    };        // Reference to Category collection
-    size?: string;                  // e.g., "88ml"
-    slug?: string;                  // URL-friendly slug
+    };
+    size?: string;
+    slug?: string;
 
     // Pricing
-    price: number;                  // e.g., 2350
-    discountPrice?: number;         // optional discounted price
+    price: number;
+    discountPrice?: number;
     buyingPrice?: number;
 
     // Stock / Availability
-    totalAddedStock?: number;        // Total stock ever added for this product
-    totalSold?: number;              // total stock sold
-    availableStock?: number;         // calculated as totalAddedStock - totalSold
+    totalAddedStock?: number;
+    totalSold?: number;
+    availableStock?: number;
     status: ProductStatus;
     isDeleted?: boolean;
     // Media
-    images: string[];               // Array of image URLs
+    images: string[];
 
     // Ratings & Reviews
-    ratings?: number;               // average rating
+    ratings?: number;
     reviews?: {
         user: string;
         rating: number;
@@ -159,7 +159,7 @@ export interface IProduct {
     }[];
 
     // Description
-    description: string;            // Full product description
+    description: string;
 
     // Optional meta
     createdAt?: Date;

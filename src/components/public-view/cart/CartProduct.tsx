@@ -10,8 +10,8 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "@/components/ui/carousel";
-import ProductCard from "@/components/public-view/common/productCard";
 import { IProduct } from "@/types";
+import ProductCard from "@/components/public-view/common/ProductCard";
 
 const CartProduct = () => {
     const [api, setApi] = useState<CarouselApi>();

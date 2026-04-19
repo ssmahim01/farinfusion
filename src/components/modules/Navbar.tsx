@@ -11,17 +11,21 @@ import { NavbarDropdown } from "../modules/NavbarDropdown";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {useSelector} from "react-redux";
+import {RootState} from "@/redux/store";
+import {useRouter} from "next/navigation";
 
 export default function Navbar() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter()
 
   const { user, logout } = useUser();
 
-  const wishlistCount = 0;
-  const cartCount = 0;
+  const wishlistCount = useSelector((state: RootState) => state.wish.items.length);
+  const cartCount = useSelector((state:RootState) => state.cart.items.length)
 
   // ── helpers ──────────────────────────────────────────────────────────────────
   function openLogin() { setSignupOpen(false); setLoginOpen(true); }
@@ -61,8 +65,9 @@ export default function Navbar() {
           <div className="flex items-center gap-1">
             {/* Cart always visible */}
             <button
+                onClick={() => router.push("/cart")}
               aria-label="Cart"
-              className="relative flex h-9 w-9 items-center justify-center text-white transition-colors hover:text-[#c9a84c]"
+              className="cursor-pointer relative flex h-9 w-9 items-center justify-center text-white transition-colors hover:text-[#c9a84c]"
             >
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a84c] text-[9px] font-bold text-black">
@@ -75,6 +80,7 @@ export default function Navbar() {
               <NavbarDropdown user={user} onLogout={logout} />
             ) : (
               <button
+                  onClick={() => router.push("/wishlist")}
                 aria-label="Wishlist"
                 className="relative flex h-9 w-9 items-center justify-center text-white transition-colors hover:text-[#c9a84c]"
               >
@@ -131,8 +137,9 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             {/* Wishlist */}
             <button
+                onClick={() => router.push("/wishlist")}
               aria-label="Wishlist"
-              className="relative flex h-9 w-9 items-center justify-center text-white transition-colors hover:text-[#c9a84c]"
+              className="cursor-pointer relative flex h-9 w-9 items-center justify-center text-white transition-colors hover:text-[#c9a84c]"
             >
               <Heart className="h-5 w-5" />
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a84c] text-[9px] font-bold text-black">
@@ -142,8 +149,9 @@ export default function Navbar() {
 
             {/* Cart */}
             <button
+                onClick={() => router.push("/cart")}
               aria-label="Cart"
-              className="relative flex h-9 w-9 items-center justify-center text-white transition-colors hover:text-[#c9a84c]"
+              className="cursor-pointer relative flex h-9 w-9 items-center justify-center text-white transition-colors hover:text-[#c9a84c]"
             >
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a84c] text-[9px] font-bold text-black">
