@@ -26,7 +26,7 @@ export function CartBreadcrumb() {
 
   return (
     <Breadcrumb className="container mx-auto px-4 py-5">
-      <BreadcrumbList className="px-2 sm:px-8 text-sm sm:text-md md:text-lg bg-black text-white py-6 rounded-xl flex items-center ">
+      <BreadcrumbList className="px-2 sm:px-8 text-sm sm:text-md md:text-lg bg-[#2D3436] text-white py-6 rounded-xl flex items-center ">
 
         {/* CART */}
         <BreadcrumbItem>

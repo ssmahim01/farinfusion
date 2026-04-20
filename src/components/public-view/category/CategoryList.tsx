@@ -62,7 +62,7 @@ const CategoryList = () => {
             </div>
 
             {/* Carousel */}
-            <div className="relative max-w-7xl mx-auto">
+            <div className="relative">
                 <Carousel
                     setApi={setApi} // ✅ important
                     opts={{
@@ -101,8 +101,8 @@ const CategoryList = () => {
                         ))}
                     </CarouselContent>
 
-                    <CarouselPrevious className="left-0 bg-[#1e2a38] hover:bg-[#c9a227] text-white border-none" />
-                    <CarouselNext className="right-0 bg-[#1e2a38] hover:bg-[#c9a227] text-white border-none" />
+                    <CarouselPrevious className="left-0  bg-[#1e2a38] hover:bg-[#c9a227] text-white border-none" />
+                    <CarouselNext className="right-0  bg-[#1e2a38] hover:bg-[#c9a227] text-white border-none" />
                 </Carousel>
             </div>
         </section>

@@ -7,7 +7,7 @@ const HomePage = () => {
     return (
         <div className={"bg-gray-100"}>
                 <HeroSection />
-            <div className={"max-w-7xl mx-auto px-5 py-5 sm:py10 space-y-5"}>
+            <div className={"container mx-auto px-5 py-5 sm:py10 space-y-5"}>
                 <CategoryList />
                 <ProductList />
             </div>

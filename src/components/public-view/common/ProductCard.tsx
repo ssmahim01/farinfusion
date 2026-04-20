@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from "react";
@@ -7,14 +8,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
-import { IProduct } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/redux/slices/CartSlice";
 import { addToWish, removeFromWish } from "@/redux/slices/wishSlice";
 import { RootState } from "@/redux/store";
 
 interface ProductCardProps {
-  product: IProduct;
+  product: any;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
@@ -80,6 +80,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             price: product.price ?? 0,
             images: product.images ?? [],
             availableStock: product.availableStock ?? 0,
+            quantity: 1,
         })
     );
     toast.success(`${title} added to cart!`);
@@ -111,7 +112,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* IMAGE */}
         <Link href={productHref}>
-          <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden cursor-pointer">
+          <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden cursor-pointer">
             {images?.length > 0 ? (
                 <Image
                     src={images[0]}
