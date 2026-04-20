@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -21,6 +22,9 @@ import type { Order, OrderStatus } from "@/types/orders";
 import { toast } from "sonner";
 import { ModernPagination } from "./ModernPagination";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ShoppingBag } from "lucide-react";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
 
 // const LIMIT = 10;
 
@@ -178,16 +182,16 @@ export default function OrdersManagement() {
     }
   };
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  // const handlePageChange = (newPage: number) => {
+  //   setPage(newPage);
+  //   window.scrollTo({ top: 0, behavior: "smooth" });
+  // };
 
-  const handleItemsPerPageChange = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  // const handleItemsPerPageChange = (newLimit: number) => {
+  //   setLimit(newLimit);
+  //   setPage(1);
+  //   window.scrollTo({ top: 0, behavior: "smooth" });
+  // };
 
   const orders =
     activeTab === "instant"
@@ -205,11 +209,18 @@ export default function OrdersManagement() {
   return (
     <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage and track all customer orders and shipments
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50 md:text-3xl">
+            Orders
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Manage and track all customer orders and shipments
+          </p>
+        </div>
+        <div className="hidden sm:flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/20">
+          <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+        </div>
       </div>
 
       {/* Stats */}
@@ -263,15 +274,55 @@ export default function OrdersManagement() {
       </Tabs>
 
       {/* Modern Pagination */}
-      {totalCount > 0 && (
-        <ModernPagination
-          currentPage={page}
-          totalPages={totalPages}
-          totalItems={totalCount}
-          itemsPerPage={limit}
-          onPageChange={handlePageChange}
-          onItemsPerPageChange={handleItemsPerPageChange}
-        />
+      {totalCount > 1 && (
+        <div className="flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => page > 1 && setPage(page - 1)}
+                  className={
+                    page === 1
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer hover:text-amber-600"
+                  }
+                />
+              </PaginationItem>
+              {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) pageNum = i + 1;
+                else if (page <= 3) pageNum = i + 1;
+                else if (page >= totalPages - 2) pageNum = totalPages - 4 + i;
+                else pageNum = page - 2 + i;
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink
+                      onClick={() => setPage(pageNum)}
+                      isActive={page === pageNum}
+                      className={cn(
+                        "cursor-pointer",
+                        page === pageNum &&
+                          "border-amber-400 text-amber-700 bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:bg-amber-900/20",
+                      )}
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => page < totalPages && setPage(page + 1)}
+                  className={
+                    page === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer hover:text-amber-600"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       )}
 
       {/* Modals */}

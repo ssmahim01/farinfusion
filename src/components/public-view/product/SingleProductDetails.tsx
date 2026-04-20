@@ -13,6 +13,9 @@ import ProductImageGallery from "@/components/public-view/product/ProductImageGa
 import Image from "next/image";
 import paymentMethodImage from "../../../../public/payments.webp"
 import placeholderImage from "../../../../public/product-placeholder.png"
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "@/redux/store";
+import {decreaseQty, increaseQty} from "@/redux/slices/CartSlice";
 
 const socialIcons = [
     {
@@ -66,6 +69,8 @@ const socialIcons = [
 const SingleProductDetails = () => {
     const params = useParams();
     const slug = params?.slug as string;
+    const dispatch = useDispatch();
+    const cartList = useSelector((state:RootState) => state.cart.items)
 
     const { data, isLoading, isError } = useGetSingleProductQuery(slug, {
         skip: !slug,
@@ -77,11 +82,13 @@ const SingleProductDetails = () => {
     const [qty, setQty] = useState(1);
     const [wished, setWished] = useState(false);
 
-    if (isLoading)
+    if (isLoading){
         return <p className="p-10 text-center">Loading product...</p>;
+    }
 
-    if (isError || !product)
+    if (isError || !product){
         return <p className="p-10 text-center">Product not found</p>;
+    }
 
     // destructure product
     const {
@@ -103,6 +110,20 @@ const SingleProductDetails = () => {
     const discount = price && discountPrice && price > discountPrice ? Math.round(((price - discountPrice) / price) * 100) : 0;
 
     const watchingCount = 12;
+
+
+    // cart handle and state management
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+
+
+    const cartItem = cartList.find(
+        (item) => item?.slug === product?.slug || item?._id === product?._id
+    );
+
+    const cartQuantity = cartItem ? cartItem.quantity : 0;
+    const cartID = cartItem?._id as string;
+    console.log(cartID);
+
 
     const handleAddToCart = () => {
         toast.success(`${title} added to cart!`);
@@ -181,8 +202,8 @@ const SingleProductDetails = () => {
                             <p className="text-sm text-gray-600">
                                 Stock:{" "}
                                 <span className="font-semibold">
-                            {availableStock > 0 ? availableStock : "Out of stock"}
-                        </span>
+                                    {availableStock > 0 ? availableStock : "Out of stock"}
+                                </span>
                             </p>
 
                             <div className="flex flex-col gap-4 font-sans">
@@ -192,15 +213,33 @@ const SingleProductDetails = () => {
                                     {/* Quantity */}
                                     <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
                                         <button
-                                            onClick={() => setQty(Math.max(1, qty - 1))}
-                                            className="w-9 h-10 flex items-center justify-center border-r border-gray-300 hover:bg-gray-100 cursor-pointer text-lg"
+                                            onClick={() => {
+                                                if (cartQuantity > 1) {
+                                                    dispatch(decreaseQty(cartID));
+                                                }
+                                            }}
+                                            disabled={cartQuantity <= 1}
+                                            className={`w-9 h-10 flex items-center justify-center border-r border-gray-300 hover:bg-gray-100 text-lg
+                                            ${cartQuantity <= 1
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "hover:bg-gray-100 cursor-pointer"
+                                            }`}
                                         >
                                             -
                                         </button>
-                                        <span className="w-10 text-center font-semibold text-sm">{qty}</span>
+                                        <span className="w-10 text-center font-semibold text-sm">{cartQuantity}</span>
                                         <button
-                                            onClick={() => setQty(qty + 1)}
-                                            className="w-9 h-10 flex items-center justify-center border-l border-gray-300 hover:bg-gray-100 cursor-pointer text-lg"
+                                            onClick={() => {
+                                                if (cartQuantity < availableStock) {
+                                                    dispatch(increaseQty(cartID));
+                                                }
+                                            }}
+                                            disabled={cartQuantity >= availableStock}
+                                            className={`w-9 h-10 flex items-center justify-center border-l border-gray-300 text-lg
+                                                ${cartQuantity >= availableStock
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "hover:bg-gray-100 cursor-pointer"
+                                            }`}
                                         >
                                             +
                                         </button>

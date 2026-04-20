@@ -3,19 +3,15 @@
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import BreadCrumbPage from '@/components/shared/BreadCrumbPage';
-import { useGetAllCategoryByProductQuery } from '@/redux/features/category/category.api';
-import ProductSkeleton from '@/components/public-view/common/ProductSkeleton';
-import { IProduct } from '@/types';
-import { List, Grid3x3, LayoutGrid } from 'lucide-react';
-import ProductCard from '@/components/public-view/common/ProductCard';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { IProduct } from '@/types'
+import ProductCard from '@/components/public-view/common/CateogryByProductCard';
 import ProductFilterToolbar from '@/components/public-view/common/ProductFilterToolbar';
 import ProductFilterNavbar from "@/components/public-view/common/ProductFilterNavbar";
-import {useGetAllBrandByProductQuery} from "@/redux/features/brand/brand.api";
 
 
 
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ProductByComponent = ({products} :any) => {
     const params = useParams();
     const slug = params?.slug as string;

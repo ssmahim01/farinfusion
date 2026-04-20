@@ -7,6 +7,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
+  format,
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  isSameDay,
+} from "date-fns";
+import type { DateRange } from "react-day-picker";
+import {
   Plus,
   Trash2,
   Eye,
@@ -26,10 +37,19 @@ import {
   ImageIcon,
   CheckCircle2,
   XCircle,
+  CalendarDays,
+  CalendarRange,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,8 +91,41 @@ import { cn } from "@/lib/utils";
 
 const LIMIT = 10;
 
+const PRESETS = [
+  {
+    label: "Today",
+    get: () => ({ from: startOfDay(new Date()), to: endOfDay(new Date()) }),
+  },
+  {
+    label: "Yesterday",
+    get: () => {
+      const y = new Date();
+      y.setDate(y.getDate() - 1);
+      return { from: startOfDay(y), to: endOfDay(y) };
+    },
+  },
+  {
+    label: "This week",
+    get: () => ({
+      from: startOfWeek(new Date(), { weekStartsOn: 1 }),
+      to: endOfWeek(new Date(), { weekStartsOn: 1 }),
+    }),
+  },
+  {
+    label: "This month",
+    get: () => ({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }),
+  },
+  {
+    label: "Last 30 days",
+    get: () => {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      return { from: startOfDay(d), to: endOfDay(new Date()) };
+    },
+  },
+];
+
 const SORT_OPTIONS = [
-  { value: "", label: "Default" },
   { value: "-createdAt", label: "Newest first" },
   { value: "createdAt", label: "Oldest first" },
   { value: "-price", label: "Price: High → Low" },
@@ -86,6 +139,21 @@ const STATUS_OPTIONS = [
   { value: "ACTIVE", label: "Active" },
   { value: "INACTIVE", label: "Inactive" },
 ];
+
+function formatDateLabel(from?: Date, to?: Date) {
+  if (!from) return "Filter by date";
+  if (!to || isSameDay(from, to)) return format(from, "MMM d, yyyy");
+  return `${format(from, "MMM d")} – ${format(to, "MMM d, yyyy")}`;
+}
+
+function getPresetLabel(from?: Date, to?: Date) {
+  if (!from || !to) return null;
+  for (const p of PRESETS) {
+    const r = p.get();
+    if (isSameDay(r.from, from) && isSameDay(r.to, to)) return p.label;
+  }
+  return null;
+}
 
 function StatCard({
   label,
@@ -216,6 +284,11 @@ export default function ProductManagement() {
   const [page, setPage] = useState(1);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [calRange, setCalRange] = useState<DateRange | undefined>(undefined);
+  const [calOpen, setCalOpen] = useState(false);
+
   const [clientSort, setClientSort] = useState<{
     key: string;
     dir: "asc" | "desc";
@@ -228,6 +301,12 @@ export default function ProductManagement() {
   const { data, isLoading, isError, refetch } = useGetAllProductsQuery({
     ...(search.trim() && { searchTerm: search.trim() }),
     ...(status && { status }),
+    ...(dateFrom && {
+      "createdAt[gte]": format(dateFrom, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+    }),
+    ...(dateTo && {
+      "createdAt[lte]": format(dateTo, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+    }),
     sort,
     page,
     limit: LIMIT,
@@ -273,12 +352,44 @@ export default function ProductManagement() {
       setPage(1);
     }, 400);
   };
-
   const clearSearch = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setLocalSearch("");
     setSearch("");
     setPage(1);
+  };
+
+  const applyPreset = (preset: (typeof PRESETS)[number]) => {
+    const { from, to } = preset.get();
+    setCalRange({ from, to });
+    setDateFrom(from);
+    setDateTo(to);
+    setPage(1);
+    setCalOpen(false);
+  };
+
+  const handleCalSelect = (range: DateRange | undefined) => {
+    setCalRange(range);
+    if (range?.from && range?.to) {
+      setDateFrom(startOfDay(range.from));
+      setDateTo(endOfDay(range.to));
+      setPage(1);
+    } else if (range?.from) {
+      setDateFrom(startOfDay(range.from));
+      setDateTo(endOfDay(range.from));
+      setPage(1);
+    } else {
+      setDateFrom(undefined);
+      setDateTo(undefined);
+    }
+  };
+
+  const clearDate = () => {
+    setCalRange(undefined);
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    setPage(1);
+    setCalOpen(false);
   };
 
   const handleReset = () => {
@@ -288,6 +399,9 @@ export default function ProductManagement() {
     setStatus("");
     setSort("-createdAt");
     setClientSort(null);
+    setCalRange(undefined);
+    setDateFrom(undefined);
+    setDateTo(undefined);
     setPage(1);
   };
 
@@ -307,10 +421,15 @@ export default function ProductManagement() {
     }
   };
 
-  const hasFilters = !!search || !!status || sort !== "-createdAt";
+  const hasFilters =
+    !!search || !!status || sort !== "-createdAt" || !!dateFrom;
+  const activeDateLabel = getPresetLabel(dateFrom, dateTo);
+  const dateChipLabel = dateFrom
+    ? (activeDateLabel ?? formatDateLabel(dateFrom, dateTo))
+    : null;
 
   return (
-    <div className="min-h-screen space-y-6 bg-background p-4">
+    <div className="min-h-screen space-y-6 bg-background p-4 md:p-8">
       {/* ── Header ── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -326,25 +445,19 @@ export default function ProductManagement() {
             Manage your product catalog, stock levels and pricing
           </p>
         </div>
-
-        {/* Action buttons */}
         <div className="flex shrink-0 items-center gap-2.5">
           <Button
             variant="outline"
-            size="sm"
             onClick={() =>
               router.push("/staff/dashboard/admin/product-management/trash")
             }
-            className="gap-2 rounded-sm border-red-20hover:scale-105 hover:cursor-pointer transform ease-in-out duration-500 0 text-red-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-red-900/40 dark:text-red-400 dark:hover:border-red-800 dark:hover:bg-red-900/10 transition-colors"
+            className="gap-2 hover:cursor-pointer rounded-md border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-red-900/40 dark:text-red-400 dark:hover:border-red-800 dark:hover:bg-red-900/10 transition-colors"
           >
             <Trash2 className="h-4 w-4" />
             <span className="hidden sm:inline">Trash</span>
           </Button>
           <Link href="/staff/dashboard/admin/product-management/create-product">
-            <Button
-              size="sm"
-              className="group gap-2 rounded-sm bg-amber-500 hover:scale-105 hover:cursor-pointer transition-transform transform ease-in-out duration-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 relative overflow-hidden active:scale-95"
-            >
+            <Button className="group gap-2 hover:cursor-pointer rounded-md bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 relative overflow-hidden transition-all duration-200 active:scale-95">
               <span
                 aria-hidden
                 className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/20 transition-transform duration-500 group-hover:translate-x-[200%]"
@@ -356,13 +469,14 @@ export default function ProductManagement() {
         </div>
       </div>
 
-      {/* ── Stats ── */}
+      {/* ── Stats — reflect date filter when active ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
           label="Total Products"
           value={totalCount.toLocaleString()}
           icon={Package}
           accent="bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
+          sub={dateChipLabel ? `in ${dateChipLabel}` : undefined}
         />
         <StatCard
           label="Active"
@@ -383,9 +497,9 @@ export default function ProductManagement() {
           }
         />
         <StatCard
-          label="Units Sold"
+          label={dateChipLabel ? "Sold (Period)" : "Units Sold"}
           value={totalSold.toLocaleString()}
-          sub="across current page"
+          sub={dateChipLabel ? dateChipLabel : "across current page"}
           icon={ShoppingCart}
           accent="bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400"
         />
@@ -455,8 +569,8 @@ export default function ProductManagement() {
             <SelectContent className="rounded-xl">
               {SORT_OPTIONS.map((s) => (
                 <SelectItem
-                  key={s.value || "default"}
-                  value={s.value || "default"}
+                  key={s.value}
+                  value={s.value}
                   className="cursor-pointer text-sm"
                 >
                   {s.label}
@@ -464,6 +578,111 @@ export default function ProductManagement() {
               ))}
             </SelectContent>
           </Select>
+
+          <Popover open={calOpen} onOpenChange={setCalOpen}>
+            <PopoverTrigger asChild>
+              <button
+                className={cn(
+                  "inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-all duration-200",
+                  dateFrom
+                    ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
+                    : "border-gray-200 bg-gray-50/60 text-gray-600 hover:border-amber-200 hover:bg-amber-50/40 hover:text-amber-700 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-400 dark:hover:border-amber-800 dark:hover:text-amber-400",
+                )}
+              >
+                {dateFrom ? (
+                  <CalendarRange className="h-4 w-4 shrink-0" />
+                ) : (
+                  <CalendarDays className="h-4 w-4 shrink-0" />
+                )}
+                <span className="truncate max-w-32.5">
+                  {dateFrom
+                    ? formatDateLabel(dateFrom, dateTo)
+                    : "Filter by date"}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
+                    calOpen && "rotate-180",
+                  )}
+                />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="start"
+              className="w-auto p-0 rounded-2xl border-amber-200/60 dark:border-amber-900/40 shadow-xl overflow-hidden"
+            >
+              <div className="flex flex-col sm:flex-row">
+                <div className="border-b border-amber-100 dark:border-amber-900/30 sm:border-b-0 sm:border-r sm:w-36 p-3 space-y-0.5">
+                  <p className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-600/60 dark:text-amber-500/60">
+                    Quick select
+                  </p>
+                  {PRESETS.map((preset) => {
+                    const r = preset.get();
+                    const isActive =
+                      dateFrom &&
+                      dateTo &&
+                      isSameDay(r.from, dateFrom) &&
+                      isSameDay(r.to, dateTo);
+                    return (
+                      <button
+                        key={preset.label}
+                        onClick={() => applyPreset(preset)}
+                        className={cn(
+                          "w-full rounded-lg px-2.5 py-1.5 text-left text-xs font-medium transition-colors",
+                          isActive
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                            : "text-gray-600 hover:bg-amber-50 hover:text-amber-700 dark:text-gray-400 dark:hover:bg-amber-900/10 dark:hover:text-amber-400",
+                        )}
+                      >
+                        {preset.label}
+                      </button>
+                    );
+                  })}
+                  {dateFrom && (
+                    <>
+                      <div className="my-1.5 border-t border-amber-100 dark:border-amber-900/30" />
+                      <button
+                        onClick={clearDate}
+                        className="w-full rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
+                      >
+                        Clear date
+                      </button>
+                    </>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-600/60 dark:text-amber-500/60">
+                    Custom range
+                  </p>
+                  <Calendar
+                    mode="range"
+                    selected={calRange}
+                    onSelect={handleCalSelect}
+                    numberOfMonths={1}
+                    disabled={{ after: new Date() }}
+                    initialFocus
+                    classNames={{
+                      day_selected:
+                        "bg-amber-500 text-white hover:bg-amber-500 dark:bg-amber-600",
+                      day_range_middle:
+                        "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+                      day_range_start:
+                        "bg-amber-500 text-white rounded-l-full dark:bg-amber-600",
+                      day_range_end:
+                        "bg-amber-500 text-white rounded-r-full dark:bg-amber-600",
+                      day_today:
+                        "border border-amber-400 text-amber-700 font-bold dark:border-amber-600 dark:text-amber-400",
+                    }}
+                  />
+                  {calRange?.from && !calRange?.to && (
+                    <p className="mt-2 px-1 text-[11px] text-gray-400 dark:text-gray-500">
+                      Click another date to complete the range.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {/* Reset */}
           {hasFilters && (
@@ -517,6 +736,22 @@ export default function ProductManagement() {
                 )}
                 {status}
                 <button onClick={() => setStatus("")} className="ml-0.5">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {/* Date chip */}
+            {dateChipLabel && (
+              <Badge
+                variant="outline"
+                className="flex items-center gap-1.5 rounded-full border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400"
+              >
+                <CalendarDays className="h-3 w-3" />
+                {dateChipLabel}
+                <button
+                  onClick={clearDate}
+                  className="ml-0.5 hover:text-amber-900 dark:hover:text-amber-200"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -601,6 +836,12 @@ export default function ProductManagement() {
                       cls: "text-center hidden sm:table-cell",
                     },
                     {
+                      label: "Total Sales",
+                      key: "totalSales",
+                      sortable: true,
+                      cls: "text-center hidden sm:table-cell",
+                    },
+                    {
                       label: "Status",
                       key: "status",
                       sortable: false,
@@ -649,7 +890,6 @@ export default function ProductManagement() {
                   const hasDiscount =
                     !!product.discountPrice &&
                     product.discountPrice < product.price;
-
                   return (
                     <tr
                       key={product._id as string}
@@ -661,7 +901,7 @@ export default function ProductManagement() {
                         "hover:bg-amber-50/40 dark:hover:bg-amber-900/10",
                       )}
                     >
-                      {/* Product — image + title */}
+                      {/* Product */}
                       <td className="px-3 pl-5 py-3">
                         <div className="flex items-center gap-3">
                           {product.images?.[0] ? (
@@ -694,14 +934,12 @@ export default function ProductManagement() {
                           </div>
                         </div>
                       </td>
-
                       {/* Category */}
                       <td className="px-3 py-3 hidden md:table-cell">
                         <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
                           {(product.category as any)?.title ?? "—"}
                         </span>
                       </td>
-
                       {/* Price */}
                       <td className="px-3 py-3 text-right">
                         <div className="flex flex-col items-end">
@@ -715,8 +953,7 @@ export default function ProductManagement() {
                           )}
                         </div>
                       </td>
-
-                      {/* Buying price */}
+                      {/* Buying */}
                       <td className="px-3 py-3 text-right hidden lg:table-cell">
                         <span className="text-xs tabular-nums font-medium text-gray-500 dark:text-gray-400">
                           {product.buyingPrice
@@ -724,12 +961,10 @@ export default function ProductManagement() {
                             : "—"}
                         </span>
                       </td>
-
                       {/* Stock */}
                       <td className="px-3 py-3 text-center">
                         <StockBadge stock={product.availableStock ?? 0} />
                       </td>
-
                       {/* Sold */}
                       <td className="px-3 py-3 text-center hidden sm:table-cell">
                         <span className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-0.5 text-[10px] font-bold text-violet-700 tabular-nums dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-400">
@@ -737,12 +972,17 @@ export default function ProductManagement() {
                           {product.totalSold ?? 0}
                         </span>
                       </td>
-
+                      {/* Sales */}
+                      <td className="px-3 py-3 text-center hidden sm:table-cell">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-0.5 text-[10px] font-bold text-violet-700 tabular-nums dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-400">
+                          <TrendingUp className="h-2.5 w-2.5" />
+                          {product?.totalRevenue ?? 0}
+                        </span>
+                      </td>
                       {/* Status */}
                       <td className="px-3 py-3 hidden sm:table-cell">
                         <StatusBadge status={product.status ?? "INACTIVE"} />
                       </td>
-
                       {/* Actions */}
                       <td className="px-3 pr-5 py-3 text-center">
                         <DropdownMenu>
@@ -760,7 +1000,6 @@ export default function ProductManagement() {
                             align="end"
                             className="w-48 rounded-xl"
                           >
-                            {/* View */}
                             <DropdownMenuItem
                               className="gap-2 text-sm cursor-pointer"
                               onClick={() =>
@@ -772,8 +1011,6 @@ export default function ProductManagement() {
                               <Eye className="h-3.5 w-3.5 text-gray-500" />
                               View Details
                             </DropdownMenuItem>
-
-                            {/* Edit */}
                             <DropdownMenuItem
                               className="gap-2 text-sm cursor-pointer text-amber-600 focus:text-amber-600 dark:text-amber-400"
                               onClick={() =>
@@ -785,10 +1022,7 @@ export default function ProductManagement() {
                               <FilePenLine className="h-3.5 w-3.5" />
                               Edit Product
                             </DropdownMenuItem>
-
                             <DropdownMenuSeparator />
-
-                            {/* Delete */}
                             <DropdownMenuItem
                               className="gap-2 text-sm cursor-pointer text-red-600 focus:text-red-600 dark:text-red-400"
                               onClick={() => {

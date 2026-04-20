@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Heart, ShoppingCart, Menu } from 'lucide-react';
+import { Search, Heart, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUser } from '@/context/UserContext';
@@ -12,6 +12,8 @@ import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/SignupForm';
 import type { FC } from 'react';
 import { NavbarDropdown } from './NavbarDropdown';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 
 const Navbar: FC = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -21,8 +23,8 @@ const Navbar: FC = () => {
 
   const { user, logout } = useUser();
 
-  const wishlistCount = 0;
-  const cartCount = 0;
+  const wishlistCount = useSelector((state: RootState) => state.wish.items.length);
+  const cartCount = useSelector((state:RootState) => state.cart.items.length)
 
   const handleCloseAuth = () => {
     setLoginOpen(false);
@@ -35,13 +37,13 @@ const Navbar: FC = () => {
       <header className="w-full bg-slate-900 dark:bg-slate-950 border-b border-slate-700 dark:border-slate-800 sticky top-0 z-40 transition-colors duration-300">
         <div className="flex lg:hidden items-center justify-between h-16 px-4 gap-2">
           {/* Left: Menu Button - ALWAYS VISIBLE */}
-          <button
+          {/* <button
             aria-label="Open navigation menu"
             onClick={() => setMobileNavOpen(true)}
             className="flex h-10 w-10 items-center justify-center text-slate-300 hover:text-amber-500 transition-all duration-200 hover:bg-slate-800 dark:hover:bg-slate-700 rounded-lg active:scale-90 shrink-0 font-bold"
           >
             <Menu className="h-6 w-6" />
-          </button>
+          </button> */}
 
           {/* Center: Logo */}
           <Link href="/" aria-label="Farin Fusion home" className="flex-1 flex justify-center">
@@ -68,13 +70,13 @@ const Navbar: FC = () => {
         
           {/* Logo */}
           <Link href="/" className="shrink-0 flex gap-4 items-center" aria-label="Farin Fusion home">
-            <button
+            {/* <button
             aria-label="Open navigation menu"
             onClick={() => setMobileNavOpen(true)}
             className="flex h-10 w-10 items-center justify-center text-slate-300 hover:text-amber-500 transition-all duration-200 hover:bg-slate-800 dark:hover:bg-slate-700 rounded-lg active:scale-90 shrink-0 font-bold"
           >
             <Menu className="h-6 w-6" />
-          </button>
+          </button> */}
             <Image src={"/assets/FRN-Logo-scaled.webp"} alt="Farin Fusion" width={140} height={48} className="h-12 w-auto object-contain" priority />
           </Link>
 

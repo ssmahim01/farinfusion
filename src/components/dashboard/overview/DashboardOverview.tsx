@@ -700,14 +700,14 @@ export default function DashboardOverview() {
                 />
                 <StatCard
                   label="Staff Salary"
-                  value={`৳${(data as any).totalSalary ?? 0}`}
+                  value={`৳${(data as any).totalSalary.toFixed(0) ?? 0}`}
                   icon={Users}
                   accent="bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
                   sub="Total salary paid"
                 />
                 <StatCard
                   label="Net Profit"
-                  value={`৳${(data as any).netProfit ?? 0}`}
+                  value={`৳${(data as any).netProfit.toFixed(0) ?? 0}`}
                   icon={TrendingUp}
                   accent={
                     ((data as any).netProfit ?? 0) >= 0
