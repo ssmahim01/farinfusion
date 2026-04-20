@@ -33,6 +33,8 @@ import {
 } from "lucide-react";
 import type { Order } from "@/types/orders";
 import { cn } from "@/lib/utils";
+import { OrderStatusBadge } from "../orders/OrderStatusBadge";
+import { useGetAllCouriersQuery } from "@/lib/hooks";
 
 export type UserRole =
   | "ADMIN"
@@ -120,6 +122,15 @@ export function MyOrdersTable({
     userRole,
   );
 
+  const { data: courierRes } = useGetAllCouriersQuery([], {
+    pollingInterval: 10000,
+  });
+  const courierMap = new Map<string, any>();
+
+  courierRes?.data?.forEach((c: any) => {
+    courierMap.set(c.order, c);
+  });
+
   if (error) {
     return (
       <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/50 dark:bg-red-900/10">
@@ -163,10 +174,13 @@ export function MyOrdersTable({
           <TableRow className="bg-amber-50/60 hover:bg-amber-50/60 dark:bg-amber-900/10 dark:hover:bg-amber-900/10 border-b border-amber-100/80 dark:border-amber-900/20">
             {[
               "Order ID",
+              "Assigned By",
+              "Payment",
               "Customer",
               "Total",
               "Order Status",
-              "Delivery",
+              "Delivery Status",
+              "Courier",
               "Date",
               "Actions",
             ].map((h) => (
@@ -191,8 +205,11 @@ export function MyOrdersTable({
               ORDER_STATUS.PENDING;
             const StatusIcon = status.icon;
             const isConfirmed = order.orderStatus === "CONFIRMED";
-            const moderatorEdit = ["MODERATOR"].includes(userRole) && !isConfirmed;
-            const canEditOrder= moderatorEdit && canEdit && !order?.courierName ;
+            const moderatorEdit =
+              ["MODERATOR"].includes(userRole) && !isConfirmed;
+            const canEditOrder =
+              moderatorEdit && canEdit && !order?.courierName;
+            const courier = courierMap.get(order._id);
             // const canAssignCourier = canEdit && !order?.courierName;
 
             return (
@@ -211,6 +228,26 @@ export function MyOrdersTable({
                   {order.customOrderId
                     ? `#${order.customOrderId}`
                     : (order._id as string)?.slice(0, 10) + "…"}
+                </TableCell>
+
+                <TableCell>
+                  {order?.seller ? (
+                    <div className="flex flex-col text-xs">
+                      <span className="font-medium">{order?.seller?.name}</span>
+                      <span className="text-muted-foreground">
+                        {order?.seller?.role}
+                      </span>
+                    </div>
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
+                <TableCell>
+                  <span className="text-xs font-medium">
+                    {order?.transactionId && (
+                      <span className="text-green-600">COD</span>
+                    )}
+                  </span>
                 </TableCell>
 
                 {/* Customer */}
@@ -234,6 +271,8 @@ export function MyOrdersTable({
                   </span>
                 </TableCell>
 
+             
+
                 {/* Order Status */}
                 <TableCell>
                   <Badge
@@ -249,21 +288,33 @@ export function MyOrdersTable({
                 </TableCell>
 
                 {/* Delivery */}
-                <TableCell className="hidden md:table-cell">
-                  {isConfirmed && !(order as any).courierName ? (
-                    <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                      <Truck className="h-3 w-3 animate-pulse" />
-                      <span className="hidden sm:inline">Pending</span>
+                <TableCell>
+                  {order.orderStatus === "CONFIRMED" && !courier ? (
+                    <span className="text-xs text-yellow-600 flex items-center gap-1">
+                      <Truck size={12} className="animate-pulse" />
+                      Assigning courier...
                     </span>
-                  ) : (order as any).courierName ? (
-                    <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-                      <Truck className="h-3 w-3 text-amber-500" />
-                      <span className="truncate max-w-20">
-                        {(order as any).courierName}
-                      </span>
-                    </div>
+                  ) : courier?.deliveryStatus ? (
+                    <OrderStatusBadge
+                      status={courier.deliveryStatus}
+                      type="delivery"
+                    />
                   ) : (
-                    <span className="text-xs text-gray-400">—</span>
+                    "-"
+                  )}
+                </TableCell>
+                <TableCell>
+                  {courier ? (
+                    <div className="flex items-center gap-1 text-xs text-blue-600">
+                      <Truck size={14} />
+                      {courier.courierName}
+                    </div>
+                  ) : order.orderStatus === "CONFIRMED" ? (
+                    <span className="text-xs text-yellow-600">
+                      Assigning...
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">-</span>
                   )}
                 </TableCell>
 

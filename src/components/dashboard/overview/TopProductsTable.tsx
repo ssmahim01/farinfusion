@@ -113,7 +113,7 @@ export function TopProductsTable({
         <div className="border-b border-gray-100 px-5 py-4 dark:border-gray-800 flex items-center justify-between">
           <div>
             <p className="text-sm font-bold text-gray-900 dark:text-gray-50">
-              Top Selling Products
+              Top Completed Selling Products
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
               Products ranked by units sold

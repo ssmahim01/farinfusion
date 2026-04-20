@@ -23,7 +23,14 @@ import { toast } from "sonner";
 import { ModernPagination } from "./ModernPagination";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ShoppingBag } from "lucide-react";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 
 // const LIMIT = 10;
@@ -239,9 +246,38 @@ export default function OrdersManagement() {
 
       <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)}>
         {/* Tabs Header */}
-        <TabsList className="grid w-full grid-cols-2 max-w-xs">
-          <TabsTrigger value="instant">Instant Orders</TabsTrigger>
-          <TabsTrigger value="scheduled">Scheduled Orders</TabsTrigger>
+        <TabsList className="bg-transparent">
+          <div className="flex gap-2 border-gray-200 dark:border-gray-700 pb-2">
+            <button
+              onClick={() => {
+                setActiveTab("instant");
+                setPage(1);
+              }}
+              className={cn(
+                "px-4 py-2 text-sm font-semibold rounded-md transition",
+                activeTab === "instant"
+                  ? "bg-amber-500 text-white"
+                  : "text-gray-500 hover:text-gray-900 dark:hover:text-white",
+              )}
+            >
+              Instant Orders
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab("scheduled");
+                setPage(1);
+              }}
+              className={cn(
+                "px-4 py-2 text-sm font-semibold rounded-md transition",
+                activeTab === "scheduled"
+                  ? "bg-blue-500 text-white"
+                  : "text-gray-500 hover:text-gray-900 dark:hover:text-white",
+              )}
+            >
+              Scheduled Orders
+            </button>
+          </div>
         </TabsList>
 
         {/* Instant Orders */}

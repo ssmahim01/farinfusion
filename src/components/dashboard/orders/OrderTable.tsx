@@ -12,8 +12,9 @@ import {
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { OrderRowActions } from "./OrderRowActions";
 import type { Order } from "@/types/orders";
-import { AlertCircle, Badge, TrendingUp, Truck } from "lucide-react";
+import { AlertCircle, TrendingUp, Truck } from "lucide-react";
 import { useGetAllCouriersQuery } from "@/lib/hooks";
+import { cn } from "@/lib/utils";
 
 interface OrderTableProps {
   orders: Order[];
@@ -89,18 +90,30 @@ export function OrderTable({
     <div className="overflow-x-auto rounded-lg border">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-30">Order ID</TableHead>
-            <TableHead className="w-30">Assigned By</TableHead>
-            <TableHead className="w-30">Payment</TableHead>
-
-            <TableHead>Customer</TableHead>
-            <TableHead className="text-right">Total</TableHead>
-            <TableHead className="text-center">Publish Time</TableHead>
-            <TableHead className="w-32.5">Order Status</TableHead>
-            <TableHead className="w-32.5">Delivery Status</TableHead>
-            <TableHead className="w-25">Courier</TableHead>
-            <TableHead className="w-12.5 text-center">Actions</TableHead>
+          <TableRow className="bg-amber-50/60 hover:bg-amber-50/60 dark:bg-amber-900/10 dark:hover:bg-amber-900/10 border-b border-amber-100/80 dark:border-amber-900/20">
+            {[
+              "Order ID",
+              "Assigned By",
+              "Payment",
+              "Customer",
+              "Total",
+              "Order Status",
+              "Delivery Status",
+              "Courier",
+              "Order Date",
+              "Actions",
+            ].map((h) => (
+              <TableHead
+                key={h}
+                className={cn(
+                  "text-[10px] font-bold uppercase tracking-widest text-amber-700/70 dark:text-amber-500/70",
+                  h === "Total" && "text-right",
+                  h === "Actions" && "text-center",
+                )}
+              >
+                {h}
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -139,25 +152,12 @@ export function OrderTable({
                     <span className="text-xs text-muted-foreground">
                       {order.billingDetails?.email}
                     </span>
-
-                   
                   </div>
                 </TableCell>
                 <TableCell className="text-right font-medium">
                   ৳{order.total}
                 </TableCell>
-                <TableCell className="text-right font-medium">
-                   {!order.isPublished &&
-                      order.scheduleType === "SCHEDULED" && (
-                        <Badge className="bg-blue-50 text-blue-600 border-blue-200">
-                          Scheduled
-                        </Badge>
-                      )}
 
-                    {order.scheduledAt
-                      ? new Date(order.scheduledAt).toLocaleString()
-                      : new Date(order.createdAt).toLocaleString()}
-                </TableCell>
                 <TableCell>
                   <OrderStatusBadge status={order.orderStatus} type="order" />
                 </TableCell>
@@ -189,6 +189,18 @@ export function OrderTable({
                   ) : (
                     <span className="text-xs text-muted-foreground">-</span>
                   )}
+                </TableCell>
+
+                <TableCell className="hidden lg:table-cell">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "—"}
+                  </span>
                 </TableCell>
                 <TableCell className="text-center">
                   <OrderRowActions

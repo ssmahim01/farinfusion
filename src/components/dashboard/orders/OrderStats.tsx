@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingCart, Clock, CheckCircle2, TrendingUp } from "lucide-react";
+import { ShoppingCart, Clock, CheckCircle2 } from "lucide-react";
 import type { Order } from "@/types/orders";
 import { cn } from "@/lib/utils";
 
@@ -53,13 +53,16 @@ function StatCard({
 
 export function OrderStats({ orders }: OrderStatsProps) {
   const totalOrders = orders.length;
+  const completedCount = orders.filter(
+    (o) => o.orderStatus === "COMPLETED",
+  ).length;
   const pendingOrders = orders.filter(
     (o) => o.orderStatus === "PENDING",
   ).length;
   const confirmedOrders = orders.filter(
     (o) => o.orderStatus === "CONFIRMED",
   ).length;
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.total ?? 0), 0);
+  // const totalRevenue = orders.reduce((sum, o) => sum + (o.total ?? 0), 0);
 
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -83,11 +86,10 @@ export function OrderStats({ orders }: OrderStatsProps) {
         accent="bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"
       />
       <StatCard
-        label="Order Revenue"
-        value={`৳${totalRevenue.toLocaleString()}`}
-        icon={TrendingUp}
-        accent="bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400"
-        sub="total order value"
+        label="Completed"
+        value={completedCount}
+        icon={CheckCircle2}
+        accent="bg-teal-50 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400"
       />
     </div>
   );
