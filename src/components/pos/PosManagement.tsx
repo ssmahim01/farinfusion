@@ -66,7 +66,7 @@ export default function POSManagement() {
           (p.category as any)?.title?.toLowerCase() ===
             category.toLowerCase() ||
           (typeof p.category === "string" &&
-            p.category.toLowerCase() === category.toLowerCase()),
+            p.category === category.toLowerCase()),
       );
     }
 

@@ -18,8 +18,10 @@ import {
 import {Separator} from "@/components/ui/separator";
 import EmptyCartList from "@/components/public-view/cart/EmptyCart";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 
 export default function CartPage() {
+  const router = useRouter();
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.cart.items);
 
@@ -185,7 +187,10 @@ export default function CartPage() {
                                 </span>
                 </div>
 
-                <Button className="w-full mt-6 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-6">
+                <Button
+                    onClick={()=>router.push("/checkout")}
+                    className="cursor-pointer w-full mt-6 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-6"
+                >
                   Proceed To Checkout
                 </Button>
               </div>

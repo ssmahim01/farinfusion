@@ -104,8 +104,8 @@ const UpdateProduct = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const getId = (val: string | { _id: string; title?: string }) =>
-    typeof val === "string" ? val : val._id;
+  const getId = (val: string | { _id?: string; slug?: string; title?: string }) =>
+    typeof val === "string" ? val : (val._id || val.slug || "");
 
   useEffect(() => {
     if (productData?.data) {
@@ -113,7 +113,7 @@ const UpdateProduct = () => {
 
       reset({
         title: p.title,
-        brand: getId(p.brand),
+        brand: getId(p?.brand),
         category: getId(p.category),
         buyingPrice: p.buyingPrice,
         price: p.price,
@@ -496,7 +496,7 @@ const UpdateProduct = () => {
               )}
             </div>
             <Button
-              className="w-full bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="hover:cursor-pointer w-full bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
               type="submit"
               disabled={isLoading || uploadingImages}
             >

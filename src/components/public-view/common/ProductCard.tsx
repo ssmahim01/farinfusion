@@ -80,6 +80,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             price: product.price ?? 0,
             images: product.images ?? [],
             availableStock: product.availableStock ?? 0,
+            quantity: 1,
         })
     );
     toast.success(`${title} added to cart!`);

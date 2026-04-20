@@ -71,7 +71,7 @@ const NavbarMenu: React.FC = () => {
             <div className="flex items-center justify-between gap-12 container mx-auto">
 
                 {/* LEFT */}
-                <div className="block lg:hidden flex items-center gap-5">
+                <div className="lg:hidden flex items-center gap-5">
                     <Button
                         variant="ghost"
                         onClick={() => setMobileMenuOpen(true)}
@@ -164,7 +164,7 @@ const NavbarMenu: React.FC = () => {
 
             {/* MOBILE SHEET */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                <SheetContent side="left" className="w-[280px] p-4 flex flex-col justify-between">
+                <SheetContent side="left" className="w-70 p-4 flex flex-col justify-between">
 
                     <div>
                         <h2 className="text-lg font-semibold mb-4">Menu</h2>

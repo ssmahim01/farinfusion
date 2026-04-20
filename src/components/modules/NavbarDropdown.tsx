@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -12,10 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { LogOut, User, User2 } from "lucide-react"
-import { logoutUser } from "@/utils/logoutUser"
 
 export function NavbarDropdown({ user, onLogout }: any) {
   const router = useRouter();

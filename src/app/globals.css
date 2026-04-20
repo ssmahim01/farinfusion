@@ -190,3 +190,22 @@
     left: -100%;
   }
 }
+
+
+.heading-animate {
+  background: linear-gradient(90deg, #2610ff, #fffc0c, #000000);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 5s linear infinite;
+}
+
+/* Add this part */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
