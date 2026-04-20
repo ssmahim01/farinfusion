@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 'use client';
 
 import React, { useState } from 'react';
@@ -17,8 +18,9 @@ const CategoryByProduct = () => {
         { skip: !slug }
     );
 
-    // @ts-ignore
+    // @ts-expect-error
     const categoryProduct = data?.data?.data || [];
+    console.log(categoryProduct);
 
     if (isError) return <div className="text-red-500">Something went wrong!</div>;
     if (isLoading) return <ProductSkeleton />;

@@ -11,6 +11,9 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { RegisterForm } from "@/components/auth/SignupForm";
 import Link from "next/link";
+import {useSelector} from "react-redux";
+import {RootState} from "@/redux/store";
+import {useRouter} from "next/navigation";
 
 const NAV_LINKS = [
     { title: "BABY CREAM", slug: "baby-cream" },
@@ -25,11 +28,15 @@ const NAV_LINKS = [
 
 const NavbarMenu: React.FC = () => {
     const [isSticky, setIsSticky] = useState(false);
+    const router = useRouter();
     const { user, logout } = useUser();
 
     const [loginOpen, setLoginOpen] = useState(false);
     const [signupOpen, setSignupOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    const cartCount = useSelector((state:RootState) => state.cart.items.length)
+    const wishCount = useSelector((state:RootState) => state.wish.items.length)
 
     function closeAll() {
         setLoginOpen(false);
@@ -99,17 +106,21 @@ const NavbarMenu: React.FC = () => {
                 {isSticky ? (
                     <div className="flex items-center gap-3">
 
-                        <button className="relative flex h-9 w-9 items-center justify-center text-white hover:text-[#c9a84c]">
+                        <button
+                            onClick={()=>router.push("/wishlist")}
+                            className="cursor-pointer relative flex h-9 w-9 items-center justify-center text-white hover:text-[#c9a84c]">
                             <Heart className="h-5 w-5" />
                             <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a84c] text-[9px] font-bold text-black">
-                                0
+                                {wishCount}
                             </span>
                         </button>
 
-                        <button className="relative flex h-9 w-9 items-center justify-center text-white hover:text-[#c9a84c]">
+                        <button
+                            onClick={() => router.push("/cart")}
+                            className="cursor-pointer relative flex h-9 w-9 items-center justify-center text-white hover:text-[#c9a84c]">
                             <ShoppingCart className="h-5 w-5" />
                             <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a84c] text-[9px] font-bold text-black">
-                                0
+                                {cartCount}
                             </span>
                         </button>
 
@@ -176,8 +187,6 @@ const NavbarMenu: React.FC = () => {
                     <div className="mt-6 border-t pt-4">
                         {user ? (
                             <div className="flex flex-col gap-2">
-                                <p className="text-sm font-medium">{user?.email}</p>
-
                                 <Button
                                     variant="outline"
                                     onClick={() => {
