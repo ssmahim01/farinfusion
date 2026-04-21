@@ -53,10 +53,10 @@ export default function CheckoutPage() {
   // ==============================
   // ✅ REAL CALCULATION (FIXED)
   // ==============================
-  const subtotal = cartList.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-  );
+  const subtotal = cartList.reduce((total, item) => {
+    const finalPrice = item.discountPrice ?? item.price;
+    return total + finalPrice * item.quantity;
+  }, 0);
 
   const discountAmount =
       appliedCoupon === "SAVE10" ? subtotal * 0.1 : 0;
@@ -163,7 +163,7 @@ export default function CheckoutPage() {
                       <div key={item._id} className="flex gap-3 border-b py-3">
                         <button
                             className={"cursor-pointer hover:text-red-500 transition-all duration-200"}
-                            onClick={() => removeFromCart(item?._id)}
+                            onClick={() => dispatch(removeFromCart(item._id))}
                         >
                           <X />
                         </button>
@@ -183,7 +183,10 @@ export default function CheckoutPage() {
                           </p>
                         </div>
 
-                        <div>৳ {(item.price * item.quantity).toLocaleString()}</div>
+                        <div>
+                          ৳{" "}
+                          {( (item.discountPrice ?? item.price) * item.quantity ).toLocaleString()}
+                        </div>
                       </div>
                   ))
               ) : (

@@ -26,10 +26,10 @@ export default function CartPage() {
   const cartItems = useSelector((state: RootState) => state.cart.items);
 
   // 🟡 Subtotal
-  const subtotal = cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-  );
+  const subtotal = cartItems.reduce((total, item) => {
+    const finalPrice = item.discountPrice ?? item.price;
+    return total + finalPrice * item.quantity;
+  }, 0);
 
 
   return (
@@ -69,7 +69,7 @@ export default function CartPage() {
                               </button>
 
                               <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                                <Link href={`/products/${cartItem.slug}`}>
+                                <Link href={`/product/${cartItem.slug}`}>
                                   <Image
                                       src={cartItem.images?.[0]}
                                       alt={cartItem.title}
@@ -82,13 +82,27 @@ export default function CartPage() {
 
                               <div className="min-w-0">
                                 <h3 className="text-sm font-medium line-clamp-2">
-                                  <Link href={`/products/${cartItem.slug}`}>
+                                  <Link href={`/product/${cartItem.slug}`}>
                                     {cartItem.title}
                                   </Link>
                                 </h3>
-                                <p className="text-yellow-700 font-semibold mt-1">
-                                  ৳ {cartItem.price.toLocaleString()}
-                                </p>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {/* Discount Price (main price) */}
+                                  <p className="text-[14px] font-bold text-yellow-500 mb-2">
+                                    ৳ {(cartItem?.discountPrice ?? cartItem?.price ?? 0).toLocaleString("en-BD", {
+                                    minimumFractionDigits: 2,
+                                  })}
+                                  </p>
+
+                                  {/* Original Price (cut) → only if discount */}
+                                  {cartItem?.discountPrice && (
+                                      <p className="text-[12px] font-bold text-gray-500 mb-2 line-through">
+                                        ৳ {(cartItem?.price ?? 0).toLocaleString("en-BD", {
+                                        minimumFractionDigits: 2,
+                                      })}
+                                      </p>
+                                  )}
+                                </div>
                               </div>
                             </div>
 
@@ -144,7 +158,10 @@ export default function CartPage() {
                             <div className="text-right min-w-[100px]">
                               <p className="text-sm text-gray-500">Subtotal</p>
                               <p className="font-bold text-yellow-700">
-                                ৳ {(cartItem.price * cartItem.quantity).toLocaleString()}
+                                ৳{" "}
+                                {(
+                                    (cartItem.discountPrice ?? cartItem.price) * cartItem.quantity
+                                ).toLocaleString()}
                               </p>
                             </div>
 
