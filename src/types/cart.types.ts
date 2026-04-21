@@ -4,6 +4,7 @@ export interface CartItem {
     slug: string;
     title: string;
     price: number;
+    discountPrice: number;
     availableStock: number;
     quantity: number;
     images: string[];
