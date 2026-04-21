@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { Menu, Gift, Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
-import farinLogo from "../../../public/assets/FRN-Logo-scaled.webp";
 import { NavbarDropdown } from "@/components/modules/NavbarDropdown";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
@@ -16,14 +15,14 @@ import {RootState} from "@/redux/store";
 import {useRouter} from "next/navigation";
 
 const NAV_LINKS = [
-    { title: "BABY CREAM", slug: "baby-cream" },
-    { title: "BABY LOTION", slug: "baby-lotion" },
-    { title: "BABY SUNCREAM", slug: "baby-suncream" },
-    { title: "CENTELLA", slug: "centella" },
-    { title: "COMBO", slug: "combo" },
-    { title: "CREAM", slug: "cream" },
-    { title: "EYE CREAM", slug: "eye-cream" },
-    { title: "FACE SERUM", slug: "face-serum" },
+    { title: "baby cream", slug: "baby-cream" },
+    { title: "baby lotion", slug: "baby-lotion" },
+    { title: "baby suncream", slug: "baby-suncream" },
+    { title: "centella", slug: "centella" },
+    { title: "combo", slug: "combo" },
+    { title: "cream", slug: "cream" },
+    { title: "eye cream", slug: "eye-cream" },
+    { title: "face serum", slug: "face-serum" },
 ];
 
 const NavbarMenu: React.FC = () => {
@@ -65,34 +64,40 @@ const NavbarMenu: React.FC = () => {
     }, []);
 
     return (
-        <nav className={`bg-[#2D3436] py-3 px-6 shadow-md transition-all duration-500 ease-in-out
+        <nav className={`bg-[#2D3436] py-3 shadow-md transition-all duration-500 ease-in-out
             ${isSticky ? "fixed top-0 left-0 w-full z-50 shadow-lg" : "relative"}`}
         >
-            <div className="flex items-center justify-between gap-12 container mx-auto">
+            <div className="flex items-center justify-between gap-12 container mx-auto px-5">
 
                 {/* LEFT */}
                 <div className="lg:hidden flex items-center gap-5">
-                    <Button
-                        variant="ghost"
+                    <button
                         onClick={() => setMobileMenuOpen(true)}
                         className="text-neutral-300"
                     >
                         <Menu className="w-6 h-6" />
-                    </Button>
-
-                    {isSticky && (
-                        <Image src={farinLogo} alt="logo" width={200} />
-                    )}
+                    </button>
                 </div>
+                {isSticky && (
+                    <Link href={"/"}>
+                        <Image src={"/assets/FRN-Logo-scaled.webp"}
+                               alt="Farin Fusion"
+                               width={140}
+                               height={48}
+                               className="h-12 w-40 sm:w-auto object-contain"
+                               priority
+                        />
+                    </Link>
+                )}
 
                 {/* CENTER */}
-                <div className="hidden lg:block">
-                    <ul className="flex items-center gap-5">
+                <div className="hidden xl:block">
+                    <ul className="flex items-center gap-4">
                         {NAV_LINKS.map((link) => (
                             <li key={link.slug}>
                                 <Link
-                                    href={`/product-by-category/${link.slug}`}
-                                    className="text-gray-100"
+                                    href={`/shop/category/${link.slug}`}
+                                    className={`text-gray-100 text-[14px] capitalize ${isSticky ? "text-[12px]" : "text-[14px]"}`}
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     {link.title}
@@ -152,7 +157,7 @@ const NavbarMenu: React.FC = () => {
                     </div>
                 ) : (
                     <button className="text-white">
-                        <div className="flex items-center gap-2.5 px-6 py-2 rounded-full bg-black">
+                        <div className="flex items-center gap-2.5 px-6 py-2 rounded-full fusion-offer">
                             <Gift className="w-5 h-5" />
                             <span className="text-[13px] font-bold">
                                 SPECIAL BEAUTY DEAL
@@ -173,7 +178,7 @@ const NavbarMenu: React.FC = () => {
                             {NAV_LINKS.map((link) => (
                                 <li key={link.slug}>
                                     <Link
-                                        href={`/product-by-category/${link.slug}`}
+                                        href={`/shop/category/${link.slug}`}
                                         className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100"
                                         onClick={() => setMobileMenuOpen(false)}
                                     >

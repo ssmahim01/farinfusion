@@ -1,23 +1,15 @@
-'use client';
-
+'use client'
 import React from 'react';
-import { useParams } from 'next/navigation';
-import { useGetAllCategoryByProductQuery } from '@/redux/features/category/category.api';
-import ProductSkeleton from '@/components/public-view/common/ProductSkeleton';
-import { IProduct } from "@/types";
+import {IProduct} from "@/types";
+import ProductSkeleton from "@/components/public-view/common/ProductSkeleton";
+import {useGetAllProductsQuery} from "@/redux/features/product/product.api";
+import ProductNotFound from "@/components/public-view/common/ProductNotFound";
 import ProductCard from "@/components/public-view/common/ProductCard";
 
 
-const CategoryByProduct = () => {
-    const params = useParams();
-    const slug = params?.slug as string | undefined;
-
-    const { data, isLoading, isError } = useGetAllCategoryByProductQuery(
-        slug ?? ''
-    );
-
-    // @ts-expect-error
-    const products: IProduct[] = data?.data?.data || [];
+const AllProductList = () => {
+    const {data, isLoading, isError} = useGetAllProductsQuery({})
+    const products: IProduct[] = data?.data || [];
 
     if (isError) {
         return <div className="text-red-500">Something went wrong!</div>;
@@ -30,7 +22,7 @@ const CategoryByProduct = () => {
     if (products.length === 0) {
         return (
             <p className="text-center text-gray-500 col-span-full">
-                No products found
+                <ProductNotFound />
             </p>
         );
     }
@@ -47,4 +39,4 @@ const CategoryByProduct = () => {
     );
 };
 
-export default CategoryByProduct;
+export default AllProductList;
