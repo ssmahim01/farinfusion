@@ -23,6 +23,7 @@ export type CreateOrderPayload = {
   paymentMethod?: "COD" | "ONLINE";
   note: string;
   total: number;
+  couponCode: string;
   discount: number;
   scheduleType?: "INSTANT" | "SCHEDULED";
   scheduledAt?: Date;
@@ -54,6 +55,7 @@ export interface Order {
   };
   shippingCost?: number;
   note: string;
+  couponCode?: string;
   orderType: "POS" | "ONLINE" | "DELIVERY";
   transactionId?: string;
   scheduleType?: "INSTANT" | "SCHEDULED";

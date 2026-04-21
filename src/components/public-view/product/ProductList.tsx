@@ -5,7 +5,6 @@ import { useGetAllProductsQuery } from "@/redux/features/product/product.api";
 import ProductSkeleton from "@/components/public-view/common/ProductSkeleton";
 import ProductCard from "@/components/public-view/common/ProductCard";
 import Link from "next/link";
-import {RightArrow} from "next/dist/next-devtools/dev-overlay/icons/right-arrow";
 import {ArrowRightIcon} from "lucide-react";
 
 

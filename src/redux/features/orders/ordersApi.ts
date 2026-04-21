@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "../baseApi";
 import type {
   Order,
   OrderResponse,
   UpdateOrderRequest,
   GetQueryParams,
-  CreateOrderPayload,
 } from "@/types/orders";
 
 interface GetAllOrdersResponse {
@@ -20,7 +20,7 @@ interface GetAllOrdersResponse {
 
 export const ordersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createOrder: builder.mutation<Order, CreateOrderPayload>({
+    createOrder: builder.mutation<Order, any>({
       query: (data) => ({
         url: "/order",
         method: "POST",

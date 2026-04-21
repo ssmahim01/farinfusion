@@ -4,6 +4,8 @@ import {
   ToolCase,
   StoreIcon,
   ListOrdered,
+  Gift,
+  ShoppingBag,
 } from "lucide-react";
 
 export const moderatorSidebar = [
@@ -59,6 +61,11 @@ export const adminSidebar = [
         title: "Brands",
         url: "/staff/dashboard/admin/brand-management",
         icon: ToolCase,
+      },
+      {
+        title: "Coupons",
+        url: "/staff/dashboard/coupons",
+        icon: Gift,
       },
       {
         title: "Staffs",
@@ -154,7 +161,12 @@ export const managerSidebar = [
       {
         title: "Brands",
         url: "/staff/dashboard/admin/brand-management",
-        icon: ToolCase,
+        icon: ShoppingBag,
+      },
+      {
+        title: "Coupons",
+        url: "/staff/dashboard/coupons",
+        icon: Gift,
       },
       {
         title: "My Orders",

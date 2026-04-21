@@ -40,6 +40,7 @@ const CategoryByProductCard = ({ product }: ProductCardProps) => {
                 _id: product._id ?? "",
                 slug: product?.slug ?? "",
                 title: product.title ?? "",
+                discountPrice: product.discountPrice ?? 0,
                 price: product.price ?? 0,
                 images: product.images ?? [],
                 availableStock: product.availableStock ?? 0,

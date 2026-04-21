@@ -78,6 +78,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             slug: product?.slug ?? "",
             title: product.title ?? "",
             price: product.price ?? 0,
+            discountPrice: product.discountPrice ?? 0,
             images: product.images ?? [],
             availableStock: product.availableStock ?? 0,
             quantity: 1,
@@ -165,11 +166,18 @@ const ProductCard = ({ product }: ProductCardProps) => {
           {/* Bottom Content */}
           <div className="mt-auto">
             {/* PRICE */}
-            <p className="text-[15px] font-bold text-amber-500 mb-2">
+           <div className="flex items-center gap-2">
+             <p className="text-[15px] font-bold mb-2">
+              ৳ {(product?.discountPrice ?? 0).toLocaleString("en-BD", {
+              minimumFractionDigits: 2,
+            })}
+            </p>
+            <p className="text-[15px] line-through font-semibold text-rose-500 mb-2">
               ৳ {(price ?? 0).toLocaleString("en-BD", {
               minimumFractionDigits: 2,
             })}
             </p>
+           </div>
 
             {/* BUTTON */}
             <Button
