@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Star, Heart, ShoppingCart } from "lucide-react";
+import {Star, Heart, ShoppingCart, ZoomIn} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -12,13 +12,17 @@ import {useDispatch, useSelector} from "react-redux";
 import { RootState } from "@/redux/store";
 import {addToWish, removeFromWish} from "@/redux/slices/wishSlice";
 import {addToCart} from "@/redux/slices/CartSlice";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
+import ProductSingleModal from "@/components/public-view/home/ProductSingleModal";
 
 interface ProductCardProps {
     product: IProduct;
 }
 
 const CategoryByProductCard = ({ product }: ProductCardProps) => {
-    const { slug, title, category, images, price, ratings, brand } = product;
+    const { slug, title, category, images, price, discountPrice, ratings, brand } = product;
+    const [onModal, setOnModal] = useState(false);
+    const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
     const viewMode = useSelector(
         (state: RootState) => state.viewMode.viewMode
     );
@@ -29,7 +33,7 @@ const CategoryByProductCard = ({ product }: ProductCardProps) => {
 
     const productHref = slug ? `/product/${slug}` : "#";
     const categoryHref = category?.slug
-        ? `/product-by-category/${category?.slug}`
+        ? `/shop/category/${category?.slug}`
         : "#";
 
 
@@ -84,6 +88,7 @@ const CategoryByProductCard = ({ product }: ProductCardProps) => {
                     slug: product?.slug ?? "",
                     title: product.title ?? "",
                     price: product.price ?? 0,
+                    discountPrice: product.discountPrice ?? 0,
                     images: product.images ?? [],
                     ratings: product?.ratings ?? 0,
                 })
@@ -93,121 +98,153 @@ const CategoryByProductCard = ({ product }: ProductCardProps) => {
     };
 
     return (
-        <div
-            onMouseEnter={() => setCardHovered(true)}
-            onMouseLeave={() => setCardHovered(false)}
-            className={cn(
-                "w-full bg-white rounded-2xl shadow-md overflow-hidden p-2 relative transition-all duration-300",
-                viewMode === "list"
-                    ? "sm:flex gap-4 items-center"
-                    : "flex flex-col h-full"
-            )}
-        >
-            {/* Wishlist Button */}
-            <button
-                onClick={onWishlist}
-                className={cn(
-                    "cursor-pointer absolute top-3 right-3 z-10 bg-white shadow-md p-2 rounded-full transition-all duration-300",
-                    cardHovered
-                        ? "translate-x-0 opacity-100"
-                        : "translate-x-10 opacity-0"
-                )}
-            >
-                <Heart
-                    className={cn(
-                        "w-4 h-4 transition-colors duration-200",
-                        wished ? "fill-red-500 text-red-500" : "text-red-400"
-                    )}
-                />
-            </button>
-
-            {/* IMAGE */}
-            <Link
-                href={productHref}
-                className={viewMode === "list" ? "w-40 shrink-0" : "w-full"}
-            >
-                <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden cursor-pointer">
-                    {Array.isArray(images) && images.length > 0 ? (
-                        <Image
-                            src={images[0]}
-                            alt={title ?? "Product"}
-                            fill
-                            className="object-cover hover:scale-105 transition-transform duration-500"
-                            sizes="(max-width: 768px) 50vw, 20vw"
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-xl">
-                            <span className="text-gray-400 text-xs">No Image</span>
-                        </div>
-                    )}
-                </div>
-            </Link>
-
-            {/* INFO */}
+        <div>
             <div
+                onMouseEnter={() => setCardHovered(true)}
+                onMouseLeave={() => setCardHovered(false)}
                 className={cn(
-                    "px-1 pt-2 pb-1 flex flex-col gap-1 h-full",
-                    viewMode === "list" && "flex-1 justify-between"
+                    "w-full bg-white rounded-2xl shadow-md overflow-hidden p-2 relative transition-all duration-300",
+                    viewMode === "list"
+                        ? "sm:flex gap-4 items-center"
+                        : "flex flex-col h-full"
                 )}
             >
-                {/* TITLE */}
-                <Link href={productHref}>
-                    <p className="text-[13.5px] font-bold text-gray-900 hover:text-amber-400 transition-colors duration-150 leading-tight line-clamp-2">
-                        {title}
-                    </p>
-                </Link>
-
-                {/* CATEGORY */}
-                <Link href={categoryHref}>
-                    <p className="text-[12px] font-bold text-gray-400 hover:text-amber-400 transition-colors duration-150 leading-tight line-clamp-2">
-                        {category?.title}
-                    </p>
-                </Link>
-
-                {/* STARS */}
-                <div className="flex items-center gap-0.5 mt-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                            key={i}
-                            className={cn(
-                                "w-3.5 h-3.5",
-                                i < (ratings ?? 0)
-                                    ? "fill-amber-400 text-amber-400"
-                                    : "fill-none text-gray-300"
-                            )}
-                        />
-                    ))}
-                </div>
-
-                {/* PRICE + BUTTON */}
-                <div
-                    className={cn(
-                        "mt-auto", // 🔥 main fix (push bottom)
-                        viewMode === "list"
-                            ? "flex items-center justify-between"
-                            : "flex flex-col gap-2"
-                    )}
-                >
-                    {/* PRICE */}
-                    <p className="text-[15px] font-bold text-amber-500">
-                        ৳{" "}
-                        {(price ?? 0).toLocaleString("en-BD", {
-                            minimumFractionDigits: 2,
-                        })}
-                    </p>
-
-                    {/* BUTTON */}
-                    <Button
-                        onClick={onAddToCart}
-                        onMouseEnter={() => setBtnHovered(true)}
-                        onMouseLeave={() => setBtnHovered(false)}
+                <Tooltip>
+                    <TooltipTrigger
+                        onClick={() => {
+                            setSelectedSlug(slug as string);
+                            setOnModal(true);
+                        }}
                         className={cn(
-                            "w-full text-white text-[13px] font-semibold tracking-wide cursor-pointer",
-                            "relative overflow-hidden h-10",
-                            "bg-[#1e2a38] hover:text-amber-400 transition-colors duration-300",
-                            viewMode === "list" ? "w-30 px-4" : "w-full"
+                            "absolute cursor-pointer top-3 right-3 z-10 bg-white shadow-md p-2 rounded-full transition-all" +
+                            " duration-300",
+                            cardHovered
+                                ? "translate-x-0 opacity-100"
+                                : "translate-x-10 opacity-0"
                         )}
                     >
+                        <ZoomIn className={cn("w-4 h-4")}/>
+                    </TooltipTrigger>
+                    <TooltipContent side={"left"}>
+                        <p>Quick Zoom</p>
+                    </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                    <TooltipTrigger
+                        className={cn(
+                            "absolute cursor-pointer top-12 right-3 z-10 bg-white shadow-md p-2 rounded-full transition-all" +
+                            " duration-300",
+                            cardHovered
+                                ? "translate-x-0 opacity-100"
+                                : "translate-x-10 opacity-0"
+                        )}
+                        onClick={onWishlist}
+                    >
+                        <Heart className={cn("w-4 h-4", wished ? "fill-red-500 text-red-500" : "text-red-400")}/>
+                    </TooltipTrigger>
+                    <TooltipContent side={"left"}>
+                        <p>Add to wishlist</p>
+                    </TooltipContent>
+                </Tooltip>
+
+                {/* IMAGE */}
+                <Link
+                    href={productHref}
+                    className={viewMode === "list" ? "w-40 shrink-0" : "w-full"}
+                >
+                    <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden cursor-pointer">
+                        {Array.isArray(images) && images.length > 0 ? (
+                            <Image
+                                src={images[0]}
+                                alt={title ?? "Product"}
+                                fill
+                                className="object-cover hover:scale-105 transition-transform duration-500"
+                                sizes="(max-width: 768px) 50vw, 20vw"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-xl">
+                                <span className="text-gray-400 text-xs">No Image</span>
+                            </div>
+                        )}
+                    </div>
+                </Link>
+
+                {/* INFO */}
+                <div
+                    className={cn(
+                        "px-1 pt-2 pb-1 flex flex-col gap-1 h-full",
+                        viewMode === "list" && "flex-1 justify-between"
+                    )}
+                >
+                    {/* TITLE */}
+                    <Link href={productHref}>
+                        <p className="text-[13.5px] font-bold text-gray-900 hover:text-amber-400 transition-colors duration-150 leading-tight line-clamp-2">
+                            {title}
+                        </p>
+                    </Link>
+
+                    {/* CATEGORY */}
+                    <Link href={categoryHref}>
+                        <p className="text-[12px] font-bold text-gray-400 hover:text-amber-400 transition-colors duration-150 leading-tight line-clamp-2">
+                            {category?.title}
+                        </p>
+                    </Link>
+
+                    {/* STARS */}
+                    <div className="flex items-center gap-0.5 mt-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                                key={i}
+                                className={cn(
+                                    "w-3.5 h-3.5",
+                                    i < (ratings ?? 0)
+                                        ? "fill-amber-400 text-amber-400"
+                                        : "fill-none text-gray-300"
+                                )}
+                            />
+                        ))}
+                    </div>
+
+                    {/* PRICE + BUTTON */}
+                    <div
+                        className={cn(
+                            "mt-auto", // 🔥 main fix (push bottom)
+                            viewMode === "list"
+                                ? "flex items-center justify-between"
+                                : "flex flex-col gap-2"
+                        )}
+                    >
+                        {/* PRICE */}
+                        <div className="flex flex-wrap items-center gap-2">
+                            {/* Discount Price (main price) */}
+                            <p className="text-[14px] font-bold text-yellow-500 mb-2">
+                                ৳ {(discountPrice ?? price ?? 0).toLocaleString("en-BD", {
+                                minimumFractionDigits: 2,
+                            })}
+                            </p>
+
+                            {/* Original Price (cut) → only if discount */}
+                            {discountPrice && (
+                                <p className="text-[12px] font-bold text-gray-500 mb-2 line-through">
+                                    ৳ {(price ?? 0).toLocaleString("en-BD", {
+                                    minimumFractionDigits: 2,
+                                })}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* BUTTON */}
+                        <Button
+                            onClick={onAddToCart}
+                            onMouseEnter={() => setBtnHovered(true)}
+                            onMouseLeave={() => setBtnHovered(false)}
+                            className={cn(
+                                "w-full text-white text-[13px] font-semibold tracking-wide cursor-pointer",
+                                "relative overflow-hidden h-10",
+                                "bg-[#1e2a38] hover:text-amber-400 transition-colors duration-300",
+                                viewMode === "list" ? "w-30 px-4" : "w-full"
+                            )}
+                        >
                         <span
                             className={cn(
                                 "absolute inset-0 flex items-center justify-center transition-all duration-300",
@@ -219,19 +256,27 @@ const CategoryByProductCard = ({ product }: ProductCardProps) => {
                           Add To Cart
                         </span>
 
-                        <span
-                            className={cn(
-                                "absolute inset-0 flex items-center justify-center transition-all duration-300",
-                                btnHovered
-                                    ? "translate-y-0 opacity-100"
-                                    : "translate-y-full opacity-0"
-                            )}
-                        >
+                            <span
+                                className={cn(
+                                    "absolute inset-0 flex items-center justify-center transition-all duration-300",
+                                    btnHovered
+                                        ? "translate-y-0 opacity-100"
+                                        : "translate-y-full opacity-0"
+                                )}
+                            >
                           <ShoppingCart className="w-5 h-5" />
                         </span>
-                    </Button>
+                        </Button>
+                    </div>
                 </div>
             </div>
+            {selectedSlug && onModal &&
+                <ProductSingleModal
+                    slugID={selectedSlug!}
+                    open={onModal}
+                    onClose={() => setOnModal(false)}
+                />
+            }
         </div>
     );
 };
