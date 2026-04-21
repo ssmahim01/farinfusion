@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 'use client';
 
 import React from 'react';
@@ -5,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { useGetAllCategoryByProductQuery } from '@/redux/features/category/category.api';
 import ProductSkeleton from '@/components/public-view/common/ProductSkeleton';
 import { IProduct } from "@/types";
-import ProductCard from "@/components/public-view/common/ProductCard";
+import CategoryByProductCard from '../common/CategoryByProductCard';
 
 
 const CategoryByProduct = () => {
@@ -38,8 +39,8 @@ const CategoryByProduct = () => {
     return (
         <>
             {products.map((product) => (
-                <ProductCard
-                    key={product._id}
+                <CategoryByProductCard
+                    key={product?._id}
                     product={product}
                 />
             ))}
