@@ -25,38 +25,38 @@ export function NavbarDropdown({ user, onLogout }: any) {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className="p-0 rounded-full cursor-pointer border-2 border-[#c9a84c] h-7 w-7 flex items-center justify-center"
-        >
-          <User />
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+              variant="outline"
+              className="p-0 rounded-full cursor-pointer border-2 border-[#c9a84c] h-7 w-7 flex items-center justify-center"
+          >
+            <User />
+          </Button>
+        </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            {/* <Link href="/dashboard/profile"> */}
-            <Link href={user.role === "CUSTOMER" ? "/customer/dashboard/my-orders" : "/staff/dashboard"}>
+        <DropdownMenuContent className="w-56" align="end">
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild>
+              {/* <Link href="/dashboard/profile"> */}
+              <Link href={user.role === "CUSTOMER" ? "/customer/dashboard/my-orders" : "/staff/dashboard"}>
 
-              <User2 />
-              Dashboard
-              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-            </Link>
+                <User2 />
+                Dashboard
+                <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut />
+            Log out
+            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem onClick={handleLogout}>
-          <LogOut />
-          Log out
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
   )
 }

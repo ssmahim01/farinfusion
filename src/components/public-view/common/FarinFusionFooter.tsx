@@ -16,12 +16,7 @@ import FooterServiceStrip from "@/components/public-view/common/FooterServiceStr
 /* ─────────────────────────────────────────
    DATA
 ───────────────────────────────────────── */
-// const services = [
-//     { icon: Truck, label: "Free Shipping" },
-//     { icon: RotateCcw, label: "Returns Policy" },
-//     { icon: Headphones, label: "Online Support" },
-//     { icon: CreditCard, label: "Flexible Payment" },
-// ];
+
 
 const categories = [
     "Baby Cream",
@@ -33,19 +28,49 @@ const categories = [
 ];
 
 const usefulLinks = [
-    "Promotions",
-    "Stores",
-    "Our contacts",
-    "Delivery & Return",
-    "Outlet",
+    {
+        title : "Promotions",
+        link: ""
+    },
+    {
+        title :  "Stores",
+        link: "",
+    },
+    {
+        title :   "Our contacts",
+        link: "",
+    },
+    {
+        title : "Delivery & Return",
+        link : "delivery-return",
+    },
+    {
+        title :    "Outlet",
+        link: "",
+    }
 ];
 
 const footerMenu = [
-    "Blog",
-    "Our contacts",
-    "Promotions",
-    "Stores",
-    "Delivery & Return",
+    {
+        title : "Blog",
+        link: ""
+    },
+    {
+        title :  "Our contacts",
+        link: "",
+    },
+    {
+        title :   "Promotions",
+        link: "",
+    },
+    {
+        title : "Stores",
+        link: ""
+    },
+    {
+        title :    "Delivery & Return",
+        link : "delivery-return",
+    }
 ];
 
 const socials = [
@@ -62,7 +87,7 @@ const socials = [
 ───────────────────────────────────────── */
 const FarinFusionFooter= () => {
     return (
-        <footer className="w-full bg-[#2D3436] text-white mt-5">
+        <footer className="w-full primaryDark text-white mt-5">
             {/* ── Main Footer ─────────────────────── */}
             <div className=" container mx-auto px-4 ">
                 {/* ── Service Strip ───────────────────── */}
@@ -127,13 +152,13 @@ const FarinFusionFooter= () => {
                                 Useful Links
                             </h4>
                             <ul className="space-y-2.5">
-                                {usefulLinks.map((item) => (
-                                    <li key={item}>
+                                {usefulLinks.map((item, id) => (
+                                    <li key={id}>
                                         <Link
-                                            href="#"
+                                            href={`/${item?.link}`}
                                             className="text-sm text-white/60 hover:text-[#e8c97e] transition-colors duration-150"
                                         >
-                                            {item}
+                                            {item?.title}
                                         </Link>
                                     </li>
                                 ))}
@@ -147,13 +172,13 @@ const FarinFusionFooter= () => {
                                     Footer Menu
                                 </h4>
                                 <ul className="space-y-2.5">
-                                    {footerMenu.map((item) => (
-                                        <li key={item}>
+                                    {footerMenu.map((item, id) => (
+                                        <li key={id}>
                                             <Link
-                                                href="#"
+                                                href={`/${item?.link}`}
                                                 className="text-sm text-white/60 hover:text-[#e8c97e] transition-colors duration-150"
                                             >
-                                                {item}
+                                                {item.title}
                                             </Link>
                                         </li>
                                     ))}

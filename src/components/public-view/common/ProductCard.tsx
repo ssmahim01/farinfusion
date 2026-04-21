@@ -34,7 +34,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const productHref = slug ? `/product/${slug}` : "#";
   const categoryHref = category?.slug
-      ? `/product-by-category/${category?.slug}`
+      ? `/shop/category/${category?.slug}`
       : "#";
 
   const onWishlist = () => {

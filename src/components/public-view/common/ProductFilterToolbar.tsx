@@ -40,7 +40,7 @@ const ProductFilterToolbar = () => {
                         <div className="flex flex-col gap-1">
 
                             {categoryData.map((c: any) => {
-                                const href = `/product-by-category/${c?.slug}`;
+                                const href = `/shop/category/${c?.slug}`;
                                 const isActive = pathname === href;
                                 return(
                                     <Link

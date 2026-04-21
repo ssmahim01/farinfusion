@@ -69,7 +69,7 @@ export default function CartPage() {
                               </button>
 
                               <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                                <Link href={`/product/${cartItem.slug}`}>
+                                <Link href={`/products/${cartItem.slug}`}>
                                   <Image
                                       src={cartItem.images?.[0]}
                                       alt={cartItem.title}
@@ -82,7 +82,7 @@ export default function CartPage() {
 
                               <div className="min-w-0">
                                 <h3 className="text-sm font-medium line-clamp-2">
-                                  <Link href={`/product/${cartItem.slug}`}>
+                                  <Link href={`/products/${cartItem.slug}`}>
                                     {cartItem.title}
                                   </Link>
                                 </h3>
@@ -104,8 +104,8 @@ export default function CartPage() {
                                   disabled={!cartItem || cartItem.quantity <= 1}
                                   className={`w-8 h-8 border rounded flex items-center justify-center 
                                       ${!cartItem || cartItem.quantity <= 1
-                                          ? "cursor-not-allowed opacity-50"
-                                          : "hover:bg-gray-100 cursor-pointer"
+                                      ? "cursor-not-allowed opacity-50"
+                                      : "hover:bg-gray-100 cursor-pointer"
                                   }`}
                               >
                                 <Minus className="w-3 h-3" />
