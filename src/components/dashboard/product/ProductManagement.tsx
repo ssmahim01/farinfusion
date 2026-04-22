@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -84,6 +85,7 @@ import {
 } from "@/components/ui/pagination";
 import {
   useGetAllProductsQuery,
+  useToggleFeaturedMutation,
   useTrashUpdateProductMutation,
 } from "@/redux/features/product/product.api";
 import { IProduct } from "@/types";
@@ -276,6 +278,7 @@ function SortIcon({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
 export default function ProductManagement() {
   const router = useRouter();
   const [trashProduct] = useTrashUpdateProductMutation();
+  const [toggleFeatured] = useToggleFeaturedMutation();
 
   const [localSearch, setLocalSearch] = useState("");
   const [search, setSearch] = useState("");
@@ -842,6 +845,12 @@ export default function ProductManagement() {
                       cls: "text-center hidden sm:table-cell",
                     },
                     {
+                      label: "Featured",
+                      key: null,
+                      sortable: false,
+                      cls: "text-center",
+                    },
+                    {
                       label: "Status",
                       key: "status",
                       sortable: false,
@@ -978,6 +987,38 @@ export default function ProductManagement() {
                           <TrendingUp className="h-2.5 w-2.5" />
                           {product?.totalRevenue ?? 0}
                         </span>
+                      </td>
+                      {/* Featured Toggle */}
+                      <td className="px-3 py-3 text-center">
+                        <button
+                          onClick={async () => {
+                            try {
+                              await toggleFeatured(product._id).unwrap();
+                              toast.success(
+                                product.isFeatured
+                                  ? "Removed from featured"
+                                  : "Added to featured",
+                              );
+                            } catch (err: any) {
+                              toast.error("Failed to update");
+                            }
+                          }}
+                          className={cn(
+                            "relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300",
+                            product.isFeatured
+                              ? "bg-amber-500"
+                              : "bg-gray-300 dark:bg-gray-700",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300",
+                              product.isFeatured
+                                ? "translate-x-6"
+                                : "translate-x-1",
+                            )}
+                          />
+                        </button>
                       </td>
                       {/* Status */}
                       <td className="px-3 py-3 hidden sm:table-cell">
