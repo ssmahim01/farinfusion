@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 'use client'
-import React, { useState} from 'react';
+// import React, { useState} from 'react';
 import ProductFilterToolbar from "@/components/public-view/common/ProductFilterToolbar";
 import ProductFilterNavbar from "@/components/public-view/common/ProductFilterNavbar";
 import {useParams} from "next/navigation";

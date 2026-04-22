@@ -16,7 +16,8 @@ export type DeliveryStatus =
   | "NOT_SHIPPED"
   | "IN_TRANSIT"
   | "DELIVERED"
-  | "FAILED";
+  | "FAILED"
+  | "CANCELLED";
 
 export type CreateOrderPayload = {
   orderType: "POS" | "ONLINE" | "DELIVERY";
