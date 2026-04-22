@@ -180,7 +180,7 @@ export function TopProductsTable({
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-sm font-bold text-gray-900 dark:text-gray-50">
-              Top Selling Products
+              Top Completed Selling Products
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
               Ranked by units sold in selected period
@@ -240,19 +240,13 @@ export function TopProductsTable({
                 className="text-[10px] font-bold uppercase tracking-widest text-violet-700/60 dark:text-violet-500/60 cursor-pointer select-none text-center"
                 onClick={() => handleSort("totalSoldInPeriod")}
               >
-                Sold (Period)
+                Sold (All-time)
                 <SortIcon
                   active={sortKey === "totalSoldInPeriod"}
                   dir={sortDir}
                 />
               </TableHead>
-              <TableHead
-                className="text-[10px] font-bold uppercase tracking-widest text-violet-700/60 dark:text-violet-500/60 cursor-pointer select-none text-center"
-                onClick={() => handleSort("totalSold")}
-              >
-                Sold (All-time)
-                <SortIcon active={sortKey === "totalSold"} dir={sortDir} />
-              </TableHead>
+
               <TableHead
                 className="text-[10px] font-bold uppercase tracking-widest text-violet-700/60 dark:text-violet-500/60 cursor-pointer select-none text-center"
                 onClick={() => handleSort("availableStock")}
@@ -372,19 +366,14 @@ export function TopProductsTable({
                     </div>
                   </TableCell>
 
-                  {/* Sold in period */}
+                  {/* Sold all time */}
                   <TableCell className="text-center">
                     <span className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-0.5 text-xs font-bold text-violet-700 tabular-nums dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-400">
                       {product.totalSoldInPeriod.toLocaleString()}
                     </span>
                   </TableCell>
 
-                  {/* Sold all-time */}
-                  <TableCell className="text-center">
-                    <span className="text-sm font-semibold tabular-nums text-gray-600 dark:text-gray-400">
-                      {(product.totalSold ?? 0).toLocaleString()}
-                    </span>
-                  </TableCell>
+                  
 
                   {/* Stock */}
                   <TableCell className="text-center">
