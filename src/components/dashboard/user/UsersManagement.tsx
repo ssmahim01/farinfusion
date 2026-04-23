@@ -20,8 +20,9 @@ import TablePagination from "@/components/shared/TablePagination";
 import { DynamicDataTable } from "@/components/dashboard/DataTable";
 import DashboardManagementPageSkeleton from "@/components/dashboard/DashboardManagePageSkeleton";
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
-import UpdateUserModal from "@/components/dashboard/user/UpdateUserModal";
+import UpdateUserModal from "./UpdateUserModal";
 import ChangePasswordModal from "./ChangePasswordModal";
+import StaffManagementStats from "./StaffManagementStats";
 
 const UsersManagement = () => {
   const [trashUser] = useTrashUpdateUserMutation();
@@ -44,6 +45,18 @@ const UsersManagement = () => {
     page,
     limit,
   });
+
+  // Calculate stats
+  const users = data?.data ?? [];
+  const totalUsers = data?.meta?.total ?? 0;
+  const activeUsers = users.filter((u) => u.status === "active").length;
+  const newHires = users.filter((u) => {
+    const createdDate = new Date(u?.createdAt ?? "");
+    const monthAgo = new Date();
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+    return createdDate > monthAgo;
+  }).length;
+  const pendingApprovals = users.filter((u) => u.status === "pending").length;
 
   // Modal states
   const [selectedUser, setSelectedUser] = React.useState<IUser | null>(null);
@@ -115,24 +128,37 @@ const UsersManagement = () => {
   if (isError) return <p>Error loading users.</p>;
 
   return (
-    <div>
+    <div className="space-y-6">
       <DashboardPageHeader title="Staff Management" />
-      <UserToolbar
-        onSearchChange={setSearchTerm}
-        onSortChange={setSort}
-        onDateChange={setDateRange}
+
+      {/* Stats Section */}
+      <StaffManagementStats
+        totalUsers={totalUsers}
+        activeUsers={activeUsers}
+        newHires={newHires}
+        pendingApprovals={pendingApprovals}
+        loading={isLoading}
       />
-      <DynamicDataTable
-        columns={columns}
-        data={data?.data ?? []}
-        actions={actions}
-      />
-      {/* Pagination */}
-      <TablePagination
-        currentPage={page}
-        totalPages={data?.meta?.totalPage ?? 1}
-        onPageChange={setPage}
-      />
+
+      {/* Filters and Table */}
+      <div className="space-y-4">
+        <UserToolbar
+          onSearchChange={setSearchTerm}
+          onSortChange={setSort}
+          onDateChange={setDateRange}
+        />
+        <DynamicDataTable
+          columns={columns}
+          data={data?.data ?? []}
+          actions={actions}
+        />
+        {/* Pagination */}
+        <TablePagination
+          currentPage={page}
+          totalPages={data?.meta?.totalPage ?? 1}
+          onPageChange={setPage}
+        />
+      </div>
 
       {userToUpdate && (
         <ChangePasswordModal

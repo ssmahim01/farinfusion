@@ -57,13 +57,22 @@ export enum IsActive {
   BLOCKED = "BLOCKED",
 }
 
+export interface IPermission {
+  _id: string;
+  title: string;
+  url: string;
+  group: string;
+}
+
 export interface IUser {
   _id?: Types.ObjectId;
   name: string;
   email: string;
   password?: string;
   phone?: string;
+  permissions?: IPermission[];
   address: string;
+  status?: string;
   picture?: string;
   isActive?: IsActive;
   isVerified?: boolean;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
@@ -16,10 +17,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
-import { getSidebarData } from "@/utils/getSidebarData";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import logo from "../../../public/assets/FRN-Logo-scaled.webp";
+import type { UserRole } from "@/lib/permissions";
+import { buildSidebarItems } from "./user/buildSidebar";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -49,14 +52,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     );
   }
 
-  const role = data?.data?.role as
-    | "ADMIN"
-    | "MANAGER"
-    | "MODERATOR"
-    | "CUSTOMER"
-    | "TELLICELSS"
-    | "GENERALSTAFF"
-  const sidebarData = getSidebarData(role);
+  const userRole = (data?.data?.role as UserRole) || "MODERATOR";
+  const customPermissions = (data?.data?.permissions as any[]) || undefined;
+
+  const sidebarItems = buildSidebarItems(userRole, customPermissions);
 
   return (
     <Sidebar {...props}>
@@ -75,33 +74,56 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        {sidebarData?.map((section, sectionIndex) => (
-          <SidebarGroup key={`${section.title}-${sectionIndex}`}>
-            <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {section.items.map((item, itemIndex) => (
-                  <SidebarMenuItem key={`${item.url}-${itemIndex}`}>
-                    <SidebarMenuButton asChild>
-                      <Link
-                        href={item.url}
-                        onClick={handleLinkClick}
-                        className={`w-full flex items-center gap-2 text-sm transition-colors ${
-                          pathname === item.url
-                            ? "text-foreground bg-background font-semibold"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {item.icon && <item.icon className="w-4 h-4" />}
-                        {item.title}
-                      </Link>
+              <ScrollArea className="max-h-[90vh] pr-2">
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-amber-700 dark:text-amber-400 font-semibold">
+            {userRole === 'ADMIN' ? 'Admin Panel' : `${userRole} Access`}
+          </SidebarGroupLabel>
+
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sidebarItems.map((item, idx) => {
+                const isActive = pathname === item.href;
+                return (
+                  <SidebarMenuItem key={idx} className="transition-all duration-200">
+ <SidebarMenuButton
+                      asChild
+                      className={`hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors ${
+                        isActive
+                          ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 font-semibold'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      {item.href === '#logout' ? (
+                        <button
+                          onClick={handleLinkClick}
+                          className="w-full flex items-center gap-2"
+                          type="button"
+                          title={item.description}
+                        >
+                          {item.icon}
+                          <span>{item.title}</span>
+                        </button>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          onClick={handleLinkClick}
+                          className="w-full flex items-center gap-2"
+                          title={item.description}
+                        >
+                          {item.icon}
+                          <span>{item.title}</span>
+                        </Link>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+              <ScrollBar orientation="vertical"/>
+             </ScrollArea>
       </SidebarContent>
 
       <SidebarRail />

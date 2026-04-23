@@ -1,7 +1,13 @@
 import { IRegisterResponse } from "@/types/auth.types";
 import { baseApi } from "../baseApi";
-import type { IUser, IUserApiResponse, IResponse, GetQueryParams, IPaginationMeta } from "@/types";
-import {ILead} from "@/types/lead.types";
+import type {
+  IUser,
+  IUserApiResponse,
+  IResponse,
+  GetQueryParams,
+  IPaginationMeta,
+} from "@/types";
+import { ILead } from "@/types/lead.types";
 
 interface GetAllUsersResponse {
   success: boolean;
@@ -10,7 +16,6 @@ interface GetAllUsersResponse {
 }
 
 export const userApi = baseApi.injectEndpoints({
-
   // CREATE USER
   endpoints: (builder) => ({
     register: builder.mutation<IResponse<IRegisterResponse>, FormData>({
@@ -38,6 +43,14 @@ export const userApi = baseApi.injectEndpoints({
       ],
     }),
 
+    updateUserPermissions: builder.mutation({
+      query: ({ id, permissions }) => ({
+        url: `/user/${id}/permissions`,
+        method: "PATCH",
+        data: { permissions },
+      }),
+    }),
+
     // DELETE USER
     deleteUser: builder.mutation<IResponse<{ id: string }>, string>({
       query: (id) => ({
@@ -45,7 +58,8 @@ export const userApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (result, error, id) => [
-        "USERS", "CUSTOMERS",
+        "USERS",
+        "CUSTOMERS",
         { type: "USER", id },
         { type: "CUSTOMER", id },
       ],
@@ -64,7 +78,7 @@ export const userApi = baseApi.injectEndpoints({
       query: (params) => ({
         url: "/user/all-users",
         method: "GET",
-        params: params
+        params: params,
       }),
       providesTags: ["USERS"],
     }),
@@ -73,7 +87,7 @@ export const userApi = baseApi.injectEndpoints({
       query: (params) => ({
         url: "/user/all-customers",
         method: "GET",
-        params: params
+        params: params,
       }),
       providesTags: ["CUSTOMERS"],
     }),
@@ -82,7 +96,7 @@ export const userApi = baseApi.injectEndpoints({
       query: (params) => ({
         url: "/user/my-customers",
         method: "GET",
-        params: params
+        params: params,
       }),
       providesTags: ["CUSTOMERS"],
     }),
@@ -108,12 +122,15 @@ export const userApi = baseApi.injectEndpoints({
     }),
 
     // ⭐ TRASH UPDATE  and Restore both work
-    trashUpdateUser: builder.mutation<IResponse<ILead>, { _id: string;}>({
+    trashUpdateUser: builder.mutation<IResponse<ILead>, { _id: string }>({
       query: ({ _id }) => ({
         url: `/user/user-trash/${_id}`,
         method: "POST",
       }),
-      invalidatesTags: (result, error, { _id }) => ["USERS", { type: "USER", _id }],
+      invalidatesTags: (result, error, { _id }) => [
+        "USERS",
+        { type: "USER", _id },
+      ],
     }),
 
     // ⭐ GET ALL TRASH Customer
@@ -127,16 +144,16 @@ export const userApi = baseApi.injectEndpoints({
     }),
 
     // ⭐ TRASH UPDATE  and Restore both work customers
-    trashUpdateCustomer: builder.mutation<IResponse<IUser>, { _id: string;}>({
+    trashUpdateCustomer: builder.mutation<IResponse<IUser>, { _id: string }>({
       query: ({ _id }) => ({
         url: `/user/customer-trash/${_id}`,
         method: "POST",
       }),
-      invalidatesTags: (result, error, { _id }) => ["CUSTOMERS", { type: "CUSTOMER", _id }],
+      invalidatesTags: (result, error, { _id }) => [
+        "CUSTOMERS",
+        { type: "CUSTOMER", _id },
+      ],
     }),
-
-
-
   }),
   overrideExisting: true,
 });
@@ -146,13 +163,14 @@ export const {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useGetSingleUserQuery,
+  useUpdateUserPermissionsMutation,
   useGetAllUsersQuery,
   useGetMyCustomersQuery,
-    useGetAllCustomersQuery,
-    useGetMeQuery,
-    useGetAllTrashUsersQuery,
-    useTrashUpdateUserMutation,
+  useGetAllCustomersQuery,
+  useGetMeQuery,
+  useGetAllTrashUsersQuery,
+  useTrashUpdateUserMutation,
 
-    useGetAllTrashCustomersQuery,
-    useTrashUpdateCustomerMutation,
+  useGetAllTrashCustomersQuery,
+  useTrashUpdateCustomerMutation,
 } = userApi;
