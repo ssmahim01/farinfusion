@@ -90,6 +90,9 @@ export function OrderRowActions({
   const hasAccess =
     userRole && ["ADMIN", "MANAGER", "TELLICELSS"].includes(userRole);
 
+  const withoutTellicelss =
+    userRole && ["ADMIN", "MANAGER"].includes(userRole);
+
   const [editOpen, setEditOpen] = useState(false);
 
   const [sellerDialogOpen, setSellerDialogOpen] = useState(false);
@@ -169,7 +172,7 @@ export function OrderRowActions({
           )}
 
           {/* Assign Seller */}
-          {order.isPublished && hasAccess && (
+          {order.isPublished && withoutTellicelss && (
             <>
               <DropdownMenuItem
                 className="gap-2 text-sm cursor-pointer"

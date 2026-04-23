@@ -37,7 +37,7 @@ const UsersManagement = () => {
     endDate?: string;
   }>({});
 
-  const { data, isLoading, isError } = useGetAllUsersQuery({
+  const { data, isLoading, isError, refetch } = useGetAllUsersQuery({
     ...(searchTerm && { searchTerm }),
     ...(sort && { sort }),
     ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
@@ -145,6 +145,7 @@ const UsersManagement = () => {
         <UserToolbar
           onSearchChange={setSearchTerm}
           onSortChange={setSort}
+          refetch={refetch}
           onDateChange={setDateRange}
         />
         <DynamicDataTable
@@ -181,6 +182,7 @@ const UsersManagement = () => {
       {userToUpdate && (
         <UpdateUserModal
           open={openUpdateModal}
+          refetch={refetch}
           onOpenChange={setOpenUpdateModal}
           user={userToUpdate}
         />

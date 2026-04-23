@@ -117,7 +117,7 @@ function PasswordField({
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function RegisterModal() {
+export default function RegisterModal({ refetch }: any) {
   const [open, setOpen] = useState(false);
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [picturePreview, setPicturePreview] = useState<string | null>(null);
@@ -197,6 +197,7 @@ export default function RegisterModal() {
       if (res) {
         toast.success("Account created successfully!");
         handleClose();
+        refetch();
       }
     } catch (error) {
       console.error(error);

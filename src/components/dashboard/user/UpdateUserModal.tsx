@@ -66,12 +66,14 @@ type UpdateUserFormValues = z.infer<typeof updateUserSchema>;
 interface UpdateUserModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  refetch: () => void;
   user: IUser;
 }
 
 export default function UpdateUserModal({
   open,
   onOpenChange,
+  refetch,
   user,
 }: UpdateUserModalProps) {
   const [pictureFile, setPictureFile] = useState<File | null>(null);
@@ -192,6 +194,7 @@ export default function UpdateUserModal({
       if (res.success) {
         toast.success("User updated successfully with new permissions!");
         handleClose();
+        refetch();
       }
     } catch (error) {
       console.error("Update user error:", error);
@@ -471,6 +474,35 @@ export default function UpdateUserModal({
                     {errors.commissionSalary && (
                       <p className="text-xs text-red-500 font-medium">
                         {errors.commissionSalary.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="role"
+                      className="font-semibold text-foreground"
+                    >
+                      Role <span className="text-red-500">*</span>
+                    </Label>
+                    <Select
+                      value={selectedRole ?? ""}
+                      onValueChange={(val) => setValue("role", val as Role)}
+                    >
+                      <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:border-amber-500 focus:ring-amber-500">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        {Object.values(Role).map((r) => (
+                          <SelectItem key={r} value={r}>
+                            {r}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.role && (
+                      <p className="text-xs text-red-500 font-medium">
+                        {errors.role.message}
                       </p>
                     )}
                   </div>
