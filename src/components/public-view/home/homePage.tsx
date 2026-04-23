@@ -2,6 +2,7 @@ import React from 'react';
 import CategoryList from "@/components/public-view/category/CategoryList";
 import ProductList from "@/components/public-view/product/ProductList";
 import HeroSection from '@/components/home/HeroSection';
+import CustomerFavorites from '../customerFavoriteProducts/CustomerFavorites';
 
 const HomePage = () => {
     return (
@@ -9,6 +10,7 @@ const HomePage = () => {
             <HeroSection />
             <div className={"container mx-auto px-5 py-5 sm:py10 space-y-5"}>
                 <CategoryList />
+                <CustomerFavorites />
                 <ProductList />
             </div>
         </div>

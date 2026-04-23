@@ -130,6 +130,7 @@ export interface IProduct {
   // Basic Info
   title: string;
   totalRevenue: number;
+  isCusFavorite: boolean;
   isFeatured: boolean;
   brand: {
     _id: string;

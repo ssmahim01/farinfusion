@@ -19,7 +19,6 @@ import {
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import logo from "../../../public/assets/FRN-Logo-scaled.webp";
 import type { UserRole } from "@/lib/permissions";
 import { buildSidebarItems } from "./user/buildSidebar";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
@@ -62,68 +61,71 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="ml-5">
         <Link href="/" onClick={handleLinkClick}>
           <Image
-            src={logo}
+            src={"/assets/Farin-Fusion-Logo.jpeg"}
             alt="Farin Fusion Logo"
             width={500}
             height={500}
             quality={90}
-            className="w-full h-14"
+            className="w-full h-16 rounded-md"
             priority
           />
         </Link>
       </SidebarHeader>
 
       <SidebarContent>
-              <ScrollArea className="max-h-[90vh] pr-2">
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-amber-700 dark:text-amber-400 font-semibold">
-            {userRole === 'ADMIN' ? 'Admin Panel' : `${userRole} Access`}
-          </SidebarGroupLabel>
+        <ScrollArea className="max-h-[90vh] pr-2">
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-amber-700 dark:text-amber-400 font-semibold">
+              {userRole === "ADMIN" ? "Admin Panel" : `${userRole} Access`}
+            </SidebarGroupLabel>
 
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {sidebarItems.map((item, idx) => {
-                const isActive = pathname === item.href;
-                return (
-                  <SidebarMenuItem key={idx} className="transition-all duration-200">
- <SidebarMenuButton
-                      asChild
-                      className={`hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors ${
-                        isActive
-                          ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 font-semibold'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {sidebarItems.map((item, idx) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <SidebarMenuItem
+                      key={idx}
+                      className="transition-all duration-200"
                     >
-                      {item.href === '#logout' ? (
-                        <button
-                          onClick={handleLinkClick}
-                          className="w-full flex items-center gap-2"
-                          type="button"
-                          title={item.description}
-                        >
-                          {item.icon}
-                          <span>{item.title}</span>
-                        </button>
-                      ) : (
-                        <Link
-                          href={item.href}
-                          onClick={handleLinkClick}
-                          className="w-full flex items-center gap-2"
-                          title={item.description}
-                        >
-                          {item.icon}
-                          <span>{item.title}</span>
-                        </Link>
-                      )}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-              <ScrollBar orientation="vertical"/>
-             </ScrollArea>
+                      <SidebarMenuButton
+                        asChild
+                        className={`hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors ${
+                          isActive
+                            ? "bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 font-semibold"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {item.href === "#logout" ? (
+                          <button
+                            onClick={handleLinkClick}
+                            className="w-full flex items-center gap-2"
+                            type="button"
+                            title={item.description}
+                          >
+                            {item.icon}
+                            <span>{item.title}</span>
+                          </button>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            onClick={handleLinkClick}
+                            className="w-full flex items-center gap-2"
+                            title={item.description}
+                          >
+                            {item.icon}
+                            <span>{item.title}</span>
+                          </Link>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
       </SidebarContent>
 
       <SidebarRail />

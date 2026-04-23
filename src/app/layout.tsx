@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     siteName: "Farin Fusion",
     images: [
       {
-        url: "/assets/FRN-Logo-scaled.webp", 
+        url: "/favicon.ico", 
         width: 1200,
         height: 630,
         alt: "Farin Fusion - E-commerce Platform",
@@ -63,13 +63,13 @@ export const metadata: Metadata = {
     title: "Farin Fusion",
     description:
       "Premium fashion and lifestyle products with fast delivery and secure checkout.",
-    images: ["/assets/FRN-Logo-scaled.webp"],
+    images: ["/favicon.ico"],
   },
 
   icons: {
-    icon: "/assets/FRN-Logo-scaled.webp",
-    shortcut: "/assets/FRN-Logo-scaled.webp",
-    apple: "/assets/FRN-Logo-scaled.webp",
+    icon: "/favicon.ico",
+    shortcut:"/favicon.ico",
+    apple: "/favicon.ico",
   },
 
   applicationName: "Farin Fusion",

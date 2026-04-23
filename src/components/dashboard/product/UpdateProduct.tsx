@@ -64,6 +64,8 @@ const schema = z.object({
   status: z.nativeEnum(ProductStatus),
   description: z.string(),
   images: z.any().optional(),
+  isCusFavorite: z.enum(["true", "false"]),
+
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -121,6 +123,7 @@ const UpdateProduct = () => {
         totalAddedStock: p.totalAddedStock,
         status: p.status,
         description: p.description,
+        isCusFavorite: p?.isCusFavorite === true ? "true" : "false",
       });
 
       setTimeout(() => {
@@ -192,6 +195,7 @@ const UpdateProduct = () => {
         discountPrice: data.discountPrice,
         status: data.status,
         description: data.description,
+        isCusFavorite: data.isCusFavorite === "true",
       };
 
       if (role !== "MANAGER") {
@@ -239,7 +243,7 @@ const UpdateProduct = () => {
             </div>
 
             {/* BRAND + CATEGORY */}
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-4 gap-4">
               <div className={"space-y-2"}>
                 <Label>Brand</Label>
                 <Controller
@@ -314,6 +318,31 @@ const UpdateProduct = () => {
                             {status}
                           </SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+
+              <div className={"space-y-2"}>
+                <Label>Favorite Status</Label>
+
+                <Controller
+                  control={control}
+                  name="isCusFavorite"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      key={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+
+                      <SelectContent position={"popper"}>
+                        <SelectItem value="true">Favorite</SelectItem>
+                        <SelectItem value="false">Not Favorite</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
