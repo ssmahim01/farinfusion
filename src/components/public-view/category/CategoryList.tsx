@@ -49,7 +49,7 @@ const CategoryList = () => {
     }
 
     return (
-        <section className="w-full py-10">
+        <section className="container mx-auto px-5 py-5 sm:py-10">
             {/* Heading */}
             <div className="text-center mb-8 ">
                 <h2 className="text-2xl sm:text-3xl font-bold uppercase  heading-animate">

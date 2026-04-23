@@ -122,6 +122,7 @@ export interface IProduct {
   title: string;
   totalRevenue: number;
   isFeatured: boolean;
+  isCusFavorite?: boolean
   brand: {
     _id: string;
     title: string;
