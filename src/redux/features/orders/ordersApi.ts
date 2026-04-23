@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "../baseApi";
 import type {
   Order,
   OrderResponse,
   UpdateOrderRequest,
   GetQueryParams,
-  CreateOrderPayload,
 } from "@/types/orders";
 
 interface GetAllOrdersResponse {
@@ -20,7 +20,7 @@ interface GetAllOrdersResponse {
 
 export const ordersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createOrder: builder.mutation<Order, CreateOrderPayload>({
+    createOrder: builder.mutation<Order, any>({
       query: (data) => ({
         url: "/order",
         method: "POST",
@@ -32,6 +32,15 @@ export const ordersApi = baseApi.injectEndpoints({
     getAllOrders: builder.query<GetAllOrdersResponse, GetQueryParams>({
       query: (params) => ({
         url: "/order",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["ORDERS"],
+    }),
+
+    getAllScheduledOrders: builder.query<GetAllOrdersResponse, GetQueryParams>({
+      query: (params) => ({
+        url: "/order/scheduled-orders",
         method: "GET",
         params,
       }),
@@ -61,6 +70,21 @@ export const ordersApi = baseApi.injectEndpoints({
       ],
     }),
 
+    updateSeller: builder.mutation<
+      OrderResponse,
+      { _id: string; data: UpdateOrderRequest }
+    >({
+      query: ({ _id, data }) => ({
+        url: `/order/${_id}/assign-seller`,
+        method: "PATCH",
+        data,
+      }),
+      invalidatesTags: (_result, _error, { _id }) => [
+        { type: "ORDER", id: _id },
+        "ORDERS",
+      ],
+    }),
+
     confirmOrder: builder.mutation<
       OrderResponse,
       { _id: string; orderStatus: string }
@@ -75,7 +99,6 @@ export const ordersApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { _id }) => [
         { type: "ORDER", id: _id },
         "ORDERS",
-        "COURIERS",
       ],
     }),
 
@@ -124,6 +147,8 @@ export const {
   useGetSingleOrderQuery,
   useUpdateOrderMutation,
   useConfirmOrderMutation,
+  useGetAllScheduledOrdersQuery,
   useUpdateDeliveryStatusMutation,
+  useUpdateSellerMutation,
   useCompleteOrderMutation
 } = ordersApi;

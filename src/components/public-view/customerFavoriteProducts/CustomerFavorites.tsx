@@ -1,0 +1,137 @@
+"use client";
+
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CustomerFavoriteProductCard } from "./CustomerFavoriteProductCard";
+import { IProduct } from "@/types";
+
+export default function CustomerFavorites() {
+    const autoplay = useRef(Autoplay({ delay: 3500, stopOnInteraction: true }));
+    const [productsData, setProductsData] = useState<IProduct[]>([]);
+
+    const [emblaRef, emblaApi] = useEmblaCarousel(
+        { loop: true, align: "start", dragFree: false },
+        [autoplay.current]
+    );
+
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+
+    const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+    const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+    const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
+
+    useEffect(() => {
+        if (!emblaApi) return;
+        setScrollSnaps(emblaApi.scrollSnapList());
+        const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+        emblaApi.on("select", onSelect);
+        emblaApi.on("reInit", onSelect);
+        onSelect();
+        return () => { emblaApi.off("select", onSelect); };
+    }, [emblaApi]);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/all-products?isCusFavorite=true`);
+            const data = await res.json();
+            setProductsData(data.data);
+        };
+
+        fetchProducts();
+    }, []);
+
+
+    return (
+        <section
+            className=" bg-[#EEEE]"
+
+        >
+            <div className="container mx-auto px-5 py-5 sm:py-10">
+
+
+                {/* Heading */}
+                <div className="text-center mb-8">
+                    <h3 className={"text-2xl font-bold heading-animate "}>
+                        OUR CUSTOMER FAVORITE PRODUCT
+                    </h3>
+                    <p className="text-sm sm:text-[15px] font-bold text-gray-900">
+                        Top-rated skincare essentials loved by our customers.
+                    </p>
+                </div>
+
+                {/* Orange-bordered wrapper */}
+                <div
+                    className="rounded-2xl p-4 sm:p-6 relative"
+                    style={{ border: "2px solid #F5A623" }}
+                >
+                    {/* Prev Arrow */}
+                    <button
+                        onClick={scrollPrev}
+                        className="absolute -left-4 sm:-left-5 top-1/2 -translate-y-8 z-30
+                               w-9 h-9 rounded-full bg-white shadow-md border border-gray-200
+                               flex items-center justify-center
+                               hover:bg-[#F5A623] hover:border-[#F5A623] hover:text-white
+                               transition-all duration-200"
+                        aria-label="Previous"
+                    >
+                        <ChevronLeft size={18} />
+                    </button>
+
+                    {/* Next Arrow */}
+                    <button
+                        onClick={scrollNext}
+                        className="absolute -right-4 sm:-right-5 top-1/2 -translate-y-8 z-30
+                               w-9 h-9 rounded-full bg-white shadow-md border border-gray-200
+                               flex items-center justify-center
+                               hover:bg-[#F5A623] hover:border-[#F5A623] hover:text-white
+                               transition-all duration-200"
+                        aria-label="Next"
+                    >
+                        <ChevronRight size={18} />
+                    </button>
+
+                    {/* Embla Viewport */}
+                    <div className="overflow-hidden" ref={emblaRef}>
+                        <div className="flex" style={{ gap: "12px" }}>
+                            {productsData.map((product) => (
+                                <div
+                                    key={product._id}
+                                    className="
+                                    flex-none
+                                    w-[calc(50%-6px)]
+                                    sm:w-[calc(33.333%-8px)]
+                                    md:w-[calc(25%-9px)]
+                                    lg:w-[calc(20%-10px)]
+                                "
+                                >
+                                    <CustomerFavoriteProductCard product={product} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Dot indicators */}
+                    {/* <div className="flex justify-center items-center gap-2 mt-5">
+                        {scrollSnaps.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => scrollTo(index)}
+                                aria-label={`Go to slide ${index + 1}`}
+                                className="rounded-full transition-all duration-300"
+                                style={{
+                                    width: selectedIndex === index ? "22px" : "8px",
+                                    height: "8px",
+                                    backgroundColor: selectedIndex === index ? "#F5A623" : "#d1d5db",
+                                }}
+                            />
+                        ))}
+                    </div> */}
+                </div>
+
+            </div>
+        </section>
+    );
+}

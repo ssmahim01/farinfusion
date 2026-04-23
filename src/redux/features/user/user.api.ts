@@ -78,6 +78,15 @@ export const userApi = baseApi.injectEndpoints({
       providesTags: ["CUSTOMERS"],
     }),
 
+    getMyCustomers: builder.query<GetAllUsersResponse, GetQueryParams>({
+      query: (params) => ({
+        url: "/user/my-customers",
+        method: "GET",
+        params: params
+      }),
+      providesTags: ["CUSTOMERS"],
+    }),
+
     //  GET ME (Logged-in user's own profile)
     getMe: builder.query<IUserApiResponse, void>({
       query: () => ({
@@ -138,6 +147,7 @@ export const {
   useDeleteUserMutation,
   useGetSingleUserQuery,
   useGetAllUsersQuery,
+  useGetMyCustomersQuery,
     useGetAllCustomersQuery,
     useGetMeQuery,
     useGetAllTrashUsersQuery,

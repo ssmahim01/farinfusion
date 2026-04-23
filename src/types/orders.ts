@@ -16,15 +16,18 @@ export type DeliveryStatus =
   | "NOT_SHIPPED"
   | "IN_TRANSIT"
   | "DELIVERED"
-  | "FAILED";
+  | "FAILED"
+  | "CANCELLED";
 
 export type CreateOrderPayload = {
   orderType: "POS" | "ONLINE" | "DELIVERY";
   paymentMethod?: "COD" | "ONLINE";
   note: string;
   total: number;
+  couponCode: string;
   discount: number;
-
+  scheduleType?: "INSTANT" | "SCHEDULED";
+  scheduledAt?: Date;
   products: {
     product: string;
     quantity: number;
@@ -53,8 +56,11 @@ export interface Order {
   };
   shippingCost?: number;
   note: string;
+  couponCode?: string;
   orderType: "POS" | "ONLINE" | "DELIVERY";
   transactionId?: string;
+  scheduleType?: "INSTANT" | "SCHEDULED";
+  scheduledAt?: Date;
   paymentMethod?:
     | "COD"
     | "ONLINE"
@@ -69,6 +75,7 @@ export interface Order {
   subTotal?: number;
   discount?: number;
   customerEmail: string;
+  isPublished?: boolean;
   billingDetails?: {
     fullName: string;
     email: string;

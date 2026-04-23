@@ -6,19 +6,22 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {Trash2} from "lucide-react";
 import {useRouter} from "next/navigation";
+import DateFilter from "@/components/shared/DateFilter";
 
 type ProductToolbarProps = {
   onSearchChange?: (value: string) => void;
   onSortChange?: (value: string) => void;
+    onDateChange?: (value: { startDate?: string; endDate?: string }) => void;
 };
 
-export default function ProductToolbar({ onSearchChange, onSortChange }: ProductToolbarProps) {
+export default function ProductToolbar({ onSearchChange, onSortChange, onDateChange }: ProductToolbarProps) {
     const router = useRouter();
   return (
     <div className="flex items-center justify-between gap-2 w-full my-4">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <SearchForm onSearchChange={onSearchChange} />
         <Sort onChange={onSortChange} />
+          <DateFilter onChange={onDateChange} />
       </div>
 
         <div className="flex items-center gap-4">

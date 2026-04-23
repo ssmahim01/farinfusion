@@ -1,5 +1,5 @@
 import { UserRole } from "./auth-utils";
-import { adminSidebar, customerSidebar, managerSidebar, moderatorSidebar, telecallerSidebar } from "./sidebarItems";
+import { adminSidebar, customerSidebar, generalStaffSidebar, managerSidebar, moderatorSidebar, telecallerSidebar } from "./sidebarItems";
 
 
 export const getSidebarData = (role: UserRole) => {
@@ -12,6 +12,8 @@ export const getSidebarData = (role: UserRole) => {
       return moderatorSidebar;
     case "TELLICELSS":
       return telecallerSidebar;
+    case "GENERALSTAFF":
+      return generalStaffSidebar;
     case "CUSTOMER":
       return customerSidebar;
     default:

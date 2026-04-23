@@ -65,10 +65,10 @@ export function LoginForm({
 
         if (res.success) {
             login(res.user.user);
-            if (res.user.user.role === "CUSTOMER") {
-                router.push("/customer/dashboard/my-orders");
+            if (res.user.user.role === "CUSTOMER" || res.user.user.role === "GENERALSTAFF") {
+                router.push("/staff/dashboard");
             } else if ((res.user.user.role === "MANAGER") || (res.user.user.role === "MODERATOR"
-             || (res.user.user.role === "ADMIN")
+             || (res.user.user.role === "ADMIN") || (res.user.user.role === "TELLICELSS")
             )) {
                 router.push("/staff/dashboard");
             } else {

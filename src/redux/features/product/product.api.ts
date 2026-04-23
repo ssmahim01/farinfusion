@@ -1,5 +1,10 @@
 import { baseApi } from "../baseApi";
-import type { IResponse, GetQueryParams, IPaginationMeta, IProduct } from "@/types";
+import type {
+  IResponse,
+  GetQueryParams,
+  IPaginationMeta,
+  IProduct,
+} from "@/types";
 
 interface GetAllFoodsResponse {
   success: boolean;
@@ -9,7 +14,6 @@ interface GetAllFoodsResponse {
 
 export const productApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-
     // ⭐ CREATE PRODUCT
     createProduct: builder.mutation<IResponse<IProduct>, FormData>({
       query: (formData) => ({
@@ -21,13 +25,19 @@ export const productApi = baseApi.injectEndpoints({
     }),
 
     // ⭐ UPDATE PRODUCT
-    updateProduct: builder.mutation<IResponse<IProduct>, { _id: string; formData: FormData }>({
+    updateProduct: builder.mutation<
+      IResponse<IProduct>,
+      { _id: string; formData: FormData }
+    >({
       query: ({ _id, formData }) => ({
         url: `/product/${_id}`,
         method: "PATCH",
         data: formData,
       }),
-      invalidatesTags: (result, error, { _id }) => ["PRODUCTS", { type: "PRODUCT", _id }],
+      invalidatesTags: (result, error, { _id }) => [
+        "PRODUCTS",
+        { type: "PRODUCT", _id },
+      ],
     }),
 
     // ⭐ DELETE PRODUCT
@@ -36,7 +46,10 @@ export const productApi = baseApi.injectEndpoints({
         url: `/product/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, id) => ["PRODUCTS", { type: "PRODUCT", id }],
+      invalidatesTags: (result, error, id) => [
+        "PRODUCTS",
+        { type: "PRODUCT", id },
+      ],
     }),
 
     // ⭐ GET SINGLE PRODUCT
@@ -68,24 +81,36 @@ export const productApi = baseApi.injectEndpoints({
       providesTags: ["PRODUCTS"],
     }),
 
+    toggleFeatured: builder.mutation({
+      query: (id) => ({
+        url: `/product/${id}/toggle-featured`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["PRODUCTS"],
+    }),
+
     // ⭐ TRASH UPDATE PRODUCT and Restore both work
-    trashUpdateProduct: builder.mutation<IResponse<IProduct>, { _id: string;}>({
+    trashUpdateProduct: builder.mutation<IResponse<IProduct>, { _id: string }>({
       query: ({ _id }) => ({
         url: `/product/product-trash/${_id}`,
         method: "POST",
       }),
-      invalidatesTags: (result, error, { _id }) => ["PRODUCTS", { type: "PRODUCT", _id }],
+      invalidatesTags: (result, error, { _id }) => [
+        "PRODUCTS",
+        { type: "PRODUCT", _id },
+      ],
     }),
   }),
   overrideExisting: true,
 });
 
 export const {
-    useCreateProductMutation,
-    useUpdateProductMutation,
-    useGetSingleProductQuery,
-    useDeleteProductMutation,
-    useGetAllProductsQuery,
-    useGetAllTrashProductsQuery,
-    useTrashUpdateProductMutation,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useGetSingleProductQuery,
+  useDeleteProductMutation,
+  useGetAllProductsQuery,
+  useToggleFeaturedMutation,
+  useGetAllTrashProductsQuery,
+  useTrashUpdateProductMutation,
 } = productApi;

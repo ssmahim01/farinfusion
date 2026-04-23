@@ -27,6 +27,8 @@ const deliveryStatusStyles: Record<string, string> = {
     'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700',
   FAILED:
     'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+  CANCELLED:
+    'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
 };
 
 const fallbackStyle =
@@ -43,6 +45,7 @@ const deliveryIcons: Record<string, React.ReactNode> = {
   IN_TRANSIT: <Truck className="h-3 w-3" />,
   NOT_SHIPPED: <Package className="h-3 w-3" />,
   FAILED: <XCircle className="h-3 w-3" />,
+  CANCELLED: <XCircle className="h-3 w-3" />,
 };
 
 export function OrderStatusBadge({ status, type = 'order' }: OrderStatusBadgeProps) {

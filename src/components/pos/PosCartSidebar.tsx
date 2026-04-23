@@ -9,11 +9,20 @@ import type { POSCartItem, OrderType } from "@/types/pos";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ScheduleOrder } from "../shared/ScheduleOrder";
 
 interface POSCartSidebarProps {
   items: POSCartItem[];
   onItemQuantityChange: (productId: string, quantity: number) => void;
   onItemRemove: (productId: string) => void;
+  schedule: {
+    type: "INSTANT" | "SCHEDULED";
+    scheduledAt?: string;
+  };
+  setSchedule: (val: {
+    type: "INSTANT" | "SCHEDULED";
+    scheduledAt?: string;
+  }) => void;
   onCheckout: (
     customerData: CustomerData,
     orderType: OrderType,
@@ -41,6 +50,8 @@ export function POSCartSidebar({
   onItemQuantityChange,
   onItemRemove,
   onCheckout,
+  schedule,
+  setSchedule,
   isProcessing = false,
 }: POSCartSidebarProps) {
   const searchParams = useSearchParams();
@@ -49,6 +60,7 @@ export function POSCartSidebar({
   const [discountInput, setDiscountInput] = useState("");
   const [discountError, setDiscountError] = useState("");
   const [deliveryCharge, setDeliveryCharge] = useState("");
+  const [isBlocked, setIsBlocked] = useState(false);
 
   const [customerData, setCustomerData] = useState<CustomerData>({
     name: "",
@@ -119,6 +131,11 @@ export function POSCartSidebar({
     (orderType === "PICKUP" || customerData.address.trim());
 
   const handleCheckout = () => {
+    if (isBlocked) {
+      toast.error("This customer already placed order today");
+      return;
+    }
+
     if (isFormValid && items.length > 0 && !discountError) {
       onCheckout(
         customerData,
@@ -129,6 +146,28 @@ export function POSCartSidebar({
       );
     }
   };
+
+  useEffect(() => {
+    if (!customerData.phone) return;
+
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URl}/order/check-phone?phone=${customerData.phone}`,
+        );
+        const data = await res.json();
+
+        if (data.blocked) {
+          setIsBlocked(true);
+          toast.warning("Customer already ordered today");
+        } else {
+          setIsBlocked(false);
+        }
+      } catch {}
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [customerData.phone]);
 
   const fieldCls =
     "text-sm rounded-lg border-gray-200 bg-gray-50/50 dark:border-gray-700 dark:bg-gray-800/50 focus:border-blue-400 dark:focus:border-blue-500 transition-colors";
@@ -384,6 +423,8 @@ export function POSCartSidebar({
         </div>
       </div>
 
+      <ScheduleOrder value={schedule} onChange={setSchedule} />
+
       {/* ── PINNED: Checkout button ── */}
       <div className="shrink-0 border-t border-gray-200 dark:border-gray-700 p-4">
         <Button
@@ -392,7 +433,8 @@ export function POSCartSidebar({
             items.length === 0 ||
             !isFormValid ||
             isProcessing ||
-            !!discountError
+            !!discountError ||
+            isBlocked
           }
           className={cn(
             "hover:cursor-pointer w-full rounded-xl py-5 text-sm font-bold transition-all duration-200",

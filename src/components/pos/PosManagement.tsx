@@ -15,17 +15,28 @@ import { useCreateOrderMutation } from "@/lib/hooks";
 import { useGetMeQuery } from "@/redux/features/user/user.api";
 import { useGetAllCategoriesQuery } from "@/redux/features/category/category.api";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export default function POSManagement() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [category, setCategory] = React.useState("");
   const [cartItems, setCartItems] = useState<POSCartItem[]>([]);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  const [schedule, setSchedule] = useState<{
+    type: "INSTANT" | "SCHEDULED";
+    scheduledAt?: string;
+  }>({
+    type: "INSTANT",
+  });
 
   const { data: user } = useGetMeQuery(undefined);
+  const router = useRouter();
 
-  const { data: productsData, isLoading: isLoadingProducts } =
-    useGetAllProductsQuery({});
+  const {
+    data: productsData,
+    isLoading: isLoadingProducts,
+    refetch,
+  } = useGetAllProductsQuery({});
   const { data: categoriesData } = useGetAllCategoriesQuery({});
 
   const [createOrder, { isLoading: isCreatingOrder }] =
@@ -55,7 +66,7 @@ export default function POSManagement() {
           (p.category as any)?.title?.toLowerCase() ===
             category.toLowerCase() ||
           (typeof p.category === "string" &&
-            p.category.toLowerCase() === category.toLowerCase()),
+            p.category === category.toLowerCase()),
       );
     }
 
@@ -119,19 +130,29 @@ export default function POSManagement() {
       //   return;
       // }
 
-      if (orderType === "DELIVERY" && deliveryCharge <= 0) {
-        toast.error("Delivery charge required");
+      // if (orderType === "DELIVERY" && deliveryCharge <= 0) {
+      //   toast.error("Delivery charge required");
+      //   return;
+      // }
+
+      if (schedule.type === "SCHEDULED" && !schedule.scheduledAt) {
+        toast.error("Please select schedule date & time");
         return;
       }
 
-      await createOrder({
+      const res = await createOrder({
         orderType: "POS",
         paymentMethod: "COD",
         products: cartItems.map((item) => ({
-          product: item.product._id!,
-          title: item?.product?.title || "Unknown Product",
+          product: item.product._id ?? "",
+          title: item.product?.title || "Unknown Product",
           quantity: item.quantity,
         })),
+        scheduleType: schedule.type,
+        scheduledAt:
+          schedule.type === "SCHEDULED"
+            ? new Date(schedule.scheduledAt ?? "")
+            : undefined,
         total: totalAmount,
         discount: discountAmount ?? 0,
         shippingCost: orderType === "DELIVERY" ? deliveryCharge : 0,
@@ -145,9 +166,27 @@ export default function POSManagement() {
         seller: user?.data?._id,
       }).unwrap();
 
-      toast.success("Order created successfully!");
-      setCartItems([]);
-      setMobileCartOpen(false);
+      if (res) {
+        if (schedule.type === "SCHEDULED") {
+          toast.success(
+            `Order scheduled for ${new Date(
+              schedule.scheduledAt ?? "",
+            ).toLocaleString()}`,
+          );
+        } else {
+          if (user?.data?.role === "MODERATOR") {
+            toast.success("Order created successfully!");
+            router.push("/staff/dashboard/my-orders");
+          } else {
+            toast.success("Order created successfully!");
+            router.push("/staff/dashboard/orders-management");
+          }
+        }
+
+        setCartItems([]);
+        refetch();
+        setMobileCartOpen(false);
+      }
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create order");
     }
@@ -302,6 +341,8 @@ export default function POSManagement() {
           onItemQuantityChange={handleUpdateQuantity}
           onItemRemove={handleRemoveFromCart}
           onCheckout={handleCheckout}
+          schedule={schedule}
+          setSchedule={setSchedule}
           isProcessing={isCreatingOrder}
         />
       </div>
@@ -341,6 +382,8 @@ export default function POSManagement() {
             items={cartItems}
             onItemQuantityChange={handleUpdateQuantity}
             onItemRemove={handleRemoveFromCart}
+            schedule={schedule}
+            setSchedule={setSchedule}
             onCheckout={handleCheckout}
             isProcessing={isCreatingOrder}
           />

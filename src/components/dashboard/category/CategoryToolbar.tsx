@@ -6,26 +6,31 @@ import {Button} from "@/components/ui/button";
 import {Trash2} from "lucide-react";
 import {useRouter} from "next/navigation";
 import CategorySort from "@/components/dashboard/category/CategorySort";
+import DateFilter from "@/components/shared/DateFilter";
 
 
 type CategoryToolbarProps = {
   onSearchChange?: (value: string) => void;
   onSortChange?: (value: string) => void;
+    onDateChange?: (value: { startDate?: string; endDate?: string }) => void;
 };
 
 export default function CategoryToolbar({
   onSearchChange,
-  onSortChange,
+  onSortChange,onDateChange
 }: CategoryToolbarProps) {
     const router = useRouter();
   return (
     <div className="sm:flex space-y-2 sm:space-y-0 items-center justify-between gap-2 w-full my-4">
-      <div className="flex items-center gap-4">
+      <div className="sm:flex items-center space-y-2 sm:space-y-0 gap-4">
         {/* Search */}
         <SearchForm onSearchChange={onSearchChange} />
 
         {/* Sort */}
-        <CategorySort onChange={onSortChange} />
+          <div className={"grid grid-cols-2 gap-4 items-center"}>
+              <CategorySort onChange={onSortChange} />
+              <DateFilter onChange={onDateChange} />
+          </div>
       </div>
 
       {/* Create Category Modal */}

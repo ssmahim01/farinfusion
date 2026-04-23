@@ -1,7 +1,7 @@
-export * from './pos';
-export type { Order, OrderStatus, DeliveryStatus } from '../types/orders';
-export type { CourierProvider } from '../types/courier';
-export type { GetQueryParams } from '../types/orders';
+export * from "./pos";
+export type { Order, OrderStatus, DeliveryStatus } from "../types/orders";
+export type { CourierProvider } from "../types/courier";
+export type { GetQueryParams } from "../types/orders";
 
 export interface IIngredient {
   name: string;
@@ -27,53 +27,52 @@ export interface IPaginationMeta {
   status?: string;
 }
 
-export type { ILogin, IRegister } from "./auth.type"
+export type { ILogin, IRegister } from "./auth.type";
 
 export interface IResponse<T> {
-  statusCode: number
-  success: boolean
-  message: string
-  data: T
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data: T;
 }
 
 export interface ISidebarItem {
-  title: string,
+  title: string;
   items: {
-    title: string,
-    url: string,
-    component: ComponentType
-  }[]
-
+    title: string;
+    url: string;
+    component: ComponentType;
+  }[];
 }
 
 export enum Role {
-    ADMIN = "ADMIN",
-    MANAGER = "MANAGER",
-    MODERATOR = "MODERATOR",
-    TELLICELSS = "TELLICELSS"
+  ADMIN = "ADMIN",
+  MANAGER = "MANAGER",
+  MODERATOR = "MODERATOR",
+  TELLICELSS = "TELLICELSS",
 }
 export enum IsActive {
-    ACTIVE = "ACTIVE",
-    INACTIVE = "INACTIVE",
-    BLOCKED = "BLOCKED"
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  BLOCKED = "BLOCKED",
 }
 
 export interface IUser {
-    _id?: Types.ObjectId;
-    name: string;
-    email: string;
-    password?: string;
-    phone?: string;
-    address: string;
-    picture?: string;
-    isActive?: IsActive;
-    isVerified?: boolean;
-    isDeleted?: boolean;
-    salary?: number;
-    commissionSalary?: number;
-    role?: Role;
-    createdAt?: string
-    updatedAt?: string
+  _id?: Types.ObjectId;
+  name: string;
+  email: string;
+  password?: string;
+  phone?: string;
+  address: string;
+  picture?: string;
+  isActive?: IsActive;
+  isVerified?: boolean;
+  isDeleted?: boolean;
+  salary?: number;
+  commissionSalary?: number;
+  role?: Role;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface IUserApiResponse {
@@ -96,63 +95,75 @@ export interface ICategory {
 }
 
 export enum BrandStatus {
-    ACTIVE = "ACTIVE",
-    INACTIVE = "INACTIVE",
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
 }
 
 export interface IBrand {
-  _id: string
-    title: string;
-    slug: string;
-    description: string;
-    image: string;
-    productCount: number;
-    status: BrandStatus;
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  image: string;
+  productCount: number;
+  status: BrandStatus;
 }
 
 export enum ProductStatus {
-    ACTIVE = "ACTIVE",
-    INACTIVE = "INACTIVE",
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
 }
 
 // ------ product ---
 export interface IProduct {
-    _id?: string;
+  _id?: string;
 
-    // Basic Info
-    title: string;                  // e.g., "Aveeno Baby Sunscreen"
-    brand: string;           // Reference to Brand collection
-    category: string;        // Reference to Category collection
-    size?: string;                  // e.g., "88ml"
-    slug?: string;                  // URL-friendly slug
+  // Basic Info
+  title: string;
+  totalRevenue: number;
+  isFeatured: boolean;
+  isCusFavorite?: boolean
+  brand: {
+    _id: string;
+    title: string;
+    slug: string;
+  };
+  category: {
+    _id: string;
+    title: string;
+    slug: string;
+    image: string[];
+  };
+  size?: string;
+  slug?: string;
 
-    // Pricing
-    price: number;                  // e.g., 2350
-    discountPrice?: number;         // optional discounted price
-    buyingPrice?: number;
+  // Pricing
+  price: number;
+  discountPrice?: number;
+  buyingPrice?: number;
 
-    // Stock / Availability
-    totalAddedStock?: number;        // Total stock ever added for this product
-    totalSold?: number;              // total stock sold
-    availableStock?: number;         // calculated as totalAddedStock - totalSold
-    status: ProductStatus;
-    isDeleted?: boolean;
-    // Media
-    images: string[];               // Array of image URLs
+  // Stock / Availability
+  totalAddedStock?: number;
+  totalSold?: number;
+  availableStock?: number;
+  status: ProductStatus;
+  isDeleted?: boolean;
+  // Media
+  images: string[];
 
-    // Ratings & Reviews
-    ratings?: number;               // average rating
-    reviews?: {
-        user: string;
-        rating: number;
-        comment: string;
-        date: Date;
-    }[];
+  // Ratings & Reviews
+  ratings?: number;
+  reviews?: {
+    user: string;
+    rating: number;
+    comment: string;
+    date: Date;
+  }[];
 
-    // Description
-    description: string;            // Full product description
+  // Description
+  description: string;
 
-    // Optional meta
-    createdAt?: Date;
-    updatedAt?: Date;
+  // Optional meta
+  createdAt?: Date;
+  updatedAt?: Date;
 }

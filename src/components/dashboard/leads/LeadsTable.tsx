@@ -52,6 +52,7 @@ import Sort from "@/components/shared/Sort";
 import TablePagination from "@/components/shared/TablePagination";
 import LeadAddedModal from "@/components/dashboard/leads/LeadAddedModal";
 import { cn } from "@/lib/utils";
+import DateFilter from "@/components/shared/DateFilter";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   NEW: {
@@ -161,9 +162,16 @@ const LeadsTable: React.FC = () => {
   const [page, setPage] = React.useState(1);
   const limit = 10;
 
+  const [dateRange, setDateRange] = React.useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
   const { data, isLoading, isError } = useGetAllLeadQuery({
     ...(searchTerm && { searchTerm }),
     ...(sort && { sort }),
+    ...(dateRange.startDate && { "createdAt[gte]": dateRange.startDate }),
+    ...(dateRange.endDate && { "createdAt[lte]": dateRange.endDate }),
     page,
     limit,
   });
@@ -197,6 +205,11 @@ const LeadsTable: React.FC = () => {
     leadData.length > 0 && selectedIds.length === leadData.length;
 
   const handleSell = (lead: ILead) => {
+    if (lead.hasOrderedToday) {
+      toast.error("This customer already placed an order today");
+      return;
+    }
+
     const params = new URLSearchParams({
       prefill: "1",
       name: lead.name ?? "",
@@ -263,13 +276,16 @@ const LeadsTable: React.FC = () => {
           {/* Toolbar */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
-              <SearchForm onSearchChange={setSearchTerm} />
+              <div className={"w-full sm:w-auto"}>
+                <SearchForm onSearchChange={setSearchTerm} />
+              </div>
               <Sort onChange={setSort} />
               {selectedIds.length > 0 && (
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
                   {selectedIds.length} selected
                 </span>
               )}
+              <DateFilter onChange={setDateRange} />
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -391,6 +407,11 @@ const LeadsTable: React.FC = () => {
                               <p className="truncate text-[11px] text-gray-400 dark:text-gray-500 md:hidden">
                                 {item.phone}
                               </p>
+                              {item.hasOrderedToday && (
+                                <span className="ml-2 inline-flex items-center gap-1 text-[10px] text-red-500">
+                                  ⚠ Maximum 1 order per day
+                                </span>
+                              )}
                               {/* Status pill on mobile */}
                               <span
                                 className={cn(
@@ -485,7 +506,10 @@ const LeadsTable: React.FC = () => {
                           <div className="flex items-center justify-end gap-1.5">
                             {/* Sell button */}
                             <button
-                              onClick={() => handleSell(item)}
+                              // disabled={item.hasOrderedToday}
+                              onClick={() => {
+                                handleSell(item);
+                              }}
                               className={cn(
                                 "hover:cursor-pointer group relative overflow-hidden",
                                 "inline-flex items-center gap-1.5 rounded-lg",
@@ -588,6 +612,7 @@ const LeadsTable: React.FC = () => {
             : "Are you sure?"
         }
         onConfirm={handleConfirmDelete}
+        actionType={"delete"}
       />
     </div>
   );
