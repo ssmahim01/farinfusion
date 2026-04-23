@@ -11,26 +11,22 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Link from "next/link"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { LogOut, User, User2 } from "lucide-react"
+import { LogOut, User2 } from "lucide-react"
 import { logoutUser } from "@/utils/logoutUser"
 import { useGetMeQuery } from "@/redux/features/user/user.api"
 import { ProfileAvatar } from "./ProfileAvatar"
-import React from "react";
-import {IUser} from "@/types";
-import UserDetailsModal from "@/components/dashboard/user/UserDetailsModal";
 
 export function ProfileDropdown() {
-  const [selectedUser, setSelectedUser] = React.useState<IUser | null>(null);
-  const [openViewModal, setOpenViewModal] = React.useState(false);
 
   const {data} = useGetMeQuery(undefined)
 
   const router = useRouter()
 
   const handleLogout = async () => {
-    await logoutUser()
+    logoutUser()
     toast.success("Logout successful")
     router.push("/")
 
@@ -45,48 +41,24 @@ export function ProfileDropdown() {
           variant="outline"
           className="p-0 rounded-full h-10 w-10 flex items-center justify-center"
         >
-         <ProfileAvatar />
+          <ProfileAvatar />
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-56" align="end">
+      <DropdownMenuContent className="w-56" align="start">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuGroup>
-          {/*<DropdownMenuItem asChild>*/}
-          {/*  <Link href={`${((data?.data?.role === "ADMIN") || ( data?.data?.role === "MANAGER") || ( data?.data?.role === "MODERATOR")) ? "/staff/dashboard/profile" : "/customer/dashboard/my-orders"}`}>*/}
-          {/*  /!* <Link href={`/staff/dashboard/profile`}> *!/*/}
-          {/*    <User2 />*/}
-          {/*    Profile*/}
-          {/*    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>*/}
-          {/*  </Link>*/}
-          {/*</DropdownMenuItem>*/}
-          <DropdownMenuItem
-              onClick={() => {
-                const role = data?.data?.role;
-
-                if (role === "ADMIN" || role === "MANAGER" || role === "MODERATOR") {
-                  // staff হলে modal open
-                  setSelectedUser(data?.data || null);
-                  setOpenViewModal(true);
-                } else {
-                  // customer হলে অন্য কিছু করতে পারো (optional)
-                  setSelectedUser(data?.data || null);
-                  setOpenViewModal(true);
-                }
-              }}
-          >
-            <User2 />
-            Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+          <DropdownMenuItem asChild>
+            <Link href={`${((data?.data?.role === "ADMIN") || ( data?.data?.role === "MANAGER") || ( data?.data?.role === "MODERATOR")) ? "/staff/dashboard/profile" : "/customer/dashboard/my-orders"}`}>
+            {/* <Link href={`/staff/dashboard/profile`}> */}
+              <User2 />
+              Profile
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
-
-        <DropdownMenuItem disabled>
-          <User />
-         {data?.data?.role}
-        </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut />
@@ -94,14 +66,6 @@ export function ProfileDropdown() {
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
-
-      {selectedUser && (
-          <UserDetailsModal
-              open={openViewModal}
-              onOpenChange={setOpenViewModal}
-              user={selectedUser}
-          />
-      )}
     </DropdownMenu>
   )
 }

@@ -41,9 +41,9 @@ import {
   useGetAllUsersQuery,
   useGetMeQuery,
 } from "@/redux/features/user/user.api";
+import { useUpdateOrderMutation } from "@/lib/hooks";
 import { toast } from "sonner";
 import { EditOrderModal } from "./EditOrderModal";
-import { useUpdateSellerMutation } from "@/redux/features/orders/ordersApi";
 
 interface OrderRowActionsProps {
   order: Order;
@@ -72,23 +72,8 @@ export function OrderRowActions({
   const { data } = useGetMeQuery(undefined);
   const userRole = data?.data?.role;
   const canEdit =
-    userRole &&
-    ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) &&
+    userRole && ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) &&
     !order?.courierName;
-
-  // const isRoleAllowed =
-  //     ["ADMIN", "MANAGER", "TELLICELSS"].includes(userRole) ||
-  //     (userRole === "MODERATOR" && !isConfirmed);
-  //
-  // const canEdit =
-  //     userRole &&
-  //     isRoleAllowed &&
-  //     !order?.courierName &&
-  //     !isCompleted &&
-  //     !isDelivered;
-
-  const hasAccess =
-    userRole && ["ADMIN", "MANAGER", "TELLICELSS"].includes(userRole);
 
   const [editOpen, setEditOpen] = useState(false);
 
@@ -99,13 +84,11 @@ export function OrderRowActions({
   const [isSaving, setIsSaving] = useState(false);
 
   const { data: users } = useGetAllUsersQuery({});
-  const [updateSeller] = useUpdateSellerMutation();
+  const [updateOrder] = useUpdateOrderMutation();
 
   const sellerOptions =
     users?.data?.filter((u) =>
-      ["ADMIN", "MANAGER", "TELLICELSS"].includes(
-        u.role?.toUpperCase?.() ?? "",
-      ),
+      ["ADMIN", "STAFF", "SELLER"].includes(u.role?.toUpperCase?.() ?? ""),
     ) ?? [];
 
   const currentSellerName =
@@ -117,9 +100,9 @@ export function OrderRowActions({
     if (!selectedSellerId) return;
     setIsSaving(true);
     try {
-      await updateSeller({
+      await updateOrder({
         _id: order._id,
-        data: {seller: selectedSellerId},
+        data: { seller: selectedSellerId },
       }).unwrap();
       toast.success("Seller assigned successfully");
       refetch();
@@ -169,25 +152,21 @@ export function OrderRowActions({
           )}
 
           {/* Assign Seller */}
-          {order.isPublished && hasAccess && (
-            <>
-              <DropdownMenuItem
-                className="gap-2 text-sm cursor-pointer"
-                onClick={() => setSellerDialogOpen(true)}
-              >
-                <UserCog className="h-3.5 w-3.5 text-gray-500" />
-                <span className="flex-1">Assign Seller</span>
-                {currentSellerName && (
-                  <span className="truncate max-w-20 text-[10px] text-gray-400 dark:text-gray-500">
-                    {currentSellerName}
-                  </span>
-                )}
-              </DropdownMenuItem>
-            </>
-          )}
+          <DropdownMenuItem
+            className="gap-2 text-sm cursor-pointer"
+            onClick={() => setSellerDialogOpen(true)}
+          >
+            <UserCog className="h-3.5 w-3.5 text-gray-500" />
+            <span className="flex-1">Assign Seller</span>
+            {currentSellerName && (
+              <span className="truncate max-w-20 text-[10px] text-gray-400 dark:text-gray-500">
+                {currentSellerName}
+              </span>
+            )}
+          </DropdownMenuItem>
 
           {/* Confirm */}
-          {order.isPublished && hasAccess && isPending && onConfirm && (
+          {isPending && onConfirm && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -201,7 +180,7 @@ export function OrderRowActions({
           )}
 
           {/* Assign Courier */}
-          {order.isPublished && hasAccess && isConfirmed && !courier && onAssignCourier && (
+          {isConfirmed && !courier && onAssignCourier && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -215,7 +194,7 @@ export function OrderRowActions({
           )}
 
           {/* Mark as Completed */}
-          {order.isPublished && hasAccess && canComplete && onComplete && (
+          {canComplete && onComplete && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem

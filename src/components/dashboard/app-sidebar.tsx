@@ -13,26 +13,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 import { getSidebarData } from "@/utils/getSidebarData";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import logo from "../../../public/assets/FRN-Logo-scaled.webp";
+import logo from "../../../public/assets/FRN-Logo-scaled.webp"
+
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const { data, isLoading, isError } = useUserInfoQuery(undefined);
 
-  const { isMobile, setOpenMobile } = useSidebar();
-
-  const handleLinkClick = () => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
-  };
-
+  console.log({"user": data})
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
@@ -49,30 +42,23 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     );
   }
 
-  const role = data?.data?.role as
-    | "ADMIN"
-    | "MANAGER"
-    | "MODERATOR"
-    | "CUSTOMER"
-    | "TELLICELSS"
-    | "GENERALSTAFF"
+  const role = data?.data?.role as "ADMIN" | "MANAGER" | "MODERATOR" | "CUSTOMER";
   const sidebarData = getSidebarData(role);
 
   return (
     <Sidebar {...props}>
       <SidebarHeader className="ml-5">
-        <Link href="/" onClick={handleLinkClick}>
+        <Link href="/">
           <Image
-            src={logo}
+            src= {logo}
             alt="Farin Fusion Logo"
-            width={500}
-            height={500}
-            quality={90}
-            className="w-full h-14"
+            width={100}
+            height={100}
             priority
           />
         </Link>
       </SidebarHeader>
+
 
       <SidebarContent>
         {sidebarData?.map((section, sectionIndex) => (
@@ -85,24 +71,24 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton asChild>
                       <Link
                         href={item.url}
-                        onClick={handleLinkClick}
-                        className={`w-full flex items-center gap-2 text-sm transition-colors ${
-                          pathname === item.url
-                            ? "text-foreground bg-background font-semibold"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
+                        className={`w-full flex items-center gap-2 text-sm transition-colors ${pathname === item.url
+                          ? "text-foreground bg-background font-semibold"
+                          : "text-muted-foreground hover:text-foreground"
+                          }`}
                       >
-                        {item.icon && <item.icon className="w-4 h-4" />}
+                        {item.icon && <item.icon className="w-4 h-4" />} {/* Render icon */}
                         {item.title}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
       </SidebarContent>
+
 
       <SidebarRail />
     </Sidebar>

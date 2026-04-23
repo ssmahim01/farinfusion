@@ -152,19 +152,13 @@ export function MyOrderDetailModal({
   userRole,
   onEdit,
 }: MyOrderDetailModalProps) {
-  const orderStatus =
-    ORDER_STATUS_MAP[order?.orderStatus ?? "PENDING"] ??
-    ORDER_STATUS_MAP.PENDING;
-  const deliveryStatus =
-    DELIVERY_STATUS_MAP[order?.deliveryStatus ?? "NOT_SHIPPED"] ??
-    DELIVERY_STATUS_MAP.NOT_SHIPPED;
+  
+  const orderStatus = ORDER_STATUS_MAP[order?.orderStatus ?? "PENDING"] ?? ORDER_STATUS_MAP.PENDING;
+  const deliveryStatus = DELIVERY_STATUS_MAP[order?.deliveryStatus ?? "NOT_SHIPPED"] ?? DELIVERY_STATUS_MAP.NOT_SHIPPED;
   const StatusIcon = orderStatus.icon;
   const canEdit =
-    ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) &&
-    !order?.courierName;
-  const isConfirmed = order?.orderStatus === "CONFIRMED";
-  const moderatorEdit = ["MODERATOR"].includes(userRole) && !isConfirmed;
-  const canEditOrder = moderatorEdit && canEdit && !order?.courierName;
+  ["ADMIN", "MODERATOR", "MANAGER", "TELLICELSS"].includes(userRole) && !order?.courierName;
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -227,18 +221,9 @@ export function MyOrderDetailModal({
               <div className="mb-4 rounded-xl border border-amber-200/60 bg-amber-50/40 dark:border-amber-900/30 dark:bg-amber-900/10 p-4">
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    {
-                      label: "Subtotal",
-                      value: `৳${order.subTotal?.toFixed(2) ?? "0.00"}`,
-                    },
-                    {
-                      label: "Shipping",
-                      value: `৳${order.shippingCost?.toFixed(2) ?? "0.00"}`,
-                    },
-                    {
-                      label: "Discount",
-                      value: `-৳${order.discount?.toFixed(2) ?? "0.00"}`,
-                    },
+                    { label: "Subtotal", value: `৳${order.subTotal?.toFixed(2) ?? "0.00"}` },
+                    { label: "Shipping", value: `৳${order.shippingCost?.toFixed(2) ?? "0.00"}` },
+                    { label: "Discount", value: `-৳${order.discount?.toFixed(2) ?? "0.00"}` },
                   ].map((item) => (
                     <div key={item.label} className="text-center">
                       <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-600/70 dark:text-amber-500/70">
@@ -262,11 +247,7 @@ export function MyOrderDetailModal({
 
               {/* ── Info rows ── */}
               <div className="divide-y divide-gray-100 dark:divide-gray-800/60">
-                <InfoRow
-                  icon={Hash}
-                  label="Order ID"
-                  value={order.customOrderId ? `#${order.customOrderId}` : "—"}
-                />
+                <InfoRow icon={Hash} label="Order ID" value={order.customOrderId ? `#${order.customOrderId}` : "—"} />
                 <InfoRow
                   icon={CalendarDays}
                   label="Placed On"
@@ -282,26 +263,10 @@ export function MyOrderDetailModal({
                       : "—"
                   }
                 />
-                <InfoRow
-                  icon={User}
-                  label="Customer"
-                  value={order.billingDetails?.fullName}
-                />
-                <InfoRow
-                  icon={Mail}
-                  label="Email"
-                  value={order.billingDetails?.email}
-                />
-                <InfoRow
-                  icon={Phone}
-                  label="Phone"
-                  value={order.billingDetails?.phone}
-                />
-                <InfoRow
-                  icon={MapPin}
-                  label="Address"
-                  value={order.billingDetails?.address}
-                />
+                <InfoRow icon={User} label="Customer" value={order.billingDetails?.fullName} />
+                <InfoRow icon={Mail} label="Email" value={order.billingDetails?.email} />
+                <InfoRow icon={Phone} label="Phone" value={order.billingDetails?.phone} />
+                <InfoRow icon={MapPin} label="Address" value={order.billingDetails?.address} />
                 <InfoRow
                   icon={CreditCard}
                   label="Payment"
@@ -390,10 +355,7 @@ export function MyOrderDetailModal({
                           </p>
                         </div>
                         <p className="shrink-0 text-sm font-bold tabular-nums text-amber-600 dark:text-amber-400">
-                          ৳
-                          {((item.price ?? 0) * (item.quantity ?? 1)).toFixed(
-                            2,
-                          )}
+                          ৳{((item.price ?? 0) * (item.quantity ?? 1)).toFixed(2)}
                         </p>
                       </div>
                     ))}
@@ -411,7 +373,7 @@ export function MyOrderDetailModal({
               Close
             </Button>
           </DialogClose>
-          {canEditOrder && canEdit && onEdit && order && (
+          {canEdit && onEdit && order && (
             <button
               onClick={() => {
                 onOpenChange(false);
