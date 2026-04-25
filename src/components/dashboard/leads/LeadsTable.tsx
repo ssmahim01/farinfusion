@@ -27,6 +27,7 @@ import {
   AlertCircle,
   CheckCircle2,
   UserCheck,
+  Check,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -53,6 +54,7 @@ import TablePagination from "@/components/shared/TablePagination";
 import LeadAddedModal from "@/components/dashboard/leads/LeadAddedModal";
 import { cn } from "@/lib/utils";
 import DateFilter from "@/components/shared/DateFilter";
+import FraudCheckModal from "./FraudCheckModal";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   NEW: {
@@ -160,6 +162,11 @@ const LeadsTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [sort, setSort] = React.useState("");
   const [page, setPage] = React.useState(1);
+  const [fraudModal, setFraudModal] = useState({
+    open: false,
+    phone: "",
+  });
+
   const limit = 10;
 
   const [dateRange, setDateRange] = React.useState<{
@@ -561,6 +568,18 @@ const LeadsTable: React.FC = () => {
                                 >
                                   <PencilIcon className="h-3.5 w-3.5" /> Edit
                                 </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  className="gap-2 text-sm"
+                                  onClick={() => {
+                                    setFraudModal({
+                                      open: true,
+                                      phone: item?.phone,
+                                    });
+                                  }}
+                                >
+                                  <Check className="h-3.5 w-3.5" /> Fraud Check
+                                </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                   className="gap-2 text-sm text-red-500 focus:text-red-500 dark:text-red-400"
@@ -602,6 +621,12 @@ const LeadsTable: React.FC = () => {
         leadId={leadID}
       />
       <LeadAddedModal open={addModalOpen} onOpenChange={setAddModalOpen} />
+
+      <FraudCheckModal
+        open={fraudModal.open}
+        defaultPhone={fraudModal.phone}
+        onClose={() => setFraudModal({ open: false, phone: "" })}
+      />
 
       <DeleteAlert
         open={alertOpen}
