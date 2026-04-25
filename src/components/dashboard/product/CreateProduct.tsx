@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -50,7 +51,7 @@ const schema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
   brand: z.string().min(1, "Brand is required"),
   category: z.string().min(1, "Category is required"),
-  buyingPrice: z.preprocess((val) => Number(val), z.number().min(0)),
+  buyingPrice: z.preprocess((val) => Number(val), z.number().optional()),
   price: z.preprocess((val) => Number(val), z.number().min(0)),
   availableStock: z.preprocess((val) => Number(val), z.number().min(0)),
   discountPrice: z.preprocess(
@@ -145,11 +146,11 @@ export default function CreateProduct() {
         discountPrice: data.discountPrice,
         status: data.status,
         description: data.description,
+        images: imageUrls
       };
 
       if (role !== "MANAGER") {
         payloadData.buyingPrice = data.buyingPrice;
-        payloadData.images = imageUrls;
       }
 
       formData.append("data", JSON.stringify(payloadData));

@@ -196,11 +196,11 @@ const UpdateProduct = () => {
         status: data.status,
         description: data.description,
         isCusFavorite: data.isCusFavorite === "true",
+        images: allImages
       };
 
       if (role !== "MANAGER") {
         payloadData.buyingPrice = data.buyingPrice;
-        payloadData.images = allImages;
       }
 
       formData.append("data", JSON.stringify(payloadData));

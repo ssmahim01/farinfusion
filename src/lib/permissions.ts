@@ -1,17 +1,11 @@
 export type PageAccess =
   | "dashboard"
   | "my-orders"
-  | "analytics"
   | "user-management"
   | "staff-management"
   | "product-management"
   | "category-management"
   | "brand-management"
-  | "inventory"
-  | "promotions"
-  | "reports"
-  | "settings"
-  | "profile"
   | "coupons"
   | "customer-management"
   | "my-customers"
@@ -19,7 +13,12 @@ export type PageAccess =
   | "leads"
   | "pos";
 
-export type UserRole = "ADMIN" | "MANAGER" | "MODERATOR" | "CUSTOMER" | "TELLICELSS";
+export type UserRole =
+  | "ADMIN"
+  | "MANAGER"
+  | "MODERATOR"
+  | "CUSTOMER"
+  | "TELLICELSS";
 
 export interface UserPermissions {
   role: UserRole;
@@ -48,31 +47,23 @@ export const defaultRolePermissions: Record<UserRole, PageAccess[]> = {
     "dashboard",
     "product-management",
     "category-management",
-    "inventory",
     "coupons",
     "orders-management",
     "leads",
     "my-orders",
     "pos",
   ],
-    TELLICELSS: [
+  TELLICELSS: [
     "dashboard",
     "product-management",
     "category-management",
-    "inventory",
     "coupons",
     "orders-management",
     "leads",
     "my-orders",
     "pos",
   ],
-  MODERATOR: [
-    "dashboard",
-    "product-management",
-    "inventory",
-    "my-orders",
-    "leads",
-  ],
+  MODERATOR: ["dashboard", "product-management", "my-orders", "leads"],
   CUSTOMER: ["dashboard", "my-orders"],
 };
 
@@ -91,13 +82,8 @@ export const availablePages: { id: PageAccess; label: string; icon: string }[] =
     { id: "leads", label: "Leads", icon: "🎯" },
     { id: "my-orders", label: "My Orders", icon: "📋" },
     { id: "pos", label: "POS", icon: "🛒" },
-    { id: "analytics", label: "Analytics", icon: "📈" },
-    { id: "reports", label: "Reports", icon: "📊" },
-    { id: "settings", label: "Settings", icon: "⚙️" },
-    { id: "inventory", label: "Inventory", icon: "📦" },
-    { id: "promotions", label: "Promotions", icon: "🎉" },
+
     { id: "user-management", label: "User Management", icon: "🔐" },
-    { id: "profile", label: "Profile", icon: "👤" },
   ];
 
 export const hasPageAccess = (
