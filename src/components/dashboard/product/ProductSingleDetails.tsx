@@ -49,7 +49,7 @@ export default function ProductSingleDetails() {
 
   const product: any = data?.data;
 
-  // console.log(product);
+  console.log(product);
 
   return (
     <div className="p-6 space-y-6">
@@ -115,7 +115,9 @@ export default function ProductSingleDetails() {
 
               <div>
                 <p className="text-sm text-muted-foreground">Regular Price</p>
-                <p className="text-xl line-through text-gray-400">
+                <p
+                  className={`text-xl ${product?.discountPrice === 0 ? "" : "line-through"} text-gray-400`}
+                >
                   ৳ {product?.price || 0}
                 </p>
               </div>

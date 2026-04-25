@@ -87,7 +87,7 @@ const socials = [
 ───────────────────────────────────────── */
 const FarinFusionFooter= () => {
     return (
-        <footer className="w-full primaryDark text-white mt-5">
+        <footer className="w-full primaryDark text-white">
             {/* ── Main Footer ─────────────────────── */}
             <div className=" container mx-auto px-4 ">
                 {/* ── Service Strip ───────────────────── */}

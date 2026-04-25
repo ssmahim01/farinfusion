@@ -895,10 +895,17 @@ export default function ProductManagement() {
               </thead>
               <tbody>
                 {products.map((product, idx) => {
-                  const sellPrice = product.discountPrice ?? product.price;
+                  // const sellPrice = product.discountPrice ?? product.price;
+                  const sellPrice =
+                    product.discountPrice && product.discountPrice > 0
+                      ? product.discountPrice
+                      : product.price;
+                  // const hasDiscount =
+                  //   !!product.discountPrice &&
+                  //   product.discountPrice < product.price;
                   const hasDiscount =
-                    !!product.discountPrice &&
-                    product.discountPrice < product.price;
+                    (product?.discountPrice as number) > 0 &&
+                    (product?.discountPrice as number) < product.price;
                   return (
                     <tr
                       key={product._id as string}
@@ -955,6 +962,7 @@ export default function ProductManagement() {
                           <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-50">
                             ৳{sellPrice?.toLocaleString()}
                           </span>
+
                           {hasDiscount && (
                             <span className="text-[10px] tabular-nums text-gray-400 line-through">
                               ৳{product.price?.toLocaleString()}
@@ -962,6 +970,7 @@ export default function ProductManagement() {
                           )}
                         </div>
                       </td>
+
                       {/* Buying */}
                       <td className="px-3 py-3 text-right hidden lg:table-cell">
                         <span className="text-xs tabular-nums font-medium text-gray-500 dark:text-gray-400">
