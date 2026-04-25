@@ -57,7 +57,7 @@ export default function FraudCheckModal({
   };
 
   const fraudData = data?.data as FraudData | undefined;
-
+  
   // Prepare chart data
   const chartData = fraudData
     ? [
