@@ -47,12 +47,7 @@ const iconMap: Record<PageAccess, React.ReactNode> = {
   coupons: <Ticket className="h-5 w-5" />,
   leads: <Target className="h-5 w-5" />,
   pos: <Store className="h-5 w-5" />,
-  analytics: undefined,
-  inventory: undefined,
-  promotions: undefined,
-  reports: undefined,
-  settings: undefined,
-  profile: undefined
+ 
 };
 
 const pageHrefMap: Record<any, string> = {
