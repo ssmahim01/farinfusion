@@ -28,6 +28,10 @@ export interface CreateCouponPayload {
   usageLimit?: number;
 }
 
+export interface UpdateCouponPayload extends CreateCouponPayload {
+  isActive?: boolean;
+}
+
 export interface ApplyCouponPayload {
   code: string;
   total: number;
@@ -54,7 +58,7 @@ export interface GetCouponsResponse {
 export interface GetCouponsQueryParams {
   page?: number;
   limit?: number;
-  search?: string;
+  searchTerm?: string;
   sort?: string;
   isActive?: boolean;
 }
@@ -69,6 +73,29 @@ export const couponApi = baseApi.injectEndpoints({
         url: "/coupon/create",
         method: "POST",
         data: body,
+      }),
+      invalidatesTags: ["COUPONS"],
+    }),
+
+    updateCoupon: builder.mutation<
+      { success: boolean; data: ICoupon },
+      { id: string } & UpdateCouponPayload
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/coupon/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: ["COUPONS"],
+    }),
+
+    deleteCoupon: builder.mutation<
+      { success: boolean; message: string },
+      { id: string }
+    >({
+      query: ({ id }) => ({
+        url: `/coupon/${id}`,
+        method: "DELETE",
       }),
       invalidatesTags: ["COUPONS"],
     }),
@@ -98,6 +125,8 @@ export const couponApi = baseApi.injectEndpoints({
 
 export const {
   useCreateCouponMutation,
+  useUpdateCouponMutation,
+  useDeleteCouponMutation,
   useApplyCouponMutation,
   useGetAllCouponsQuery,
 } = couponApi;

@@ -20,6 +20,8 @@ import {
   ShoppingBag,
   AlertTriangle,
   Package,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -41,10 +43,15 @@ import {
 } from "@/components/ui/pagination";
 import {
   useGetAllCouponsQuery,
+  useUpdateCouponMutation,
+  useDeleteCouponMutation,
   type ICoupon,
 } from "@/redux/features/coupon/coupon.api";
 import { CreateCouponModal } from "./CreateCouponModal";
+import { EditCouponModal, type EditCouponFormData } from "./EditCouponModal";
+import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const LIMIT = 10;
 
@@ -159,6 +166,12 @@ export default function CouponManagement() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<ICoupon | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const [updateCoupon, { isLoading: isUpdating }] = useUpdateCouponMutation();
+  const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation();
 
   const { data, isLoading, isError, refetch } = useGetAllCouponsQuery({
     page,
@@ -211,6 +224,49 @@ export default function CouponManagement() {
     setSearch("");
     setStatusFilter("");
     setPage(1);
+  };
+
+  const handleEditClick = (coupon: ICoupon) => {
+    setSelectedCoupon(coupon);
+    setEditOpen(true);
+  };
+
+  const handleDeleteClick = (coupon: ICoupon) => {
+    setSelectedCoupon(coupon);
+    setDeleteOpen(true);
+  };
+
+  const handleEditSubmit = async (formData: EditCouponFormData) => {
+    if (!selectedCoupon) return;
+    try {
+      const result = await updateCoupon({
+        id: selectedCoupon._id,
+        ...formData,
+      }).unwrap();
+      if (result.success) {
+        toast.success("Coupon updated successfully!");
+        refetch();
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update coupon");
+      console.error("[v0] Update coupon error:", error);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedCoupon) return;
+    try {
+      const result = await deleteCoupon({
+        id: selectedCoupon._id,
+      }).unwrap();
+      if (result.success) {
+        toast.success("Coupon deleted successfully!");
+        refetch();
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to delete coupon");
+      console.error("[v0] Delete coupon error:", error);
+    }
   };
 
   const hasFilters = !!search || !!statusFilter;
@@ -452,6 +508,7 @@ export default function CouponManagement() {
                     { label: "Usage", cls: "text-center" },
                     { label: "Expiry", cls: "hidden md:table-cell" },
                     { label: "Status", cls: "hidden sm:table-cell" },
+                    { label: "Actions", cls: "text-center pr-5 min-w-[120px]" },
                   ].map((col) => (
                     <th
                       key={col.label}
@@ -640,6 +697,26 @@ export default function CouponManagement() {
                           </Badge>
                         )}
                       </td>
+
+                      {/* Actions */}
+                      <td className="px-3 py-3.5 text-center pr-5">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => handleEditClick(coupon)}
+                            title="Edit coupon"
+                            className="group relative p-2 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors hover:shadow-sm active:scale-90"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(coupon)}
+                            title="Delete coupon"
+                            className="group relative p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors hover:shadow-sm active:scale-90"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}
@@ -734,6 +811,22 @@ export default function CouponManagement() {
         open={createOpen}
         onOpenChange={setCreateOpen}
         onSuccess={refetch}
+      />
+
+      <EditCouponModal
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        coupon={selectedCoupon}
+        isLoading={isUpdating}
+        onSubmit={handleEditSubmit}
+      />
+
+      <DeleteConfirmationModal
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        coupon={selectedCoupon}
+        isLoading={isDeleting}
+        onConfirm={handleDeleteConfirm}
       />
     </div>
   );
