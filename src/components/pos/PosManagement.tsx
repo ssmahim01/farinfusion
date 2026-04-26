@@ -16,6 +16,7 @@ import { useGetMeQuery } from "@/redux/features/user/user.api";
 import { useGetAllCategoriesQuery } from "@/redux/features/category/category.api";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export default function POSManagement() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -36,7 +37,7 @@ export default function POSManagement() {
     data: productsData,
     isLoading: isLoadingProducts,
     refetch,
-  } = useGetAllProductsQuery({});
+  } = useGetAllProductsQuery({ limit: 500 });
   const { data: categoriesData } = useGetAllCategoriesQuery({});
 
   const [createOrder, { isLoading: isCreatingOrder }] =
@@ -319,6 +320,7 @@ export default function POSManagement() {
                 )}
               </div>
             ) : (
+                <ScrollArea className="max-h-[60vh]">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {filteredProducts.map((product) => (
                   <POSProductListCard
@@ -329,6 +331,8 @@ export default function POSManagement() {
                   />
                 ))}
               </div>
+                <ScrollBar orientation="vertical" />
+                </ScrollArea>
             )}
           </div>
         </div>
