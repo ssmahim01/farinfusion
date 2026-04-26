@@ -249,7 +249,7 @@ export default function CouponManagement() {
       }
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to update coupon");
-      console.error("[v0] Update coupon error:", error);
+      console.error("Update coupon error:", error);
     }
   };
 
@@ -265,7 +265,7 @@ export default function CouponManagement() {
       }
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to delete coupon");
-      console.error("[v0] Delete coupon error:", error);
+      console.error("Delete coupon error:", error);
     }
   };
 

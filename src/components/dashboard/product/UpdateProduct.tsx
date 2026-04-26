@@ -54,7 +54,10 @@ const schema = z.object({
   title: z.string().min(2),
   brand: z.string(),
   category: z.string(),
-  buyingPrice: z.preprocess((v) => Number(v), z.number()),
+  buyingPrice: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
+    z.number().optional(),
+  ),
   price: z.preprocess((v) => Number(v), z.number()),
   totalAddedStock: z.preprocess((v) => Number(v), z.number()),
   discountPrice: z.preprocess(
@@ -65,7 +68,6 @@ const schema = z.object({
   description: z.string(),
   images: z.any().optional(),
   isCusFavorite: z.enum(["true", "false"]),
-
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -106,8 +108,9 @@ const UpdateProduct = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const getId = (val: string | { _id?: string; slug?: string; title?: string }) =>
-    typeof val === "string" ? val : (val._id || val.slug || "");
+  const getId = (
+    val: string | { _id?: string; slug?: string; title?: string },
+  ) => (typeof val === "string" ? val : val._id || val.slug || "");
 
   useEffect(() => {
     if (productData?.data) {
@@ -196,10 +199,10 @@ const UpdateProduct = () => {
         status: data.status,
         description: data.description,
         isCusFavorite: data.isCusFavorite === "true",
-        images: allImages
+        images: allImages,
       };
 
-      if (role !== "MANAGER") {
+      if (role !== "MANAGER" && data.buyingPrice !== undefined) {
         payloadData.buyingPrice = data.buyingPrice;
       }
 

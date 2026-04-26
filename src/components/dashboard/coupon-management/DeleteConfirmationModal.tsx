@@ -32,7 +32,7 @@ export function DeleteConfirmationModal({
       await onConfirm();
       onOpenChange(false);
     } catch (error) {
-      console.error("[v0] Delete coupon error:", error);
+      console.error("Delete coupon error:", error);
     }
   };
 

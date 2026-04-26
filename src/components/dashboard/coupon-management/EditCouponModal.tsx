@@ -98,7 +98,7 @@ export function EditCouponModal({
       await onSubmit(formData);
       onOpenChange(false);
     } catch (error) {
-      console.error("[v0] Edit coupon error:", error);
+      console.error("Edit coupon error:", error);
     }
   };
 
