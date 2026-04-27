@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
@@ -8,7 +9,7 @@ import { logoutUser } from "@/utils/logoutUser";
 type User = {
   _id: string;
   email: string;
-  role: "CUSTOMER" | "MODERATOR" | "MANAGER" | "ADMIN";
+  role: "CUSTOMER" | "MODERATOR" | "MANAGER" | "ADMIN" | "TELLICELSS";
 };
 
 type UserContextType = {
@@ -23,7 +24,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 page reload / route change handler
   useEffect(() => {
     const hydrateUser = async () => {
       const currentUser = await getCurrentUser();
@@ -33,11 +33,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     hydrateUser();
   }, []);
 
-
   const login = (userData: any) => setUser(userData);
   const logout = async () => {
     await logoutUser();
     setUser(null);
+    window.location.href = "/";
   };
 
   return (

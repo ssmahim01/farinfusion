@@ -17,17 +17,25 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import type { UserRole } from "@/lib/permissions";
 import { buildSidebarItems } from "./user/buildSidebar";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { useUser } from "@/context/UserContext";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const { data, isLoading, isError } = useUserInfoQuery(undefined);
 
   const { isMobile, setOpenMobile } = useSidebar();
+  const { user, logout } = useUser();
+  const router = useRouter();
+
+  const handleLogOut = async () => {
+    await logout();
+    if (!user) router.push("/");
+  };
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -98,7 +106,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       >
                         {item.href === "#logout" ? (
                           <button
-                            onClick={handleLinkClick}
+                            onClick={handleLogOut}
                             className="w-full flex items-center gap-2"
                             type="button"
                             title={item.description}
