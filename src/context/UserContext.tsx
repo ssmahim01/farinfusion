@@ -38,6 +38,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     await logoutUser();
     setUser(null);
     window.location.replace("/");
+    window.location.reload();
   };
 
   return (
