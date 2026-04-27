@@ -36,8 +36,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const login = (userData: any) => setUser(userData);
   const logout = async () => {
     await logoutUser();
-    setUser(null);
-    window.location.href = "/";
+    setUser(null);    
   };
 
   return (
