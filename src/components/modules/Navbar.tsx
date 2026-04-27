@@ -80,14 +80,6 @@ const Navbar: FC = () => {
     setSearchOpen(false);
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (!user) {
-        window.location.reload();
-      }
-    }, 1000);
-  }, [user]);
-
   return (
     <>
       {/* Header Bar */}
