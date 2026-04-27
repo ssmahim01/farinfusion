@@ -85,7 +85,7 @@ const Navbar: FC = () => {
       if (!user) {
         window.location.reload();
       }
-    }, 100);
+    }, 1000);
   }, [user]);
 
   return (
