@@ -292,11 +292,11 @@ export function MyOrdersTable({
                   {order.orderStatus === "CONFIRMED" && !courier ? (
                     <span className="text-xs text-yellow-600 flex items-center gap-1">
                       <Truck size={12} className="animate-pulse" />
-                      Assigning courier...
+                      Not assigned...
                     </span>
-                  ) : courier?.deliveryStatus ? (
+                  ) : order?.deliveryStatus ? (
                     <OrderStatusBadge
-                      status={courier.deliveryStatus}
+                      status={order?.deliveryStatus}
                       type="delivery"
                     />
                   ) : (
@@ -311,7 +311,7 @@ export function MyOrdersTable({
                     </div>
                   ) : order.orderStatus === "CONFIRMED" ? (
                     <span className="text-xs text-yellow-600">
-                      Assigning...
+                      Not assigned...
                     </span>
                   ) : (
                     <span className="text-xs text-muted-foreground">-</span>

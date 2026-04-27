@@ -163,28 +163,51 @@ export function OrderTable({
                 </TableCell>
                 <TableCell>
                   {order.orderStatus === "CONFIRMED" && !courier ? (
-                    <span className="text-xs text-yellow-600 flex items-center gap-1">
-                      <Truck size={12} className="animate-pulse" />
-                      Assigning courier...
-                    </span>
-                  ) : courier?.deliveryStatus ? (
-                    <OrderStatusBadge
-                      status={courier.deliveryStatus}
-                      type="delivery"
-                    />
+                    <div className="flex items-center gap-1.5 bg-yellow-50 dark:bg-yellow-900/20 px-2.5 py-1.5 rounded-lg text-xs font-medium text-yellow-700 dark:text-yellow-300 w-fit">
+                      <Truck size={13} className="animate-pulse" />
+                      Not Assigned...
+                    </div>
+                  ) : order?.deliveryStatus ? (
+                    <div className="space-y-1">
+                      <OrderStatusBadge
+                        status={order?.deliveryStatus}
+                        type="delivery"
+                      />
+                      {courier?.estimatedDelivery && (
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                          Est:{" "}
+                          {new Date(
+                            courier?.estimatedDelivery,
+                          ).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
                   ) : (
-                    "-"
+                    <span className="text-xs text-muted-foreground">-</span>
                   )}
                 </TableCell>
                 <TableCell>
-                  {courier ? (
-                    <div className="flex items-center gap-1 text-xs text-blue-600">
-                      <Truck size={14} />
-                      {courier.courierName}
+                  {courier?.courierName ? (
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1.5 rounded-lg">
+                        <Truck
+                          size={14}
+                          className="text-blue-600 dark:text-blue-400"
+                        />
+                        <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                          {courier.courierName}
+                        </span>
+                      </div>
+                      {courier.trackingNumber && (
+                        <span className="text-[10px] text-gray-500 dark:text-gray-400 font-mono">
+                          {courier.trackingNumber}
+                        </span>
+                      )}
                     </div>
                   ) : order.orderStatus === "CONFIRMED" ? (
-                    <span className="text-xs text-yellow-600">
-                      Assigning...
+                    <span className="inline-flex items-center gap-1.5 text-xs text-yellow-600 dark:text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 px-2.5 py-1.5 rounded-lg font-medium">
+                      <span className="h-1.5 w-1.5 bg-yellow-500 rounded-full animate-pulse" />
+                      Not assigned...
                     </span>
                   ) : (
                     <span className="text-xs text-muted-foreground">-</span>

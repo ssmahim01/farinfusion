@@ -28,6 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Link from "next/link";
 
 function IconButton({
   label,
@@ -302,7 +303,7 @@ export function CustomerFavoriteProductCard({
   };
 
   return (
-    <>
+    <Link href={`/product/${product?.slug}`}>
       <div
         className="group bg-white h-full rounded-xl border border-gray-200 overflow-hidden flex flex-col shadow-sm cursor-pointer"
         onMouseEnter={() => setHovered(true)}
@@ -434,6 +435,6 @@ export function CustomerFavoriteProductCard({
         onClose={() => setModalOpen(false)}
         onAddToCart={handleAddToCart}
       />
-    </>
+    </Link>
   );
 }
