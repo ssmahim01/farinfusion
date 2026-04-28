@@ -16,15 +16,22 @@ export function POSProductListCard({
   onAddToCart,
   isLoading = false,
 }: POSProductListCardProps) {
-  const displayPrice = product.discountPrice ?? product.price;
+  // const displayPrice = product.discountPrice ?? product.price;
+  const displayPrice =
+    product.discountPrice && product.discountPrice > 0
+      ? product.discountPrice
+      : product.price;
+
   const hasDiscount =
-    product.discountPrice != null && product.discountPrice < product.price;
+    (product?.discountPrice as number) > 0 &&
+    (product?.discountPrice as number) < product.price;
+
   const discountPercent = hasDiscount
     ? Math.round(
-        (((product.price ?? 0) - (product.discountPrice ?? 0)) /
-          (product.price ?? 0)) *
-          100,
-      )
+      (((product.price ?? 0) - (product.discountPrice ?? 0)) /
+        (product.price ?? 0)) *
+      100,
+    )
     : 0;
 
   const isOutOfStock = (product.availableStock ?? 0) === 0;
@@ -45,13 +52,13 @@ export function POSProductListCard({
         isOutOfStock || isLoading
           ? "opacity-60 cursor-not-allowed border-gray-200 dark:border-gray-800"
           : [
-              "cursor-[url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"11\" fill=\"%230f172a\" opacity=\"0.85\"/><line x1=\"12\" y1=\"7\" x2=\"12\" y2=\"17\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\"/><line x1=\"7\" y1=\"12\" x2=\"17\" y2=\"12\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>'),_pointer]",
-              "border-gray-200 dark:border-gray-700/60",
-              "hover:border-blue-400 dark:hover:border-blue-500",
-              "hover:shadow-[0_0_0_1px_var(--color-blue-400)] dark:hover:shadow-[0_0_0_1px_var(--color-blue-500)]",
-              "active:scale-[0.992] active:shadow-none",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
-            ],
+            "cursor-[url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"11\" fill=\"%230f172a\" opacity=\"0.85\"/><line x1=\"12\" y1=\"7\" x2=\"12\" y2=\"17\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\"/><line x1=\"7\" y1=\"12\" x2=\"17\" y2=\"12\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>'),_pointer]",
+            "border-gray-200 dark:border-gray-700/60",
+            "hover:border-blue-400 dark:hover:border-blue-500",
+            "hover:shadow-[0_0_0_1px_var(--color-blue-400)] dark:hover:shadow-[0_0_0_1px_var(--color-blue-500)]",
+            "active:scale-[0.992] active:shadow-none",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
+          ],
       )}
     >
       {/* ── Left: Image ── */}
@@ -128,14 +135,16 @@ export function POSProductListCard({
 
       <div className="flex shrink-0 flex-col items-end justify-center gap-2 pr-3 sm:pr-4">
         {/* Price stack */}
-        <div className="text-right pt-2">
-          <p className="text-base font-bold tabular-nums leading-none text-gray-900 dark:text-gray-50 sm:text-[17px]">
-            ৳{displayPrice.toFixed(2)}
-          </p>
+    
+        <div className="flex flex-col items-end">
+          <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-50">
+            ৳{displayPrice?.toLocaleString()}
+          </span>
+
           {hasDiscount && (
-            <p className="mt-0.5 text-xs tabular-nums text-gray-400 line-through dark:text-gray-500">
-              ৳{product.price.toFixed(2)}
-            </p>
+            <span className="text-[10px] tabular-nums text-gray-400 line-through">
+              ৳{product.price?.toLocaleString()}
+            </span>
           )}
         </div>
 

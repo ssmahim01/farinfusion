@@ -14,23 +14,24 @@ import {
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { LogOut, User, User2 } from "lucide-react"
-import { logoutUser } from "@/utils/logoutUser"
 import { useGetMeQuery } from "@/redux/features/user/user.api"
 import { ProfileAvatar } from "./ProfileAvatar"
 import React from "react";
-import {IUser} from "@/types";
+import { IUser } from "@/types";
 import UserDetailsModal from "@/components/dashboard/user/UserDetailsModal";
+import { useUser } from "@/context/UserContext"
 
 export function ProfileDropdown() {
   const [selectedUser, setSelectedUser] = React.useState<IUser | null>(null);
   const [openViewModal, setOpenViewModal] = React.useState(false);
+  const { logout } = useUser();
 
-  const {data} = useGetMeQuery(undefined)
+  const { data } = useGetMeQuery(undefined)
 
   const router = useRouter()
 
   const handleLogout = async () => {
-    await logoutUser()
+    await logout();
     toast.success("Logout successful")
     router.push("/")
 
@@ -45,7 +46,7 @@ export function ProfileDropdown() {
           variant="outline"
           className="p-0 rounded-full h-10 w-10 flex items-center justify-center"
         >
-         <ProfileAvatar />
+          <ProfileAvatar />
         </Button>
       </DropdownMenuTrigger>
 
@@ -61,19 +62,17 @@ export function ProfileDropdown() {
           {/*  </Link>*/}
           {/*</DropdownMenuItem>*/}
           <DropdownMenuItem
-              onClick={() => {
-                const role = data?.data?.role;
+            onClick={() => {
+              const role = data?.data?.role;
 
-                if (role === "ADMIN" || role === "MANAGER" || role === "MODERATOR") {
-                  // staff হলে modal open
-                  setSelectedUser(data?.data || null);
-                  setOpenViewModal(true);
-                } else {
-                  // customer হলে অন্য কিছু করতে পারো (optional)
-                  setSelectedUser(data?.data || null);
-                  setOpenViewModal(true);
-                }
-              }}
+              if (role === "ADMIN" || role === "MANAGER" || role === "MODERATOR") {
+                setSelectedUser(data?.data || null);
+                setOpenViewModal(true);
+              } else {
+                setSelectedUser(data?.data || null);
+                setOpenViewModal(true);
+              }
+            }}
           >
             <User2 />
             Profile
@@ -85,7 +84,7 @@ export function ProfileDropdown() {
 
         <DropdownMenuItem disabled>
           <User />
-         {data?.data?.role}
+          {data?.data?.role}
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleLogout}>
@@ -96,11 +95,11 @@ export function ProfileDropdown() {
       </DropdownMenuContent>
 
       {selectedUser && (
-          <UserDetailsModal
-              open={openViewModal}
-              onOpenChange={setOpenViewModal}
-              user={selectedUser}
-          />
+        <UserDetailsModal
+          open={openViewModal}
+          onOpenChange={setOpenViewModal}
+          user={selectedUser}
+        />
       )}
     </DropdownMenu>
   )
