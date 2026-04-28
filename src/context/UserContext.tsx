@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
@@ -9,7 +8,7 @@ import { logoutUser } from "@/utils/logoutUser";
 type User = {
   _id: string;
   email: string;
-  role: "CUSTOMER" | "MODERATOR" | "MANAGER" | "ADMIN" | "TELLICELSS";
+  role: "CUSTOMER" | "MODERATOR" | "MANAGER" | "ADMIN";
 };
 
 type UserContextType = {
@@ -33,12 +32,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     hydrateUser();
   }, []);
 
+
   const login = (userData: any) => setUser(userData);
   const logout = async () => {
     await logoutUser();
     setUser(null);
-    window.location.replace("/");
-    window.location.reload();
   };
 
   return (
